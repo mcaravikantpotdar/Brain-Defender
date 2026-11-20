@@ -1,8 +1,14 @@
 {
   "meta": {
+    "title": "Brain Defender Question Bank",
     "board": "HPBOSE",
-    "version": "2.1.0",
     "classes": [6, 7, 8, 9, 10],
+    "difficultyTiers": {
+      "1": "Super Easy",
+      "2": "Foundation",
+      "3": "Challenge",
+      "4": "Master / Boss"
+    },
     "subjects": ["maths", "science", "grammar", "gk", "moral"]
   },
   "questions": [
@@ -11,19 +17,37 @@
       "class": 6,
       "subject": "maths",
       "difficulty": 1,
-      "isLanguageSpecific": false,
       "prompt": {
-        "en": "What is 15 + 24?",
-        "hi": "15 + 24 कितना होता है?"
+        "en": "What is 14 + 19?",
+        "hi": "14 + 19 कितना होता है?"
       },
       "options": {
-        "en": ["39", "38", "41", "35"],
-        "hi": ["39", "38", "41", "35"]
+        "en": ["33", "32", "35", "29"],
+        "hi": ["33", "32", "35", "29"]
       },
       "answerIndex": 0,
       "explanation": {
-        "en": "15 + 24 = 39.",
-        "hi": "15 + 24 = 39 होता है।"
+        "en": "14 + 19 = 33.",
+        "hi": "14 + 19 = 33 होता है।"
+      }
+    },
+    {
+      "id": "M06-T1-02",
+      "class": 6,
+      "subject": "maths",
+      "difficulty": 1,
+      "prompt": {
+        "en": "How many sides does a pentagon have?",
+        "hi": "पंचभुज (Pentagon) की कितनी भुजाएँ होती हैं?"
+      },
+      "options": {
+        "en": ["5", "4", "6", "8"],
+        "hi": ["5", "4", "6", "8"]
+      },
+      "answerIndex": 0,
+      "explanation": {
+        "en": "A pentagon has 5 straight sides.",
+        "hi": "पंचभुज में 5 भुजाएँ होती हैं।"
       }
     },
     {
@@ -31,19 +55,37 @@
       "class": 7,
       "subject": "maths",
       "difficulty": 1,
-      "isLanguageSpecific": false,
       "prompt": {
-        "en": "What is (-6) + 10?",
-        "hi": "(-6) + 10 का मान क्या है?"
+        "en": "What is (-5) + 12?",
+        "hi": "(-5) + 12 का मान क्या है?"
       },
       "options": {
-        "en": ["4", "-4", "16", "-16"],
-        "hi": ["4", "-4", "16", "-16"]
+        "en": ["7", "-7", "17", "-17"],
+        "hi": ["7", "-7", "17", "-17"]
       },
       "answerIndex": 0,
       "explanation": {
-        "en": "10 - 6 = 4.",
-        "hi": "10 में से 6 घटाने पर 4 आता है।"
+        "en": "12 - 5 = 7.",
+        "hi": "12 में से 5 घटाने पर 7 प्राप्त होता है।"
+      }
+    },
+    {
+      "id": "M07-T2-01",
+      "class": 7,
+      "subject": "maths",
+      "difficulty": 2,
+      "prompt": {
+        "en": "What is 1/2 of 48?",
+        "hi": "48 का 1/2 (आधा) कितना है?"
+      },
+      "options": {
+        "en": ["24", "16", "36", "96"],
+        "hi": ["24", "16", "36", "96"]
+      },
+      "answerIndex": 0,
+      "explanation": {
+        "en": "48 ÷ 2 = 24.",
+        "hi": "48 ÷ 2 = 24।"
       }
     },
     {
@@ -51,59 +93,18 @@
       "class": 8,
       "subject": "maths",
       "difficulty": 1,
-      "isLanguageSpecific": false,
       "prompt": {
-        "en": "What is the square of 9?",
-        "hi": "9 का वर्ग (Square) क्या है?"
+        "en": "What is the square of 8?",
+        "hi": "8 का वर्ग (Square) क्या है?"
       },
       "options": {
-        "en": ["81", "18", "72", "90"],
-        "hi": ["81", "18", "72", "90"]
+        "en": ["64", "16", "56", "72"],
+        "hi": ["64", "16", "56", "72"]
       },
       "answerIndex": 0,
       "explanation": {
-        "en": "9 × 9 = 81.",
-        "hi": "9 × 9 = 81।"
-      }
-    },
-    {
-      "id": "M09-T1-01",
-      "class": 9,
-      "subject": "maths",
-      "difficulty": 1,
-      "isLanguageSpecific": false,
-      "prompt": {
-        "en": "What is 2³ × 2²?",
-        "hi": "2³ × 2² का मान क्या है?"
-      },
-      "options": {
-        "en": ["32", "64", "16", "12"],
-        "hi": ["32", "64", "16", "12"]
-      },
-      "answerIndex": 0,
-      "explanation": {
-        "en": "2³ × 2² = 2⁵ = 32.",
-        "hi": "2³ × 2² = 2⁵ = 32।"
-      }
-    },
-    {
-      "id": "M10-T1-01",
-      "class": 10,
-      "subject": "maths",
-      "difficulty": 1,
-      "isLanguageSpecific": false,
-      "prompt": {
-        "en": "What is the HCF of 12 and 18?",
-        "hi": "12 और 18 का महत्तम समापवर्तक (HCF) क्या है?"
-      },
-      "options": {
-        "en": ["6", "3", "36", "9"],
-        "hi": ["6", "3", "36", "9"]
-      },
-      "answerIndex": 0,
-      "explanation": {
-        "en": "The greatest common factor of 12 and 18 is 6.",
-        "hi": "12 और 18 का सबसे बड़ा उभयनिष्ठ गुणनखंड 6 है।"
+        "en": "8 × 8 = 64.",
+        "hi": "8 × 8 = 64।"
       }
     },
     {
@@ -111,39 +112,94 @@
       "class": 8,
       "subject": "maths",
       "difficulty": 2,
-      "isLanguageSpecific": false,
       "prompt": {
-        "en": "Solve for x: 2x + 6 = 18",
-        "hi": "x का मान ज्ञात कीजिए: 2x + 6 = 18"
+        "en": "Solve for x: 3x - 5 = 16",
+        "hi": "x का मान ज्ञात कीजिए: 3x - 5 = 16"
       },
       "options": {
-        "en": ["6", "12", "3", "9"],
-        "hi": ["6", "12", "3", "9"]
+        "en": ["7", "11", "5", "8"],
+        "hi": ["7", "11", "5", "8"]
       },
       "answerIndex": 0,
       "explanation": {
-        "en": "2x = 12, so x = 6.",
-        "hi": "2x = 12, इसलिए x = 6।"
+        "en": "3x = 21, so x = 7.",
+        "hi": "3x = 21, इसलिए x = 7।"
       }
     },
     {
-      "id": "M10-T3-01",
-      "class": 10,
+      "id": "M09-T1-01",
+      "class": 9,
       "subject": "maths",
-      "difficulty": 3,
-      "isLanguageSpecific": false,
+      "difficulty": 1,
       "prompt": {
-        "en": "What is the sum of roots of x² - 7x + 10 = 0?",
-        "hi": "समीकरण x² - 7x + 10 = 0 के मूलों का योग क्या है?"
+        "en": "What is the cube of 3?",
+        "hi": "3 का घन (Cube) क्या है?"
       },
       "options": {
-        "en": ["7", "-7", "10", "-10"],
-        "hi": ["7", "-7", "10", "-10"]
+        "en": ["27", "9", "18", "81"],
+        "hi": ["27", "9", "18", "81"]
       },
       "answerIndex": 0,
       "explanation": {
-        "en": "Sum of roots = -b/a = 7.",
-        "hi": "मूलों का योग = -b/a = 7।"
+        "en": "3 × 3 × 3 = 27.",
+        "hi": "3 × 3 × 3 = 27।"
+      }
+    },
+    {
+      "id": "M09-T3-01",
+      "class": 9,
+      "subject": "maths",
+      "difficulty": 3,
+      "prompt": {
+        "en": "What is the value of (a + b)(a - b)?",
+        "hi": "(a + b)(a - b) का मान क्या होता है?"
+      },
+      "options": {
+        "en": ["a² - b²", "a² + b²", "a² - 2ab + b²", "2a - 2b"],
+        "hi": ["a² - b²", "a² + b²", "a² - 2ab + b²", "2a - 2b"]
+      },
+      "answerIndex": 0,
+      "explanation": {
+        "en": "Difference of squares identity: (a + b)(a - b) = a² - b².",
+        "hi": "सर्वसमिका के अनुसार (a + b)(a - b) = a² - b² होता है।"
+      }
+    },
+    {
+      "id": "M10-T1-01",
+      "class": 10,
+      "subject": "maths",
+      "difficulty": 1,
+      "prompt": {
+        "en": "What is the HCF of 15 and 25?",
+        "hi": "15 और 25 का महत्तम समापवर्तक (HCF) क्या है?"
+      },
+      "options": {
+        "en": ["5", "15", "75", "10"],
+        "hi": ["5", "15", "75", "10"]
+      },
+      "answerIndex": 0,
+      "explanation": {
+        "en": "5 divides both 15 and 25 completely.",
+        "hi": "5, 15 और 25 दोनों को पूरा-पूरा विभाजित करता है।"
+      }
+    },
+    {
+      "id": "M10-T4-01",
+      "class": 10,
+      "subject": "maths",
+      "difficulty": 4,
+      "prompt": {
+        "en": "What is the common difference of the AP: 4, 9, 14, 19, ...?",
+        "hi": "समांतर श्रेणी 4, 9, 14, 19, ... का सार्व अंतर (Common Difference) क्या है?"
+      },
+      "options": {
+        "en": ["5", "4", "9", "-5"],
+        "hi": ["5", "4", "9", "-5"]
+      },
+      "answerIndex": 0,
+      "explanation": {
+        "en": "Each consecutive term increases by 9 - 4 = 5.",
+        "hi": "प्रत्येक अगले पद में 9 - 4 = 5 की वृद्धि हो रही है।"
       }
     },
     {
@@ -151,19 +207,37 @@
       "class": 6,
       "subject": "science",
       "difficulty": 1,
-      "isLanguageSpecific": false,
       "prompt": {
-        "en": "Which part of a plant grows under the soil?",
-        "hi": "पौधे का कौन-सा भाग मिट्टी के नीचे बढ़ता है?"
+        "en": "Which part of a plant grows underground and absorbs water?",
+        "hi": "पौधे का कौन-सा भाग ज़मीन के नीचे बढ़ता है और जल सोखता है?"
       },
       "options": {
-        "en": ["Root", "Leaf", "Flower", "Fruit"],
-        "hi": ["जड़", "पत्ती", "फूल", "फल"]
+        "en": ["Root", "Leaf", "Flower", "Seed"],
+        "hi": ["जड़", "पत्ती", "फूल", "बीज"]
       },
       "answerIndex": 0,
       "explanation": {
-        "en": "Roots anchor the plant and absorb water and minerals from soil.",
-        "hi": "जड़ पौधे को स्थिर रखती है और मिट्टी से जल व खनिज सोखती है।"
+        "en": "Roots take in water and minerals from the soil.",
+        "hi": "जड़ें मिट्टी से जल और खनिज सोखती हैं।"
+      }
+    },
+    {
+      "id": "S07-T2-01",
+      "class": 7,
+      "subject": "science",
+      "difficulty": 2,
+      "prompt": {
+        "en": "Which gas do green plants take in during photosynthesis?",
+        "hi": "प्रकाश संश्लेषण के दौरान हरे पौधे कौन-सी गैस लेते हैं?"
+      },
+      "options": {
+        "en": ["Carbon dioxide", "Oxygen", "Nitrogen", "Hydrogen"],
+        "hi": ["कार्बन डाइऑक्साइड", "ऑक्सीजन", "नाइट्रोजन", "हाइड्रोजन"]
+      },
+      "answerIndex": 0,
+      "explanation": {
+        "en": "Plants absorb carbon dioxide and release oxygen during photosynthesis.",
+        "hi": "पौधे प्रकाश संश्लेषण में कार्बन डाइऑक्साइड लेकर ऑक्सीजन छोड़ते हैं।"
       }
     },
     {
@@ -171,19 +245,37 @@
       "class": 8,
       "subject": "science",
       "difficulty": 1,
-      "isLanguageSpecific": false,
       "prompt": {
         "en": "Which metal is liquid at room temperature?",
-        "hi": "कौन-सी धातु सामान्य ताप पर द्रव अवस्था में पाई जाती है?"
+        "hi": "कौन-सी धातु सामान्य ताप पर द्रव अवस्था में मिलती है?"
       },
       "options": {
-        "en": ["Mercury", "Iron", "Copper", "Aluminum"],
-        "hi": ["पारा (Mercury)", "लोहा", "ताँबा", "ऐलुमिनियम"]
+        "en": ["Mercury", "Iron", "Zinc", "Silver"],
+        "hi": ["पारा (Mercury)", "लोहा", "ज़िंक", "चाँदी"]
       },
       "answerIndex": 0,
       "explanation": {
-        "en": "Mercury is a liquid metal at room temperature.",
-        "hi": "पारा सामान्य ताप पर द्रव अवस्था में रहने वाली धातु है।"
+        "en": "Mercury remains liquid at room temperature.",
+        "hi": "पारा सामान्य ताप पर द्रव अवस्था में रहता है।"
+      }
+    },
+    {
+      "id": "S08-T2-01",
+      "class": 8,
+      "subject": "science",
+      "difficulty": 2,
+      "prompt": {
+        "en": "Which microorganism helps convert milk into curd?",
+        "hi": "कौन-सा सूक्ष्मजीव दूध को दही में बदलने में मदद करता है?"
+      },
+      "options": {
+        "en": ["Lactobacillus", "Virus", "Amoeba", "Yeast"],
+        "hi": ["लैक्टोबैसिलस", "विषाणु", "अमीबा", "यीस्ट"]
+      },
+      "answerIndex": 0,
+      "explanation": {
+        "en": "Lactobacillus bacteria ferment milk sugars to form curd.",
+        "hi": "लैक्टोबैसिलस जीवाणु दूध से दही बनने में सहायक है।"
       }
     },
     {
@@ -191,19 +283,37 @@
       "class": 9,
       "subject": "science",
       "difficulty": 2,
-      "isLanguageSpecific": false,
       "prompt": {
-        "en": "Which organelle is called the powerhouse of the cell?",
+        "en": "Which cell organelle is known as the powerhouse of the cell?",
         "hi": "किस कोशिकांग को कोशिका का ऊर्जा घर (Powerhouse) कहा जाता है?"
       },
       "options": {
-        "en": ["Mitochondria", "Ribosome", "Golgi apparatus", "Nucleolus"],
-        "hi": ["माइटोकॉन्ड्रिया", "राइबोसोम", "गॉल्जी उपकरण", "केंद्रिका"]
+        "en": ["Mitochondria", "Vacuole", "Ribosome", "Cell wall"],
+        "hi": ["माइटोकॉन्ड्रिया", "रिक्तिका", "राइबोसोम", "कोशिका भित्ति"]
       },
       "answerIndex": 0,
       "explanation": {
-        "en": "Mitochondria release energy as ATP.",
+        "en": "Mitochondria generate energy in the form of ATP.",
         "hi": "माइटोकॉन्ड्रिया ATP के रूप में ऊर्जा उत्पन्न करते हैं।"
+      }
+    },
+    {
+      "id": "S09-T3-01",
+      "class": 9,
+      "subject": "science",
+      "difficulty": 3,
+      "prompt": {
+        "en": "What is the SI unit of force?",
+        "hi": "बल (Force) का SI मात्रक क्या है?"
+      },
+      "options": {
+        "en": ["Newton", "Joule", "Watt", "Pascal"],
+        "hi": ["न्यूटन", "जूल", "वाट", "पास्कल"]
+      },
+      "answerIndex": 0,
+      "explanation": {
+        "en": "Force is measured in Newtons (N).",
+        "hi": "बल का SI मात्रक न्यूटन (N) है।"
       }
     },
     {
@@ -211,19 +321,56 @@
       "class": 10,
       "subject": "science",
       "difficulty": 3,
-      "isLanguageSpecific": false,
       "prompt": {
         "en": "What is the SI unit of electric resistance?",
         "hi": "विद्युत प्रतिरोध का SI मात्रक क्या है?"
       },
       "options": {
-        "en": ["Ohm", "Ampere", "Volt", "Coulomb"],
-        "hi": ["ओम (Ohm)", "ऐम्पियर", "वोल्ट", "कूलॉम"]
+        "en": ["Ohm", "Volt", "Ampere", "Farad"],
+        "hi": ["ओम (Ohm)", "वोल्ट", "ऐम्पियर", "फ़ैराड"]
       },
       "answerIndex": 0,
       "explanation": {
-        "en": "Electrical resistance is measured in Ohms (Ω).",
+        "en": "Electric resistance is measured in Ohms (Ω).",
         "hi": "विद्युत प्रतिरोध का SI मात्रक ओम (Ω) है।"
+      }
+    },
+    {
+      "id": "S10-T4-01",
+      "class": 10,
+      "subject": "science",
+      "difficulty": 4,
+      "prompt": {
+        "en": "Which mirror always forms a virtual, erect, and diminished image of a real object?",
+        "hi": "कौन-सा दर्पण वास्तविक वस्तु का सदैव आभासी, सीधा और छोटा प्रतिबिंब बनाता है?"
+      },
+      "options": {
+        "en": ["Convex mirror", "Concave mirror", "Plane mirror", "Parabolic mirror"],
+        "hi": ["उत्तल दर्पण", "अवतल दर्पण", "समतल दर्पण", "परवलयिक दर्पण"]
+      },
+      "answerIndex": 0,
+      "explanation": {
+        "en": "A convex mirror forms a virtual, erect, and smaller image regardless of distance.",
+        "hi": "उत्तल दर्पण सदैव आभासी, सीधा और छोटा प्रतिबिंब बनाता है।"
+      }
+    },
+    {
+      "id": "G06-T1-01",
+      "class": 6,
+      "subject": "grammar",
+      "difficulty": 1,
+      "prompt": {
+        "en": "Identify the noun in: 'The brave boy climbed the hill.'",
+        "hi": "'The brave boy climbed the hill.' में संज्ञा (Noun) शब्द कौन-से हैं?"
+      },
+      "options": {
+        "en": ["boy and hill", "brave and climbed", "the and brave", "climbed"],
+        "hi": ["boy और hill", "brave और climbed", "the और brave", "climbed"]
+      },
+      "answerIndex": 0,
+      "explanation": {
+        "en": "'Boy' and 'hill' name a person and a place.",
+        "hi": "'boy' और 'hill' नाम वाले शब्द (संज्ञा) हैं।"
       }
     },
     {
@@ -231,41 +378,75 @@
       "class": 7,
       "subject": "grammar",
       "difficulty": 1,
-      "isLanguageSpecific": true,
-      "nativeLang": "en",
       "prompt": {
-        "en": "Choose the plural of 'child':",
-        "hi": "Choose the plural of 'child':"
+        "en": "Choose the correct plural of 'leaf':",
+        "hi": "'leaf' का सही बहुवचन रूप चुनिए:"
       },
       "options": {
-        "en": ["children", "childs", "childes", "childrens"],
-        "hi": ["children", "childs", "childes", "childrens"]
+        "en": ["leaves", "leafs", "leavs", "leafes"],
+        "hi": ["leaves", "leafs", "leavs", "leafes"]
       },
       "answerIndex": 0,
       "explanation": {
-        "en": "The irregular plural of 'child' is 'children'.",
-        "hi": "'child' का सही बहुवचन रूप 'children' होता है।"
+        "en": "Words ending in -f often change to -ves in plural: leaf → leaves.",
+        "hi": "'leaf' का बहुवचन 'leaves' होता है।"
       }
     },
     {
-      "id": "G08-T1-02",
+      "id": "G08-T1-01",
       "class": 8,
       "subject": "grammar",
       "difficulty": 1,
-      "isLanguageSpecific": true,
-      "nativeLang": "hi",
       "prompt": {
-        "en": "'जल' का सही पर्यायवाची शब्द चुनिए:",
-        "hi": "'जल' का सही पर्यायवाची शब्द चुनिए:"
+        "en": "'सूर्य' का सही पर्यायवाची शब्द कौन-सा है?",
+        "hi": "'सूर्य' का सही पर्यायवाची शब्द कौन-सा है?"
       },
       "options": {
-        "en": ["नीर", "अग्नि", "वायु", "गिरि"],
-        "hi": ["नीर", "अग्नि", "वायु", "गिरि"]
+        "en": ["रवि", "शशि", "नीर", "अचल"],
+        "hi": ["रवि", "शशि", "नीर", "अचल"]
       },
       "answerIndex": 0,
       "explanation": {
-        "en": "'नीर' जल का पर्यायवाची शब्द है।",
-        "hi": "'नीर' जल का पर्यायवाची शब्द है।"
+        "en": "'रवि' सूर्य का पर्यायवाची शब्द है।",
+        "hi": "'रवि' सूर्य का पर्यायवाची शब्द है।"
+      }
+    },
+    {
+      "id": "G08-T2-01",
+      "class": 8,
+      "subject": "grammar",
+      "difficulty": 2,
+      "prompt": {
+        "en": "Fill in the blank: She has been studying ____ morning.",
+        "hi": "रिक्त स्थान भरिए: She has been studying ____ morning."
+      },
+      "options": {
+        "en": ["since", "for", "at", "into"],
+        "hi": ["since", "for", "at", "into"]
+      },
+      "answerIndex": 0,
+      "explanation": {
+        "en": "'Since' is used for a specific point in time such as 'morning'.",
+        "hi": "निश्चित समय ('morning') के लिए 'since' का प्रयोग होता है।"
+      }
+    },
+    {
+      "id": "G09-T3-01",
+      "class": 9,
+      "subject": "grammar",
+      "difficulty": 3,
+      "prompt": {
+        "en": "'जो सब कुछ जानता हो' — इस वाक्यांश के लिए एक शब्द क्या है?",
+        "hi": "'जो सब कुछ जानता हो' — इस वाक्यांश के लिए एक शब्द क्या है?"
+      },
+      "options": {
+        "en": ["सर्वज्ञ", "अल्पज्ञ", "कृतज्ञ", "अजेय"],
+        "hi": ["सर्वज्ञ", "अल्पज्ञ", "कृतज्ञ", "अजेय"]
+      },
+      "answerIndex": 0,
+      "explanation": {
+        "en": "One who knows everything is called 'सर्वज्ञ'.",
+        "hi": "सब कुछ जानने वाले को 'सर्वज्ञ' कहते हैं।"
       }
     },
     {
@@ -273,30 +454,18 @@
       "class": 10,
       "subject": "grammar",
       "difficulty": 3,
-      "isLanguageSpecific": true,
-      "nativeLang": "en",
       "prompt": {
-        "en": "Select the correct reported speech: He said, 'I am reading.'",
-        "hi": "Select the correct reported speech: He said, 'I am reading.'"
+        "en": "Change to passive voice: 'Riya wrote a letter.'",
+        "hi": "वाक्य 'Riya wrote a letter.' का सही कर्मवाच्य (Passive) रूप चुनिए:"
       },
       "options": {
-        "en": [
-          "He said that he was reading.",
-          "He said that I was reading.",
-          "He says that he is reading.",
-          "He said that he had read."
-        ],
-        "hi": [
-          "He said that he was reading.",
-          "He said that I was reading.",
-          "He says that he is reading.",
-          "He said that he had read."
-        ]
+        "en": ["A letter was written by Riya.", "A letter is written by Riya.", "A letter had written by Riya.", "Riya was written a letter."],
+        "hi": ["A letter was written by Riya.", "A letter is written by Riya.", "A letter had written by Riya.", "Riya was written a letter."]
       },
       "answerIndex": 0,
       "explanation": {
-        "en": "Present continuous ('am reading') shifts to past continuous ('was reading').",
-        "hi": "Present continuous ('am reading') indirect speech में 'was reading' बनता है।"
+        "en": "Simple past active ('wrote') becomes 'was written' in passive voice.",
+        "hi": "Past indefinite ('wrote') का passive रूप 'was written' होता है।"
       }
     },
     {
@@ -304,14 +473,13 @@
       "class": 6,
       "subject": "gk",
       "difficulty": 1,
-      "isLanguageSpecific": false,
       "prompt": {
-        "en": "What is the capital city of Himachal Pradesh?",
-        "hi": "हिमाचल प्रदेश की राजधानी कौन-सी है?"
+        "en": "What is the capital of Himachal Pradesh?",
+        "hi": "हिमाचल प्रदेश की राजधानी क्या है?"
       },
       "options": {
-        "en": ["Shimla", "Jaipur", "Dehradun", "Bhopal"],
-        "hi": ["शिमला", "जयपुर", "देहरादून", "भोपाल"]
+        "en": ["Shimla", "Chandigarh", "Jaipur", "Lucknow"],
+        "hi": ["शिमला", "चंडीगढ़", "जयपुर", "लखनऊ"]
       },
       "answerIndex": 0,
       "explanation": {
@@ -320,23 +488,79 @@
       }
     },
     {
-      "id": "K09-T2-01",
-      "class": 9,
+      "id": "K07-T1-01",
+      "class": 7,
       "subject": "gk",
-      "difficulty": 2,
-      "isLanguageSpecific": false,
+      "difficulty": 1,
       "prompt": {
-        "en": "Which Indian river flows westward into the Arabian Sea?",
-        "hi": "कौन-सी भारतीय नदी पश्चिम की ओर बहकर अरब सागर में गिरती है?"
+        "en": "How many states are there in India?",
+        "hi": "भारत में कुल कितने राज्य हैं?"
       },
       "options": {
-        "en": ["Narmada", "Godavari", "Krishna", "Mahanadi"],
-        "hi": ["नर्मदा", "गोदावरी", "कृष्णा", "महानदी"]
+        "en": ["28", "29", "27", "30"],
+        "hi": ["28", "29", "27", "30"]
       },
       "answerIndex": 0,
       "explanation": {
-        "en": "The Narmada flows westward through a rift valley into the Arabian Sea.",
-        "hi": "नर्मदा नदी पश्चिम की ओर बहते हुए अरब सागर में मिलती है।"
+        "en": "India has 28 states and 8 Union Territories.",
+        "hi": "भारत में 28 राज्य और 8 केंद्र शासित प्रदेश हैं।"
+      }
+    },
+    {
+      "id": "K08-T2-01",
+      "class": 8,
+      "subject": "gk",
+      "difficulty": 2,
+      "prompt": {
+        "en": "Which river flows through Kinnaur and Shimla districts in Himachal Pradesh?",
+        "hi": "हिमाचल प्रदेश के किन्नौर और शिमला जिलों से होकर कौन-सी प्रमुख नदी बहती है?"
+      },
+      "options": {
+        "en": ["Sutlej", "Ravi", "Chenab", "Beas"],
+        "hi": ["सतलुज", "रावी", "चिनाब", "ब्यास"]
+      },
+      "answerIndex": 0,
+      "explanation": {
+        "en": "The Sutlej enters Himachal Pradesh near Shipki La and flows through Kinnaur and Shimla.",
+        "hi": "सतलुज नदी शिपकी ला के पास से हिमाचल में प्रवेश करती है।"
+      }
+    },
+    {
+      "id": "K09-T3-01",
+      "class": 9,
+      "subject": "gk",
+      "difficulty": 3,
+      "prompt": {
+        "en": "Which imaginary line divides the Earth into Northern and Southern Hemispheres?",
+        "hi": "पृथ्वी को उत्तरी और दक्षिणी गोलार्ध में बाँटने वाली काल्पनिक रेखा कौन-सी है?"
+      },
+      "options": {
+        "en": ["Equator", "Tropic of Cancer", "Prime Meridian", "Arctic Circle"],
+        "hi": ["भूमध्य रेखा (Equator)", "कर्क रेखा", "प्रधान मध्याह्न रेखा", "आर्कटिक वृत्त"]
+      },
+      "answerIndex": 0,
+      "explanation": {
+        "en": "The Equator (0° latitude) splits the globe into Northern and Southern Hemispheres.",
+        "hi": "भूमध्य रेखा (0° अक्षांश) पृथ्वी को उत्तरी और दक्षिणी गोलार्ध में बाँटती है।"
+      }
+    },
+    {
+      "id": "K10-T4-01",
+      "class": 10,
+      "subject": "gk",
+      "difficulty": 4,
+      "prompt": {
+        "en": "Who is known as the Father of the Indian Constitution?",
+        "hi": "भारतीय संविधान के जनक (Father of the Indian Constitution) किसे कहा जाता है?"
+      },
+      "options": {
+        "en": ["Dr. B. R. Ambedkar", "Mahatma Gandhi", "Jawaharlal Nehru", "Rajendra Prasad"],
+        "hi": ["डॉ. बी. आर. अम्बेडकर", "महात्मा गांधी", "जवाहरलाल नेहरू", "डॉ. राजेंद्र प्रसाद"]
+      },
+      "answerIndex": 0,
+      "explanation": {
+        "en": "Dr. B. R. Ambedkar chaired the Drafting Committee of the Indian Constitution.",
+        "hi": "डॉ. बी. आर. अम्बेडकर संविधान मसौदा समिति के अध्यक्ष थे।"
       }
     },
     {
@@ -344,59 +568,144 @@
       "class": 6,
       "subject": "moral",
       "difficulty": 1,
-      "isLanguageSpecific": false,
       "prompt": {
-        "en": "You accidentally break a glass on the school desk. What should you do?",
-        "hi": "स्कूल की मेज़ पर आपसे अनजाने में काँच टूट जाए तो आपको क्या करना चाहिए?"
+        "en": "You find a lost pencil box on the school bench. What should you do?",
+        "hi": "स्कूल की बेंच पर आपको एक खोया हुआ पेंसिल बॉक्स मिलता है। आपको क्या करना चाहिए?"
       },
       "options": {
         "en": [
-          "Tell the teacher honestly so nobody gets hurt",
-          "Blame a classmate sitting nearby",
-          "Hide the broken pieces under the desk",
-          "Run out of the classroom silently"
+          "Hand it to the class teacher or return it to the rightful owner",
+          "Keep it quietly in your own bag",
+          "Hide it until recess ends",
+          "Give it to someone who did not lose it"
         ],
         "hi": [
-          "अध्यापक को सच्चाई बताएँ ताकि किसी को चोट न लगे",
-          "पास बैठे सहपाठी पर दोष लगा दें",
-          "टूटे टुकड़े मेज़ के नीचे छिपा दें",
-          "चुपचाप कक्षा से बाहर चले जाएँ"
+          "कक्षा अध्यापक को सौंप दें या सही मालिक को लौटा दें",
+          "चुपचाप अपने बस्ते में रख लें",
+          "अवकाश समाप्त होने तक छिपा दें",
+          "किसी ऐसे को दे दें जिसका वह नहीं है"
         ]
       },
       "answerIndex": 0,
       "explanation": {
-        "en": "Honesty and safety matter most—owning up prevents harm.",
-        "hi": "ईमानदारी और सुरक्षा सबसे महत्वपूर्ण है।"
+        "en": "Honesty builds trust in every school community.",
+        "hi": "ईमानदारी से विद्यालय में विश्वास और सम्मान बढ़ता है।"
       }
     },
     {
-      "id": "E09-T2-01",
-      "class": 9,
+      "id": "E07-T2-01",
+      "class": 7,
       "subject": "moral",
       "difficulty": 2,
-      "isLanguageSpecific": false,
       "prompt": {
-        "en": "A new student struggles with the language in class. How can you show empathy?",
-        "hi": "कक्षा में एक नए विद्यार्थी को भाषा समझने में कठिनाई हो रही है। आप सहानुभूति कैसे दिखाएंगे?"
+        "en": "A classmate misses school due to illness and needs notes. How should you respond?",
+        "hi": "एक सहपाठी बीमारी के कारण स्कूल नहीं आ सका और उसे नोट्स चाहिए। आप क्या करेंगे?"
       },
       "options": {
         "en": [
-          "Patiently explain key terms and include them in group work",
-          "Laugh at their pronunciation",
-          "Ignore them during discussions",
-          "Tell them not to speak in class"
+          "Share your class notes politely and help explain key points",
+          "Refuse because you spent time writing them",
+          "Ask them to copy without helping",
+          "Ignore their request"
         ],
         "hi": [
-          "धैर्यपूर्वक मुख्य शब्द समझाएँ और समूह कार्य में शामिल करें",
-          "उनके उच्चारण पर हँसें",
-          "चर्चा के दौरान उन्हें अनदेखा करें",
-          "कक्षा में न बोलने को कहें"
+          "विनम्रता से अपने नोट्स साझा करें और मुख्य बातें समझाएँ",
+          "मना कर दें क्योंकि आपने मेहनत से लिखे हैं",
+          "बिना समझाए केवल नकल करने को कहें",
+          "उनकी बात अनसुनी कर दें"
         ]
       },
       "answerIndex": 0,
       "explanation": {
-        "en": "Inclusion and patience help every learner grow with confidence.",
-        "hi": "समावेश और धैर्य से हर विद्यार्थी आत्मविश्वास के साथ सीखता है।"
+        "en": "Helping classmates grow together strengthens friendship and teamwork.",
+        "hi": "सहपाठियों की मदद करने से मित्रता और सहयोग की भावना बढ़ती है।"
+      }
+    },
+    {
+      "id": "E08-T2-01",
+      "class": 8,
+      "subject": "moral",
+      "difficulty": 2,
+      "prompt": {
+        "en": "During a group project, one member falls behind on their share. What is the best approach?",
+        "hi": "समूह परियोजना (Group Project) के दौरान एक सदस्य अपने हिस्से में पीछे रह जाता है। सबसे अच्छा तरीका क्या है?"
+      },
+      "options": {
+        "en": [
+          "Check in kindly, divide remaining tasks fairly, and support them",
+          "Complain loudly in front of everyone",
+          "Leave their part blank on purpose",
+          "Do everything alone and blame them"
+        ],
+        "hi": [
+          "सहानुभूति से पूछें, काम को उचित रूप से बाँटें और सहायता करें",
+          "सबके सामने ज़ोर से शिकायत करें",
+          "जानबूझकर उनका हिस्सा खाली छोड़ दें",
+          "अकेले सब करें और उन्हें दोष दें"
+        ]
+      },
+      "answerIndex": 0,
+      "explanation": {
+        "en": "Constructive support and fairness keep teams strong under pressure.",
+        "hi": "सकारात्मक सहयोग और निष्पक्षता से समूह मजबूत बनता है।"
+      }
+    },
+    {
+      "id": "E09-T3-01",
+      "class": 9,
+      "subject": "moral",
+      "difficulty": 3,
+      "prompt": {
+        "en": "You spot litter near a mountain stream during a community clean-up. Why does acting responsibly matter?",
+        "hi": "समुदाय स्वच्छता अभियान के दौरान पहाड़ी झरने के पास कचरा दिखता है। ज़िम्मेदारी से कदम उठाना क्यों ज़रूरी है?"
+      },
+      "options": {
+        "en": [
+          "Protecting local water and wildlife safeguards the whole community",
+          "Only park wardens ever clean outdoor spaces",
+          "A small amount of waste makes no difference",
+          "Leaving it saves a few minutes of effort"
+        ],
+        "hi": [
+          "जल स्रोतों और वन्यजीवों की रक्षा से पूरे समुदाय का भला होता है",
+          "बाहर की सफ़ाई केवल कर्मचारियों का काम है",
+          "थोड़े कचरे से कोई फ़र्क नहीं पड़ता",
+          "छोड़ देने से कुछ मिनट बच जाते हैं"
+        ]
+      },
+      "answerIndex": 0,
+      "explanation": {
+        "en": "Civic responsibility protects shared natural resources for everyone.",
+        "hi": "नागरिक ज़िम्मेदारी से साझा प्राकृतिक संसाधन सुरक्षित रहते हैं।"
+      }
+    },
+    {
+      "id": "E10-T4-01",
+      "class": 10,
+      "subject": "moral",
+      "difficulty": 4,
+      "prompt": {
+        "en": "When an unpopular choice is right and fair, what shows true strength of character?",
+        "hi": "जब कोई निर्णय लोकप्रिय न हो पर सही और न्यायसंगत हो, तो सच्चा चारित्रिक बल किसमें दिखता है?"
+      },
+      "options": {
+        "en": [
+          "Standing calmly by truth and fairness with respect for others",
+          "Changing principles just to win applause",
+          "Bullying others into agreeing with you",
+          "Avoiding every difficult decision"
+        ],
+        "hi": [
+          "दूसरों का सम्मान रखते हुए सत्य और न्याय पर दृढ़ रहना",
+          "प्रशंसा पाने के लिए सिद्धांत बदल लेना",
+          "दूसरों को डराकर अपनी बात मनवाना",
+          "हर कठिन निर्णय से भागना"
+        ]
+      },
+      "answerIndex": 0,
+      "explanation": {
+        "en": "Integrity means doing what is right and fair even when it takes courage.",
+        "hi": "सत्यनिष्ठा का अर्थ साहस के साथ सही और न्यायसंगत मार्ग चुनना है।"
       }
     }
   ]
