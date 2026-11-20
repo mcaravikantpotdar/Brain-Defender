@@ -1,5 +1,5 @@
 /* ============================================================================
-   BRAIN DEFENDER — COMPLETE GAME.JS (STEP 3: PL/SQL + BALANCE + 90S TEST MODE)
+   BRAIN DEFENDER — COMPLETE GAME.JS (ALL UPDATES COMBINED)
    ============================================================================ */
 
 const BACKEND_URL =
@@ -8,7 +8,7 @@ const BACKEND_URL =
 const REPO_OWNER = "mcaravikantpotdar";
 const REPO_NAME = "Multi-Class-Quiz";
 const REPO_BRANCH = "main";
-const REPO_CACHE_KEY = "brain_defender_repo_cache_v2";
+const REPO_CACHE_KEY = "brain_defender_repo_cache_v3";
 const REPO_CACHE_TTL_MS = 6 * 60 * 60 * 1000; // 6 hours
 
 const VICTORY_WAVE = 6;
@@ -21,7 +21,7 @@ const BASE_TOWER_SPECS = {
   maths: {
     key: "maths",
     label: "Maths Cannon",
-    shortDesc: "Heavy shell • L2+ splash",
+    shortDesc: "Mortar shell • L2+ splash",
     cost: 40,
     range: 148,
     fireRate: 1.12,
@@ -35,7 +35,7 @@ const BASE_TOWER_SPECS = {
   science: {
     key: "science",
     label: "Science Tesla",
-    shortDesc: "Rapid bolt • L2+ chain arc",
+    shortDesc: "Arc coil • L2+ chain zap",
     cost: 45,
     range: 140,
     fireRate: 0.78,
@@ -48,7 +48,7 @@ const BASE_TOWER_SPECS = {
   grammar: {
     key: "grammar",
     label: "Grammar Gale",
-    shortDesc: "Slowing gust (stronger at L2/L3)",
+    shortDesc: "Wind vortex • stronger slow at L2/L3",
     cost: 35,
     range: 146,
     fireRate: 0.96,
@@ -62,7 +62,7 @@ const BASE_TOWER_SPECS = {
   gk: {
     key: "gk",
     label: "GK Prism Laser",
-    shortDesc: "Long-range precision beam",
+    shortDesc: "Prism emitter • long-range beam",
     cost: 50,
     range: 208,
     fireRate: 1.38,
@@ -74,7 +74,7 @@ const BASE_TOWER_SPECS = {
   cs: {
     key: "cs",
     label: "Comp. Sc. Node",
-    shortDesc: "Fast pulse • L2+ multi-chain",
+    shortDesc: "Circuit core • L2+ multi-chain",
     cost: 42,
     range: 166,
     fireRate: 0.74,
@@ -86,13 +86,14 @@ const BASE_TOWER_SPECS = {
   }
 };
 
+// Build pads stay safely clear of all pathway variants
 const BUILD_PADS = [
   { x: 150, y: 125 }, { x: 305, y: 125 }, { x: 460, y: 125 }, { x: 615, y: 125 },
   { x: 225, y: 320 }, { x: 380, y: 320 }, { x: 535, y: 320 }, { x: 685, y: 320 }
 ];
 
-// ~815px route; at 9.05 px/s the opening Siege scout takes ~90s
-const CASTLE_PATH = [
+// Classic winding route (Siege Mode)
+const PATH_SIEGE = [
   { x: 0, y: 222 },
   { x: 205, y: 222 },
   { x: 205, y: 68 },
@@ -100,6 +101,18 @@ const CASTLE_PATH = [
   { x: 560, y: 382 },
   { x: 315, y: 382 },
   { x: 315, y: 222 },
+  { x: 812, y: 222 }
+];
+
+// Faster assault corridor (90s Test Mode or Boss / Endless escalation)
+const PATH_ASSAULT = [
+  { x: 0, y: 222 },
+  { x: 185, y: 222 },
+  { x: 265, y: 74 },
+  { x: 525, y: 74 },
+  { x: 460, y: 376 },
+  { x: 650, y: 376 },
+  { x: 715, y: 222 },
   { x: 812, y: 222 }
 ];
 
@@ -116,6 +129,7 @@ const state = {
   recentIds: [],
   recentGenKeys: [],
   repoLoadedCount: 0,
+  repoSyncLabel: "Bank: Syncing...",
 
   activeTowers: {},
   hp: 100,
@@ -153,6 +167,13 @@ const state = {
   currentChallenge: null,
   questionTicker: null
 };
+
+function getActivePath() {
+  if (state.mode === "test90" || state.endless || state.wave >= 5 || state.wave % 3 === 0) {
+    return PATH_ASSAULT;
+  }
+  return PATH_SIEGE;
+}
 
 /* ============================================================================
    1. LIGHTWEIGHT SOUND SYNTHESIS
@@ -423,6 +444,13 @@ async function fetchGitHubRepoQuestions(forceRefresh = false) {
   return merged;
 }
 
+function updateRepoBadge() {
+  const badge = document.getElementById("hudRepoBadge");
+  if (!badge) return;
+  badge.textContent = state.repoSyncLabel;
+  badge.className = state.repoLoadedCount > 0 ? "badge ok" : "badge";
+}
+
 async function loadQuestionBank(forceRefresh = false) {
   let baseItems = [];
   try {
@@ -451,11 +479,14 @@ async function loadQuestionBank(forceRefresh = false) {
   try {
     repoItems = await fetchGitHubRepoQuestions(forceRefresh);
     state.repoLoadedCount = repoItems.length;
+    state.repoSyncLabel = repoItems.length > 0 ? `Repo: ${repoItems.length} Qs` : "Bank: Base + Math";
   } catch (_) {
     state.repoLoadedCount = 0;
+    state.repoSyncLabel = "Bank: Base + Math";
   }
 
   state.questions = [...baseItems, ...repoItems];
+  updateRepoBadge();
 }
 
 /* ============================================================================
@@ -746,7 +777,7 @@ function prepareShuffledQuestion(raw) {
 }
 
 /* ============================================================================
-   6. STUDENT ID VERIFICATION, DEMO ISOLATION & LEADERBOARD SYNC
+   6. STUDENT ID VERIFICATION, DEMO ISOLATION & LEADERBOARD SYNC (TOP + LATEST 50)
    ============================================================================ */
 function maskId(val) {
   const s = String(val || "");
@@ -833,6 +864,7 @@ function enterArena() {
   document.getElementById("entryScreen").style.display = "none";
   document.getElementById("arenaScreen").style.display = "flex";
   document.getElementById("liveLangSelect").value = state.lang;
+  updateRepoBadge();
 
   document.getElementById("hudPlayerName").textContent = state.user.name;
   document.getElementById("hudClassMode").textContent =
@@ -850,7 +882,7 @@ function enterArena() {
   const isTest90 = state.mode === "test90";
   document.getElementById("hudTimerChip").style.display = isTest90 ? "flex" : "none";
   document.getElementById("arenaHintText").innerHTML = isTest90
-    ? `<strong>90s Test Mode:</strong> Waves auto-launch against a 90s clock • Every right answer fires a direct <strong>Quiz Strike</strong> beam & awards speed bonus!`
+    ? `<strong>90s Test Mode:</strong> Assault lane active • Waves auto-run on 90s clock • Right answers fire a <strong>Quiz Strike</strong> beam & boost speed score!`
     : `Pick a subject tower → click a pad & answer right to build • Click built towers to upgrade • Clear <strong>Wave 6</strong> for Victory!`;
 
   buildClassTowerDeck(state.user.classNum);
@@ -897,7 +929,6 @@ function resetMatch(startEndless) {
   refreshHud();
   refreshMastery();
 
-  // In 90s Test Mode, auto-start the timed wave sprint immediately
   if (state.mode === "test90") {
     beginWave();
   }
@@ -927,6 +958,7 @@ async function submitMatchScore(bonusPoints = 0) {
     wave: state.wave,
     correct: rightTotal,
     total: askedTotal,
+    submittedAt: new Date().toISOString(),
     isDemo: false
   };
 
@@ -944,36 +976,106 @@ async function submitMatchScore(bonusPoints = 0) {
   }
 }
 
+function parseEntryTimestampMs(entry) {
+  const raw = entry?.submittedAt || entry?.timestamp || entry?.createdAt || entry?.time || "";
+  if (!raw) return null;
+  const ms = Date.parse(String(raw));
+  return Number.isFinite(ms) ? ms : null;
+}
+
+function sortLatestFirst(rawRows) {
+  const rows = Array.isArray(rawRows) ? [...rawRows] : [];
+  const withIdx = rows.map((item, idx) => ({ item, idx, ts: parseEntryTimestampMs(item) }));
+  const anyTimestamps = withIdx.some(x => x.ts !== null);
+
+  if (anyTimestamps) {
+    withIdx.sort((a, b) => {
+      if (a.ts !== null && b.ts !== null && b.ts !== a.ts) return b.ts - a.ts;
+      return b.idx - a.idx;
+    });
+    return withIdx.map(x => x.item).slice(0, 50);
+  }
+
+  // If backend returns rows in sheet append order (oldest first), reverse so latest entry appears first
+  return rows.reverse().slice(0, 50);
+}
+
+function formatEntryTime(entry) {
+  const ms = parseEntryTimestampMs(entry);
+  if (!ms) return "Recent entry";
+  try {
+    return new Date(ms).toLocaleString([], {
+      month: "short",
+      day: "numeric",
+      hour: "2-digit",
+      minute: "2-digit"
+    });
+  } catch (_) {
+    return String(entry.submittedAt || entry.timestamp || "Recent entry");
+  }
+}
+
+function renderLatest50List(rows) {
+  const list = document.getElementById("latest50List");
+  if (!list) return;
+  const latestRows = sortLatestFirst(rows);
+
+  list.innerHTML = "";
+  if (!latestRows.length) {
+    list.innerHTML = `<li class="board-row"><span>No recent submissions found.</span></li>`;
+    return;
+  }
+
+  latestRows.forEach((entry, idx) => {
+    const isSelf = state.user && !state.user.isDemo && String(entry.pen) === String(state.user.pen);
+    const li = document.createElement("li");
+    li.className = `board-row${isSelf ? " me" : ""}`;
+    li.innerHTML = `
+      <div>
+        <strong>#${idx + 1} ${entry.name || "Defender"}</strong>
+        <div style="font-size:0.72rem; color:var(--muted);">
+          Class ${entry.classNum || "-"} • ${entry.school || "Defender"} • Wave ${entry.wave || 1} • ${formatEntryTime(entry)}
+        </div>
+      </div>
+      <strong style="color:var(--gold); font-size:0.95rem;">${entry.score ?? 0}</strong>
+    `;
+    list.appendChild(li);
+  });
+}
+
 async function loadLeaderboard() {
   const list = document.getElementById("leaderboardList");
   try {
     const res = await fetch(`${BACKEND_URL}?action=getLeaderboard`, { redirect: "follow" });
     const out = await res.json();
     const rows = (out.ok && Array.isArray(out.leaderboard)) ? out.leaderboard : [];
+    const latestSource = Array.isArray(out.latest) && out.latest.length > 0 ? out.latest : rows;
 
     list.innerHTML = "";
     if (!rows.length) {
       list.innerHTML = `<li class="board-row"><span>No leaderboard entries yet.</span></li>`;
-      return;
+    } else {
+      rows.slice(0, 10).forEach((entry, idx) => {
+        const isSelf = state.user && !state.user.isDemo && String(entry.pen) === String(state.user.pen);
+        const li = document.createElement("li");
+        li.className = `board-row${isSelf ? " me" : ""}`;
+        li.innerHTML = `
+          <div>
+            <strong>#${idx + 1} ${entry.name}</strong>
+            <div style="font-size:0.72rem; color:var(--muted);">
+              Class ${entry.classNum || "-"} • ${entry.school || "Defender"} • Wave ${entry.wave}
+            </div>
+          </div>
+          <strong style="color:var(--gold); font-size:0.95rem;">${entry.score}</strong>
+        `;
+        list.appendChild(li);
+      });
     }
 
-    rows.slice(0, 10).forEach((entry, idx) => {
-      const isSelf = state.user && !state.user.isDemo && String(entry.pen) === String(state.user.pen);
-      const li = document.createElement("li");
-      li.className = `board-row${isSelf ? " me" : ""}`;
-      li.innerHTML = `
-        <div>
-          <strong>#${idx + 1} ${entry.name}</strong>
-          <div style="font-size:0.72rem; color:var(--muted);">
-            Class ${entry.classNum || "-"} • ${entry.school || "Defender"} • Wave ${entry.wave}
-          </div>
-        </div>
-        <strong style="color:var(--gold); font-size:0.95rem;">${entry.score}</strong>
-      `;
-      list.appendChild(li);
-    });
+    renderLatest50List(latestSource);
   } catch (_) {
     list.innerHTML = `<li class="board-row"><span>Leaderboard temporarily offline.</span></li>`;
+    renderLatest50List([]);
   }
 }
 
@@ -1095,7 +1197,6 @@ function renderPromptBody() {
 function triggerTest90QuizStrike(swift) {
   if (state.mode !== "test90" || state.demons.length === 0) return;
 
-  // Target the most threatening demon (closest to castle or boss)
   const target = state.demons.reduce((best, cur) =>
     (cur.wpIndex > best.wpIndex || (cur.wpIndex === best.wpIndex && cur.hp > best.hp)) ? cur : best
   , state.demons[0]);
@@ -1105,7 +1206,6 @@ function triggerTest90QuizStrike(swift) {
   target.hitFlash = 0.22;
 
   AudioCue.strike();
-  // Fire visible arc from Castle keep (802, 222) directly to the target demon
   state.zapArcs.push({
     x1: 802,
     y1: 222,
@@ -1117,7 +1217,6 @@ function triggerTest90QuizStrike(swift) {
   spawnBurst(target.x, target.y, swift ? "#fde047" : "#38bdf8", 16);
   spawnPopup(target.x, target.y - 20, `⚡ QUIZ STRIKE -${strikeDmg}!`, swift ? "#fde047" : "#38bdf8");
 
-  // Splash shockwave to nearby enemies within 65px
   state.demons.forEach(other => {
     if (other !== target && Math.hypot(other.x - target.x, other.y - target.y) <= 65) {
       other.hp -= Math.round(strikeDmg * 0.45);
@@ -1227,6 +1326,7 @@ function beginWave() {
   waveBtn.disabled = true;
   waveBtn.textContent = state.mode === "test90" ? `Wave ${state.wave} Running (90s)...` : `Wave ${state.wave} In Progress...`;
   state.spawnQueue = [];
+  const activePath = getActivePath();
 
   if (state.mode === "siege" && state.wave === 1 && !state.endless) {
     state.spawnQueue.push({
@@ -1237,14 +1337,14 @@ function beginWave() {
       scoreReward: 30,
       castleDamage: 12,
       isBoss: false,
-      isScout: true
+      isScout: true,
+      path: activePath
     });
     state.spawnDelay = 0.25;
   } else {
     const isBossWave = state.wave % 3 === 0;
     const isTest90 = state.mode === "test90";
     const powerScale = Math.max(1, state.wave - (isTest90 ? 0 : 1));
-    // 90s Test Mode spawns slightly tighter, faster packs tuned for a 90s sprint + Quiz Strikes
     const count = isTest90
       ? (isBossWave ? 5 + state.wave : 5 + Math.round(state.wave * 1.5))
       : (isBossWave ? 6 + state.wave : 6 + state.wave * 2);
@@ -1269,7 +1369,8 @@ function beginWave() {
         scoreReward: boss ? 150 : 25 + powerScale * 6,
         castleDamage: boss ? 32 : 12 + Math.min(18, powerScale * 2),
         isBoss: boss || miniGuard,
-        isScout: false
+        isScout: false,
+        path: activePath
       });
     }
     state.spawnDelay = 0.25;
@@ -1404,10 +1505,12 @@ function stepSimulation(dt) {
     state.spawnDelay -= dt;
     if (state.spawnDelay <= 0) {
       const next = state.spawnQueue.shift();
+      const route = next.path || getActivePath();
       state.demons.push({
         ...next,
-        x: CASTLE_PATH[0].x,
-        y: CASTLE_PATH[0].y,
+        path: route,
+        x: route[0].x,
+        y: route[0].y,
         wpIndex: 1,
         slowTimer: 0,
         slowStrength: BASE_TOWER_SPECS.grammar.slowFactor,
@@ -1421,6 +1524,7 @@ function stepSimulation(dt) {
 
   for (let i = state.demons.length - 1; i >= 0; i--) {
     const d = state.demons[i];
+    const route = d.path || getActivePath();
     if (d.hitFlash > 0) d.hitFlash -= dt;
 
     if (d.hp <= 0) {
@@ -1435,14 +1539,14 @@ function stepSimulation(dt) {
 
     if (d.slowTimer > 0) d.slowTimer -= dt;
     const speedNow = d.slowTimer > 0 ? d.speed * (d.slowStrength || 0.65) : d.speed;
-    const targetPt = CASTLE_PATH[d.wpIndex];
+    const targetPt = route[d.wpIndex] || route[route.length - 1];
     const dx = targetPt.x - d.x;
     const dy = targetPt.y - d.y;
     const dist = Math.hypot(dx, dy);
 
     if (dist < 3.5) {
       d.wpIndex++;
-      if (d.wpIndex >= CASTLE_PATH.length) {
+      if (d.wpIndex >= route.length) {
         state.hp = Math.max(0, state.hp - d.castleDamage);
         AudioCue.lose();
         spawnBurst(805, 222, "#fb7185", 18);
@@ -1615,7 +1719,6 @@ function afterWaveMoralStep(finishedWave) {
   waveBtn.textContent = `Start Wave ${state.wave}${state.wave % 3 === 0 ? " (Boss)" : ""}`;
   refreshHud();
 
-  // In 90s Test Mode, automatically roll into the next 90s wave sprint
   if (state.mode === "test90") {
     beginWave();
   }
@@ -1678,10 +1781,17 @@ function renderLoop(now) {
 function drawScene() {
   ctx.clearRect(0, 0, canvas.width, canvas.height);
 
+  const assaultActive = getActivePath() === PATH_ASSAULT;
   const skyGrad = ctx.createLinearGradient(0, 0, 0, canvas.height);
-  skyGrad.addColorStop(0, "#050b1d");
-  skyGrad.addColorStop(0.55, "#091430");
-  skyGrad.addColorStop(1, "#060d20");
+  if (assaultActive) {
+    skyGrad.addColorStop(0, "#12071e");
+    skyGrad.addColorStop(0.55, "#190c2e");
+    skyGrad.addColorStop(1, "#090617");
+  } else {
+    skyGrad.addColorStop(0, "#050b1d");
+    skyGrad.addColorStop(0.55, "#091430");
+    skyGrad.addColorStop(1, "#060d20");
+  }
   ctx.fillStyle = skyGrad;
   ctx.fillRect(0, 0, canvas.width, canvas.height);
 
@@ -1702,21 +1812,22 @@ function drawScene() {
     ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(canvas.width, y); ctx.stroke();
   }
 
+  const activePath = getActivePath();
   ctx.lineCap = "round";
   ctx.lineJoin = "round";
   ctx.strokeStyle = "#0b1226";
   ctx.lineWidth = 48;
   ctx.beginPath();
-  CASTLE_PATH.forEach((p, i) => (i === 0 ? ctx.moveTo(p.x, p.y) : ctx.lineTo(p.x, p.y)));
+  activePath.forEach((p, i) => (i === 0 ? ctx.moveTo(p.x, p.y) : ctx.lineTo(p.x, p.y)));
   ctx.stroke();
 
-  ctx.strokeStyle = "#233769";
+  ctx.strokeStyle = assaultActive ? "#3b2363" : "#233769";
   ctx.lineWidth = 34;
   ctx.stroke();
 
   ctx.setLineDash([12, 18]);
-  ctx.lineDashOffset = -state.worldTime * 34;
-  ctx.strokeStyle = "rgba(56, 189, 248, 0.42)";
+  ctx.lineDashOffset = -state.worldTime * (assaultActive ? 46 : 34);
+  ctx.strokeStyle = assaultActive ? "rgba(232, 121, 249, 0.48)" : "rgba(56, 189, 248, 0.42)";
   ctx.lineWidth = 3;
   ctx.stroke();
   ctx.setLineDash([]);
@@ -1833,6 +1944,23 @@ function drawCastle3D(x, y, w, h) {
     ctx.fillRect(x - 6, by, 8, 13);
   }
 
+  // Pennant flag on roof
+  const waveOffset = Math.sin(state.worldTime * 6) * 3;
+  ctx.strokeStyle = "#e2e8f0";
+  ctx.lineWidth = 2;
+  ctx.beginPath();
+  ctx.moveTo(x + w * 0.5, y);
+  ctx.lineTo(x + w * 0.5, y - 16);
+  ctx.stroke();
+
+  ctx.fillStyle = "#38bdf8";
+  ctx.beginPath();
+  ctx.moveTo(x + w * 0.5, y - 16);
+  ctx.lineTo(x + w * 0.5 + 16, y - 11 + waveOffset);
+  ctx.lineTo(x + w * 0.5, y - 6);
+  ctx.closePath();
+  ctx.fill();
+
   const glow = 0.7 + 0.3 * Math.sin(state.worldTime * 3.5);
   ctx.fillStyle = `rgba(253, 224, 71, ${glow.toFixed(2)})`;
   ctx.fillRect(x + 16, y + 22, 10, 14);
@@ -1863,11 +1991,40 @@ function drawTower3D(t) {
   ctx.lineWidth = 2.5;
   ctx.stroke();
 
+  // Subject-specific barrel / emitter silhouette
   ctx.save();
   ctx.translate(t.x, t.y);
   ctx.rotate(t.angle);
-  ctx.fillStyle = t.accent;
-  ctx.fillRect(4, -4, 18, 8);
+  if (t.subject === "maths") {
+    ctx.fillStyle = t.accent;
+    ctx.fillRect(3, -5.5, 17, 11);
+    ctx.fillStyle = t.primary;
+    ctx.fillRect(16, -6.5, 5, 13);
+  } else if (t.subject === "science" || t.subject === "cs") {
+    ctx.fillStyle = t.accent;
+    ctx.fillRect(4, -3, 16, 6);
+    ctx.beginPath();
+    ctx.arc(14, 0, 4.5, 0, Math.PI * 2);
+    ctx.fillStyle = t.primary;
+    ctx.fill();
+  } else if (t.subject === "grammar") {
+    ctx.strokeStyle = t.accent;
+    ctx.lineWidth = 3;
+    ctx.beginPath();
+    ctx.moveTo(4, -5);
+    ctx.lineTo(20, -2);
+    ctx.moveTo(4, 5);
+    ctx.lineTo(20, 2);
+    ctx.stroke();
+  } else {
+    ctx.fillStyle = t.accent;
+    ctx.beginPath();
+    ctx.moveTo(4, -5);
+    ctx.lineTo(22, 0);
+    ctx.lineTo(4, 5);
+    ctx.closePath();
+    ctx.fill();
+  }
   ctx.restore();
 
   ctx.beginPath();
@@ -2037,6 +2194,15 @@ document.addEventListener("DOMContentLoaded", async () => {
     await loadQuestionBank(true);
     if (state.user) buildClassTowerDeck(state.user.classNum);
     loadLeaderboard();
+  });
+
+  document.getElementById("openLatest50Btn").addEventListener("click", () => {
+    document.getElementById("latest50Modal").classList.add("open");
+    loadLeaderboard();
+  });
+  document.getElementById("refreshLatest50Btn").addEventListener("click", loadLeaderboard);
+  document.getElementById("closeLatest50Btn").addEventListener("click", () => {
+    document.getElementById("latest50Modal").classList.remove("open");
   });
 
   document.getElementById("peekLangBtn").addEventListener("click", () => {
