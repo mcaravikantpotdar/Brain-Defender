@@ -1,362 +1,402 @@
 {
   "meta": {
     "board": "HPBOSE",
-    "version": "1.0.0",
+    "version": "2.0.0",
+    "classes": [6, 7, 8, 9, 10],
     "subjects": ["maths", "science", "grammar", "gk", "moral"]
   },
   "questions": [
     {
-      "id": "M-JR-01",
-      "wing": "junior",
+      "id": "M06-T1-01",
+      "class": 6,
       "subject": "maths",
       "difficulty": 1,
       "isLanguageSpecific": false,
       "prompt": {
-        "en": "What is the value of 3/4 + 1/2?",
-        "hi": "3/4 + 1/2 का मान क्या है?"
+        "en": "What is 15 + 24?",
+        "hi": "15 + 24 कितना होता है?"
       },
       "options": {
-        "en": ["5/4", "4/6", "1", "3/6"],
-        "hi": ["5/4", "4/6", "1", "3/6"]
+        "en": ["39", "38", "41", "35"],
+        "hi": ["39", "38", "41", "35"]
       },
       "answerIndex": 0,
       "explanation": {
-        "en": "1/2 equals 2/4, so 3/4 + 2/4 = 5/4.",
-        "hi": "1/2 बराबर 2/4 होता है, इसलिए 3/4 + 2/4 = 5/4।"
+        "en": "15 + 24 = 39.",
+        "hi": "15 + 24 = 39 होता है।"
       }
     },
     {
-      "id": "M-JR-02",
-      "wing": "junior",
+      "id": "M07-T1-01",
+      "class": 7,
+      "subject": "maths",
+      "difficulty": 1,
+      "isLanguageSpecific": false,
+      "prompt": {
+        "en": "What is (-6) + 10?",
+        "hi": "(-6) + 10 का मान क्या है?"
+      },
+      "options": {
+        "en": ["4", "-4", "16", "-16"],
+        "hi": ["4", "-4", "16", "-16"]
+      },
+      "answerIndex": 0,
+      "explanation": {
+        "en": "10 - 6 = 4.",
+        "hi": "10 में से 6 घटाने पर 4 आता है।"
+      }
+    },
+    {
+      "id": "M08-T1-01",
+      "class": 8,
+      "subject": "maths",
+      "difficulty": 1,
+      "isLanguageSpecific": false,
+      "prompt": {
+        "en": "What is the square of 9?",
+        "hi": "9 का वर्ग (Square) क्या है?"
+      },
+      "options": {
+        "en": ["81", "18", "72", "90"],
+        "hi": ["81", "18", "72", "90"]
+      },
+      "answerIndex": 0,
+      "explanation": {
+        "en": "9 × 9 = 81.",
+        "hi": "9 × 9 = 81।"
+      }
+    },
+    {
+      "id": "M09-T1-01",
+      "class": 9,
+      "subject": "maths",
+      "difficulty": 1,
+      "isLanguageSpecific": false,
+      "prompt": {
+        "en": "What is 2³ × 2²?",
+        "hi": "2³ × 2² का मान क्या है?"
+      },
+      "options": {
+        "en": ["32", "64", "16", "12"],
+        "hi": ["32", "64", "16", "12"]
+      },
+      "answerIndex": 0,
+      "explanation": {
+        "en": "2³ × 2² = 2⁵ = 32.",
+        "hi": "2³ × 2² = 2⁵ = 32।"
+      }
+    },
+    {
+      "id": "M10-T1-01",
+      "class": 10,
+      "subject": "maths",
+      "difficulty": 1,
+      "isLanguageSpecific": false,
+      "prompt": {
+        "en": "What is the HCF of 12 and 18?",
+        "hi": "12 और 18 का महत्तम समापवर्तक (HCF) क्या है?"
+      },
+      "options": {
+        "en": ["6", "3", "36", "9"],
+        "hi": ["6", "3", "36", "9"]
+      },
+      "answerIndex": 0,
+      "explanation": {
+        "en": "The greatest common factor of 12 and 18 is 6.",
+        "hi": "12 और 18 का सबसे बड़ा उभयनिष्ठ गुणनखंड 6 है।"
+      }
+    },
+    {
+      "id": "M08-T2-01",
+      "class": 8,
       "subject": "maths",
       "difficulty": 2,
       "isLanguageSpecific": false,
       "prompt": {
-        "en": "The perimeter of a square is 36 cm. What is its area?",
-        "hi": "एक वर्ग का परिमाप 36 सेमी है। इसका क्षेत्रफल क्या होगा?"
+        "en": "Solve for x: 2x + 6 = 18",
+        "hi": "x का मान ज्ञात कीजिए: 2x + 6 = 18"
       },
       "options": {
-        "en": ["81 sq cm", "36 sq cm", "18 sq cm", "72 sq cm"],
-        "hi": ["81 वर्ग सेमी", "36 वर्ग सेमी", "18 वर्ग सेमी", "72 वर्ग सेमी"]
+        "en": ["6", "12", "3", "9"],
+        "hi": ["6", "12", "3", "9"]
       },
       "answerIndex": 0,
       "explanation": {
-        "en": "Side = 36 / 4 = 9 cm; Area = 9 × 9 = 81 sq cm.",
-        "hi": "भुजा = 36 / 4 = 9 सेमी; क्षेत्रफल = 9 × 9 = 81 वर्ग सेमी।"
+        "en": "2x = 12, so x = 6.",
+        "hi": "2x = 12, इसलिए x = 6।"
       }
     },
     {
-      "id": "M-SR-01",
-      "wing": "senior",
-      "subject": "maths",
-      "difficulty": 2,
-      "isLanguageSpecific": false,
-      "prompt": {
-        "en": "What is the value of sin² 30° + cos² 30°?",
-        "hi": "sin² 30° + cos² 30° का मान क्या होता है?"
-      },
-      "options": {
-        "en": ["1", "0", "1/2", "√3/2"],
-        "hi": ["1", "0", "1/2", "√3/2"]
-      },
-      "answerIndex": 0,
-      "explanation": {
-        "en": "By fundamental trigonometric identity, sin²θ + cos²θ = 1.",
-        "hi": "त्रिकोणमितीय सर्वसमिका के अनुसार sin²θ + cos²θ = 1 होता है।"
-      }
-    },
-    {
-      "id": "M-SR-02",
-      "wing": "senior",
+      "id": "M10-T3-01",
+      "class": 10,
       "subject": "maths",
       "difficulty": 3,
       "isLanguageSpecific": false,
       "prompt": {
-        "en": "If the discriminant of a quadratic equation is zero, its roots are:",
-        "hi": "यदि किसी द्विघात समीकरण का विविक्तकर (Discriminant) शून्य हो, तो उसके मूल होते हैं:"
+        "en": "What is the sum of roots of x² - 7x + 10 = 0?",
+        "hi": "समीकरण x² - 7x + 10 = 0 के मूलों का योग क्या है?"
       },
       "options": {
-        "en": ["Real and equal", "Real and distinct", "Imaginary", "Irrational only"],
-        "hi": ["वास्तविक और बराबर", "वास्तविक और भिन्न", "काल्पनिक", "केवल अपरिमेय"]
+        "en": ["7", "-7", "10", "-10"],
+        "hi": ["7", "-7", "10", "-10"]
       },
       "answerIndex": 0,
       "explanation": {
-        "en": "When b² - 4ac = 0, both roots equal -b / (2a).",
-        "hi": "जब b² - 4ac = 0 होता है, तो दोनों मूल वास्तविक और समान होते हैं।"
+        "en": "Sum of roots = -b/a = 7.",
+        "hi": "मूलों का योग = -b/a = 7।"
       }
     },
     {
-      "id": "S-JR-01",
-      "wing": "junior",
+      "id": "S06-T1-01",
+      "class": 6,
       "subject": "science",
       "difficulty": 1,
       "isLanguageSpecific": false,
       "prompt": {
-        "en": "Which gas do green plants absorb during photosynthesis?",
-        "hi": "प्रकाश संश्लेषण के दौरान हरे पौधे कौन-सी गैस अवशोषित करते हैं?"
+        "en": "Which part of a plant grows under the soil?",
+        "hi": "पौधे का कौन-सा भाग मिट्टी के नीचे बढ़ता है?"
       },
       "options": {
-        "en": ["Carbon dioxide", "Oxygen", "Nitrogen", "Hydrogen"],
-        "hi": ["कार्बन डाइऑक्साइड", "ऑक्सीजन", "नाइट्रोजन", "हाइड्रोजन"]
+        "en": ["Root", "Leaf", "Flower", "Fruit"],
+        "hi": ["जड़", "पत्ती", "फूल", "फल"]
       },
       "answerIndex": 0,
       "explanation": {
-        "en": "Plants use carbon dioxide, water, and sunlight to make glucose.",
-        "hi": "पौधे भोजन बनाने के लिए कार्बन डाइऑक्साइड, जल और सूर्य के प्रकाश का उपयोग करते हैं।"
+        "en": "Roots anchor the plant and absorb water and minerals from soil.",
+        "hi": "जड़ पौधे को स्थिर रखती है और मिट्टी से जल व खनिज सोखती है।"
       }
     },
     {
-      "id": "S-JR-02",
-      "wing": "junior",
+      "id": "S08-T1-01",
+      "class": 8,
+      "subject": "science",
+      "difficulty": 1,
+      "isLanguageSpecific": false,
+      "prompt": {
+        "en": "Which metal is liquid at room temperature?",
+        "hi": "कौन-सी धातु सामान्य ताप पर द्रव अवस्था में पाई जाती है?"
+      },
+      "options": {
+        "en": ["Mercury", "Iron", "Copper", "Aluminum"],
+        "hi": ["पारा (Mercury)", "लोहा", "ताँबा", "ऐलुमिनियम"]
+      },
+      "answerIndex": 0,
+      "explanation": {
+        "en": "Mercury is a liquid metal at room temperature.",
+        "hi": "पारा सामान्य ताप पर द्रव अवस्था में रहने वाली धातु है।"
+      }
+    },
+    {
+      "id": "S09-T2-01",
+      "class": 9,
       "subject": "science",
       "difficulty": 2,
       "isLanguageSpecific": false,
       "prompt": {
-        "en": "What is the SI unit of force?",
-        "hi": "बल (Force) का SI मात्रक क्या है?"
-      },
-      "options": {
-        "en": ["Newton", "Joule", "Pascal", "Watt"],
-        "hi": ["न्यूटन", "जूल", "पास्कल", "वाट"]
-      },
-      "answerIndex": 0,
-      "explanation": {
-        "en": "Force is measured in Newtons (N).",
-        "hi": "बल को न्यूटन (N) में मापा जाता है।"
-      }
-    },
-    {
-      "id": "S-SR-01",
-      "wing": "senior",
-      "subject": "science",
-      "difficulty": 2,
-      "isLanguageSpecific": false,
-      "prompt": {
-        "en": "Which cell organelle is known as the powerhouse of the cell?",
+        "en": "Which organelle is called the powerhouse of the cell?",
         "hi": "किस कोशिकांग को कोशिका का ऊर्जा घर (Powerhouse) कहा जाता है?"
       },
       "options": {
-        "en": ["Mitochondria", "Ribosome", "Lysosome", "Vacuole"],
-        "hi": ["माइटोकॉन्ड्रिया", "राइबोसोम", "लाइसोसोम", "रिक्तिका"]
+        "en": ["Mitochondria", "Ribosome", "Golgi apparatus", "Nucleolus"],
+        "hi": ["माइटोकॉन्ड्रिया", "राइबोसोम", "गॉल्जी उपकरण", "केंद्रिका"]
       },
       "answerIndex": 0,
       "explanation": {
-        "en": "Mitochondria produce ATP energy during cellular respiration.",
-        "hi": "माइटोकॉन्ड्रिया कोशिकीय श्वसन द्वारा ATP ऊर्जा बनाते हैं।"
+        "en": "Mitochondria release energy as ATP.",
+        "hi": "माइटोकॉन्ड्रिया ATP के रूप में ऊर्जा उत्पन्न करते हैं।"
       }
     },
     {
-      "id": "S-SR-02",
-      "wing": "senior",
+      "id": "S10-T3-01",
+      "class": 10,
       "subject": "science",
       "difficulty": 3,
       "isLanguageSpecific": false,
       "prompt": {
-        "en": "What is the pH value of a neutral aqueous solution at 25°C?",
-        "hi": "25°C पर एक उदासीन जलीय विलयन का pH मान क्या होता है?"
+        "en": "What is the SI unit of electric resistance?",
+        "hi": "विद्युत प्रतिरोध का SI मात्रक क्या है?"
       },
       "options": {
-        "en": ["7", "0", "14", "5.5"],
-        "hi": ["7", "0", "14", "5.5"]
+        "en": ["Ohm", "Ampere", "Volt", "Coulomb"],
+        "hi": ["ओम (Ohm)", "ऐम्पियर", "वोल्ट", "कूलॉम"]
       },
       "answerIndex": 0,
       "explanation": {
-        "en": "Pure water is neutral with pH = 7.",
-        "hi": "शुद्ध जल उदासीन होता है और इसका pH मान 7 होता है।"
+        "en": "Electrical resistance is measured in Ohms (Ω).",
+        "hi": "विद्युत प्रतिरोध का SI मात्रक ओम (Ω) है।"
       }
     },
     {
-      "id": "G-JR-01",
-      "wing": "junior",
+      "id": "G07-T1-01",
+      "class": 7,
       "subject": "grammar",
       "difficulty": 1,
       "isLanguageSpecific": true,
       "nativeLang": "en",
       "prompt": {
-        "en": "Choose the correct past tense form: 'She ____ a letter yesterday.'",
-        "hi": "Choose the correct past tense form: 'She ____ a letter yesterday.'"
+        "en": "Choose the plural of 'child':",
+        "hi": "Choose the plural of 'child':"
       },
       "options": {
-        "en": ["wrote", "write", "written", "writing"],
-        "hi": ["wrote", "write", "written", "writing"]
+        "en": ["children", "childs", "childes", "childrens"],
+        "hi": ["children", "childs", "childes", "childrens"]
       },
       "answerIndex": 0,
       "explanation": {
-        "en": "'Yesterday' indicates simple past tense, so 'wrote' is correct.",
-        "hi": "'Yesterday' भूतकाल दर्शाता है, इसलिए 'wrote' सही है।"
+        "en": "The irregular plural of 'child' is 'children'.",
+        "hi": "'child' का सही बहुवचन रूप 'children' होता है।"
       }
     },
     {
-      "id": "G-JR-02",
-      "wing": "junior",
+      "id": "G08-T1-02",
+      "class": 8,
       "subject": "grammar",
-      "difficulty": 2,
+      "difficulty": 1,
       "isLanguageSpecific": true,
       "nativeLang": "hi",
       "prompt": {
-        "en": "'सूर्य' का सही पर्यायवाची शब्द चुनिए:",
-        "hi": "'सूर्य' का सही पर्यायवाची शब्द चुनिए:"
+        "en": "'जल' का सही पर्यायवाची शब्द चुनिए:",
+        "hi": "'जल' का सही पर्यायवाची शब्द चुनिए:"
       },
       "options": {
-        "en": ["दिनकर", "शशि", "नीर", "पवन"],
-        "hi": ["दिनकर", "शशि", "नीर", "पवन"]
+        "en": ["नीर", "अग्नि", "वायु", "गिरि"],
+        "hi": ["नीर", "अग्नि", "वायु", "गिरि"]
       },
       "answerIndex": 0,
       "explanation": {
-        "en": "दिनकर, रवि और भास्कर सूर्य के पर्यायवाची हैं।",
-        "hi": "दिनकर, रवि और भास्कर सूर्य के पर्यायवाची हैं।"
+        "en": "'नीर' जल का पर्यायवाची शब्द है।",
+        "hi": "'नीर' जल का पर्यायवाची शब्द है।"
       }
     },
     {
-      "id": "G-SR-01",
-      "wing": "senior",
+      "id": "G10-T3-01",
+      "class": 10,
       "subject": "grammar",
-      "difficulty": 2,
+      "difficulty": 3,
       "isLanguageSpecific": true,
       "nativeLang": "en",
       "prompt": {
-        "en": "Identify the passive voice: 'The teacher praised the student.'",
-        "hi": "Identify the passive voice: 'The teacher praised the student.'"
+        "en": "Select the correct reported speech: He said, 'I am reading.'",
+        "hi": "Select the correct reported speech: He said, 'I am reading.'"
       },
       "options": {
         "en": [
-          "The student was praised by the teacher.",
-          "The student is praised by the teacher.",
-          "The teacher was praised by the student.",
-          "The student had praised the teacher."
+          "He said that he was reading.",
+          "He said that I was reading.",
+          "He says that he is reading.",
+          "He said that he had read."
         ],
         "hi": [
-          "The student was praised by the teacher.",
-          "The student is praised by the teacher.",
-          "The teacher was praised by the student.",
-          "The student had praised the teacher."
+          "He said that he was reading.",
+          "He said that I was reading.",
+          "He says that he is reading.",
+          "He said that he had read."
         ]
       },
       "answerIndex": 0,
       "explanation": {
-        "en": "Simple past active ('praised') changes to 'was/were + past participle'.",
-        "hi": "Simple past active ('praised') को 'was praised' में बदला जाता है।"
+        "en": "Present continuous ('am reading') shifts to past continuous ('was reading').",
+        "hi": "Present continuous ('am reading') indirect speech में 'was reading' बनता है।"
       }
     },
     {
-      "id": "G-SR-02",
-      "wing": "senior",
-      "subject": "grammar",
-      "difficulty": 2,
-      "isLanguageSpecific": true,
-      "nativeLang": "hi",
-      "prompt": {
-        "en": "'आँखों का तारा' मुहावरे का सही अर्थ क्या है?",
-        "hi": "'आँखों का तारा' मुहावरे का सही अर्थ क्या है?"
-      },
-      "options": {
-        "en": ["बहुत प्यारा होना", "गुस्सा होना", "नींद आना", "दूर चले जाना"],
-        "hi": ["बहुत प्यारा होना", "गुस्सा होना", "नींद आना", "दूर चले जाना"]
-      },
-      "answerIndex": 0,
-      "explanation": {
-        "en": "'आँखों का तारा' का अर्थ है अत्यंत प्रिय या बहुत प्यारा होना।",
-        "hi": "'आँखों का तारा' का अर्थ है अत्यंत प्रिय या बहुत प्यारा होना।"
-      }
-    },
-    {
-      "id": "GK-JR-01",
-      "wing": "junior",
+      "id": "K06-T1-01",
+      "class": 6,
       "subject": "gk",
       "difficulty": 1,
       "isLanguageSpecific": false,
       "prompt": {
-        "en": "Which river is known as the 'Sorrow of Bihar'?",
-        "hi": "किस नदी को 'बिहार का शोक' कहा जाता है?"
+        "en": "What is the capital city of Himachal Pradesh?",
+        "hi": "हिमाचल प्रदेश की राजधानी कौन-सी है?"
       },
       "options": {
-        "en": ["Kosi", "Yamuna", "Narmada", "Kaveri"],
-        "hi": ["कोसी", "यमुना", "नर्मदा", "कावेरी"]
+        "en": ["Shimla", "Jaipur", "Dehradun", "Bhopal"],
+        "hi": ["शिमला", "जयपुर", "देहरादून", "भोपाल"]
       },
       "answerIndex": 0,
       "explanation": {
-        "en": "The Kosi River frequently changes course and causes floods in Bihar.",
-        "hi": "कोसी नदी मार्ग बदलने और बाढ़ के कारण बिहार का शोक कहलाती है।"
+        "en": "Shimla is the capital of Himachal Pradesh.",
+        "hi": "शिमला हिमाचल प्रदेश की राजधानी है।"
       }
     },
     {
-      "id": "GK-SR-01",
-      "wing": "senior",
+      "id": "K09-T2-01",
+      "class": 9,
       "subject": "gk",
       "difficulty": 2,
       "isLanguageSpecific": false,
       "prompt": {
-        "en": "Which pass connects Kullu Valley with Lahaul and Spiti in Himachal Pradesh?",
-        "hi": "हिमाचल प्रदेश में कौन-सा दर्रा कुल्लू घाटी को लाहौल और स्पीति से जोड़ता है?"
+        "en": "Which Indian river flows westward into the Arabian Sea?",
+        "hi": "कौन-सी भारतीय नदी पश्चिम की ओर बहकर अरब सागर में गिरती है?"
       },
       "options": {
-        "en": ["Rohtang Pass", "Nathu La", "Zoji La", "Lipulekh Pass"],
-        "hi": ["रोहतांग दर्रा", "नाथू ला", "ज़ोजिला", "लिपुलेख दर्रा"]
+        "en": ["Narmada", "Godavari", "Krishna", "Mahanadi"],
+        "hi": ["नर्मदा", "गोदावरी", "कृष्णा", "महानदी"]
       },
       "answerIndex": 0,
       "explanation": {
-        "en": "Rohtang Pass on the Pir Panjal Range links Kullu with Lahaul-Spiti.",
-        "hi": "पीर पंजाल श्रेणी में स्थित रोहतांग दर्रा कुल्लू को लाहौल-स्पीति से जोड़ता है।"
+        "en": "The Narmada flows westward through a rift valley into the Arabian Sea.",
+        "hi": "नर्मदा नदी पश्चिम की ओर बहते हुए अरब सागर में मिलती है।"
       }
     },
     {
-      "id": "MO-JR-01",
-      "wing": "junior",
+      "id": "E06-T1-01",
+      "class": 6,
       "subject": "moral",
       "difficulty": 1,
       "isLanguageSpecific": false,
       "prompt": {
-        "en": "You find a classmate's lost geometry box near the school gate. What is the best action?",
-        "hi": "आपको स्कूल के गेट के पास सहपाठी का खोया हुआ ज्योमेट्री बॉक्स मिलता है। सबसे सही कदम क्या है?"
+        "en": "You accidentally break a glass on the school desk. What should you do?",
+        "hi": "स्कूल की मेज़ पर आपसे अनजाने में काँच टूट जाए तो आपको क्या करना चाहिए?"
       },
       "options": {
         "en": [
-          "Return it to the owner or hand it to the class teacher",
-          "Keep the compass and leave the box there",
-          "Hide it inside your bag",
-          "Ignore it and walk away"
+          "Tell the teacher honestly so nobody gets hurt",
+          "Blame a classmate sitting nearby",
+          "Hide the broken pieces under the desk",
+          "Run out of the classroom silently"
         ],
         "hi": [
-          "मालिक को लौटाएँ या कक्षा अध्यापक को सौंप दें",
-          "परकार रख लें और डिब्बा वहीं छोड़ दें",
-          "अपने बैग में छिपा लें",
-          "अनदेखा करके आगे बढ़ जाएँ"
+          "अध्यापक को सच्चाई बताएँ ताकि किसी को चोट न लगे",
+          "पास बैठे सहपाठी पर दोष लगा दें",
+          "टूटे टुकड़े मेज़ के नीचे छिपा दें",
+          "चुपचाप कक्षा से बाहर चले जाएँ"
         ]
       },
       "answerIndex": 0,
       "explanation": {
-        "en": "Honesty and empathy build trust in our school community.",
-        "hi": "ईमानदारी और सहानुभूति विद्यालय समुदाय में विश्वास बढ़ाती है।"
+        "en": "Honesty and safety matter most—owning up prevents harm.",
+        "hi": "ईमानदारी और सुरक्षा सबसे महत्वपूर्ण है।"
       }
     },
     {
-      "id": "MO-SR-01",
-      "wing": "senior",
+      "id": "E09-T2-01",
+      "class": 9,
       "subject": "moral",
       "difficulty": 2,
       "isLanguageSpecific": false,
       "prompt": {
-        "en": "A friend asks you to share your exam answers during a test. How should you respond?",
-        "hi": "परीक्षा के दौरान एक मित्र आपसे उत्तर दिखाने को कहता है। आपको क्या करना चाहिए?"
+        "en": "A new student struggles with the language in class. How can you show empathy?",
+        "hi": "कक्षा में एक नए विद्यार्थी को भाषा समझने में कठिनाई हो रही है। आप सहानुभूति कैसे दिखाएंगे?"
       },
       "options": {
         "en": [
-          "Politely refuse during the test and offer to help them study afterward",
-          "Quietly pass your answer sheet",
-          "Argue loudly in the exam hall",
-          "Write wrong answers to mislead them"
+          "Patiently explain key terms and include them in group work",
+          "Laugh at their pronunciation",
+          "Ignore them during discussions",
+          "Tell them not to speak in class"
         ],
         "hi": [
-          "परीक्षा में विनम्रता से मना करें और बाद में पढ़ाई में मदद करने का प्रस्ताव दें",
-          "चुपचाप अपनी उत्तर पुस्तिका दिखा दें",
-          "परीक्षा कक्ष में ज़ोर से बहस करें",
-          "गुमराह करने के लिए गलत उत्तर लिख दें"
+          "धैर्यपूर्वक मुख्य शब्द समझाएँ और समूह कार्य में शामिल करें",
+          "उनके उच्चारण पर हँसें",
+          "चर्चा के दौरान उन्हें अनदेखा करें",
+          "कक्षा में न बोलने को कहें"
         ]
       },
       "answerIndex": 0,
       "explanation": {
-        "en": "True friendship supports genuine learning without compromising integrity.",
-        "hi": "सच्ची मित्रता ईमानदारी से समझौता किए बिना सीखने में सहयोग करती है।"
+        "en": "Inclusion and patience help every learner grow with confidence.",
+        "hi": "समावेश और धैर्य से हर विद्यार्थी आत्मविश्वास के साथ सीखता है।"
       }
     }
   ]
