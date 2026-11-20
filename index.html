@@ -1,0 +1,293 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Brain Defender: Castle of Curiosity</title>
+  <style>
+    :root {
+      --bg: #0b1020;
+      --panel: #131b33;
+      --panel-alt: #1a2544;
+      --border: #2a3a6b;
+      --text: #eef2ff;
+      --muted: #94a3b8;
+      --accent: #38bdf8;
+      --gold: #facc15;
+      --green: #22c55e;
+      --red: #ef4444;
+      --purple: #a855f7;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', system-ui, -apple-system, sans-serif; }
+    body { background: var(--bg); color: var(--text); min-height: 100vh; display: flex; flex-direction: column; }
+
+    /* Shared UI */
+    .btn {
+      background: var(--accent); color: #06101f; border: none; padding: 10px 16px;
+      border-radius: 8px; font-weight: 700; cursor: pointer; transition: transform 0.1s, opacity 0.15s;
+    }
+    .btn:hover:not(:disabled) { transform: translateY(-1px); opacity: 0.95; }
+    .btn:disabled { opacity: 0.45; cursor: not-allowed; }
+    .btn-secondary { background: var(--panel-alt); color: var(--text); border: 1px solid var(--border); }
+    .btn-gold { background: var(--gold); color: #1e1500; }
+    .btn-purple { background: var(--purple); color: #fff; }
+    .badge {
+      display: inline-block; padding: 3px 8px; border-radius: 999px; font-size: 0.75rem;
+      font-weight: 700; background: var(--panel-alt); border: 1px solid var(--border);
+    }
+
+    /* Login Gate */
+    #loginGate {
+      flex: 1; display: flex; align-items: center; justify-content: center; padding: 20px;
+      background: radial-gradient(circle at top, #172554 0%, var(--bg) 70%);
+    }
+    .login-card {
+      background: var(--panel); border: 1px solid var(--border); border-radius: 16px;
+      padding: 28px; width: 100%; max-width: 460px; box-shadow: 0 20px 50px rgba(0,0,0,0.5);
+    }
+    .login-card h1 { font-size: 1.65rem; margin-bottom: 6px; color: var(--gold); }
+    .login-card p.sub { color: var(--muted); font-size: 0.92rem; margin-bottom: 20px; }
+    .field { margin-bottom: 14px; }
+    .field label { display: block; font-size: 0.85rem; color: var(--muted); margin-bottom: 6px; font-weight: 600; }
+    .field input, .field select {
+      width: 100%; padding: 11px 12px; border-radius: 8px; border: 1px solid var(--border);
+      background: #0d1428; color: var(--text); font-size: 1rem;
+    }
+    .lang-pills { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+    .lang-pill {
+      padding: 9px; border-radius: 8px; border: 1px solid var(--border); background: #0d1428;
+      color: var(--text); cursor: pointer; font-weight: 600; text-align: center; font-size: 0.85rem;
+    }
+    .lang-pill.active { background: var(--accent); color: #051124; border-color: var(--accent); }
+    .status-msg { margin-top: 12px; font-size: 0.86rem; min-height: 20px; color: var(--gold); }
+    .status-msg.error { color: var(--red); }
+    .demo-strip {
+      margin-top: 16px; padding-top: 14px; border-top: 1px dashed var(--border);
+      font-size: 0.8rem; color: var(--muted);
+    }
+    .demo-btns { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; }
+    .demo-btns button { font-size: 0.75rem; padding: 5px 9px; }
+
+    /* Main Game Layout */
+    #gameApp { display: none; flex-direction: column; min-height: 100vh; }
+    header.topbar {
+      display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between;
+      gap: 10px; padding: 10px 18px; background: var(--panel); border-bottom: 1px solid var(--border);
+    }
+    .student-info { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+    .hud-stats { display: flex; gap: 14px; align-items: center; flex-wrap: wrap; font-weight: 700; font-size: 0.92rem; }
+    .hud-stat span { color: var(--gold); }
+
+    .workspace {
+      display: grid; grid-template-columns: 1fr 310px; gap: 14px; padding: 14px; flex: 1;
+      max-width: 1320px; width: 100%; margin: 0 auto;
+    }
+    @media (max-width: 960px) { .workspace { grid-template-columns: 1fr; } }
+
+    .stage-wrap {
+      background: var(--panel); border: 1px solid var(--border); border-radius: 14px;
+      padding: 12px; display: flex; flex-direction: column; gap: 10px;
+    }
+    canvas#gameCanvas {
+      width: 100%; height: auto; border-radius: 10px; background: #091224;
+      border: 1px solid var(--border); cursor: pointer; display: block;
+    }
+    .build-bar {
+      display: grid; grid-template-columns: repeat(auto-fit, minmax(145px, 1fr)); gap: 8px;
+    }
+    .turret-btn {
+      background: var(--panel-alt); border: 2px solid var(--border); color: var(--text);
+      padding: 8px 10px; border-radius: 10px; cursor: pointer; text-align: left;
+    }
+    .turret-btn.selected { border-color: var(--gold); background: #223059; }
+    .turret-btn .t-title { font-weight: 700; font-size: 0.86rem; display: block; }
+    .turret-btn .t-sub { font-size: 0.74rem; color: var(--muted); }
+
+    /* Side Panel */
+    .side-panel { display: flex; flex-direction: column; gap: 12px; }
+    .card {
+      background: var(--panel); border: 1px solid var(--border); border-radius: 12px; padding: 14px;
+    }
+    .card h3 { font-size: 0.95rem; margin-bottom: 10px; color: var(--accent); display: flex; justify-content: space-between; align-items: center; }
+    .lb-list { list-style: none; display: flex; flex-direction: column; gap: 7px; max-height: 280px; overflow-y: auto; }
+    .lb-item {
+      display: flex; justify-content: space-between; align-items: center; font-size: 0.82rem;
+      background: #0d1428; padding: 7px 10px; border-radius: 8px; border: 1px solid #1e2b52;
+    }
+    .lb-item.me { border-color: var(--gold); }
+
+    /* Modal */
+    .modal-backdrop {
+      position: fixed; inset: 0; background: rgba(4, 8, 20, 0.84);
+      display: none; align-items: center; justify-content: center; padding: 16px; z-index: 50;
+    }
+    .modal-backdrop.open { display: flex; }
+    .modal-box {
+      background: var(--panel); border: 1px solid var(--border); border-radius: 16px;
+      width: 100%; max-width: 580px; padding: 22px; box-shadow: 0 25px 60px rgba(0,0,0,0.65);
+    }
+    .modal-top { display: flex; justify-content: space-between; align-items: center; gap: 10px; margin-bottom: 12px; }
+    .timer-bar-wrap { height: 8px; background: #0b1020; border-radius: 999px; overflow: hidden; margin-bottom: 14px; }
+    .timer-bar { height: 100%; background: var(--green); width: 100%; transition: width 0.1s linear; }
+    .q-prompt-en { font-size: 1.08rem; font-weight: 700; line-height: 1.4; margin-bottom: 6px; }
+    .q-prompt-hi { font-size: 1.02rem; color: #cbd5e1; line-height: 1.45; margin-bottom: 12px; }
+    .options-grid { display: grid; gap: 9px; margin-top: 10px; }
+    .opt-btn {
+      background: var(--panel-alt); border: 1px solid var(--border); color: var(--text);
+      padding: 11px 14px; border-radius: 10px; text-align: left; cursor: pointer; font-size: 0.94rem;
+    }
+    .opt-btn:hover:not(:disabled) { border-color: var(--accent); background: #22315c; }
+    .opt-btn.correct { background: #14532d; border-color: var(--green); }
+    .opt-btn.wrong { background: #7f1d1d; border-color: var(--red); }
+    .feedback-box {
+      margin-top: 12px; padding: 10px 12px; border-radius: 8px; background: #0d1428;
+      font-size: 0.86rem; color: #e2e8f0; display: none;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- PEN LOGIN GATE -->
+  <section id="loginGate">
+    <div class="login-card">
+      <h1>Brain Defender</h1>
+      <p class="sub">Castle of Curiosity • HPBOSE Bilingual Learning Arena</p>
+
+      <div class="field">
+        <label for="penInput">Student PEN (11–12 Digits)</label>
+        <input id="penInput" type="text" inputmode="numeric" maxlength="12" placeholder="Enter your 11 or 12-digit PEN" autocomplete="off" />
+      </div>
+
+      <div class="field">
+        <label for="wingSelect">Grade Wing (Auto-detected from Roster or Select)</label>
+        <select id="wingSelect">
+          <option value="auto">Auto-Detect from PEN Roster</option>
+          <option value="junior">Junior Wing (Classes 6 – 8)</option>
+          <option value="senior">Senior Wing (Classes 9 – 10)</option>
+        </select>
+      </div>
+
+      <div class="field">
+        <label>Language Display Mode / भाषा मोड</label>
+        <div class="lang-pills" id="loginLangPills">
+          <button type="button" class="lang-pill active" data-lang="dual">Dual (EN + हि)</button>
+          <button type="button" class="lang-pill" data-lang="en">English</button>
+          <button type="button" class="lang-pill" data-lang="hi">हिन्दी</button>
+        </div>
+      </div>
+
+      <button id="loginBtn" class="btn" style="width:100%;">Verify PEN & Enter Castle</button>
+      <div id="loginStatus" class="status-msg"></div>
+
+      <div class="demo-strip" id="demoStrip">
+        <strong>Offline / Quick Test Profiles:</strong>
+        <div class="demo-btns">
+          <button type="button" class="btn btn-secondary demo-fill" data-pen="21045890123">Aarav (Class 7)</button>
+          <button type="button" class="btn btn-secondary demo-fill" data-pen="21045890456">Priya (Class 10)</button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- GAME ARENA -->
+  <section id="gameApp">
+    <header class="topbar">
+      <div class="student-info">
+        <strong id="hudStudentName">Student</strong>
+        <span class="badge" id="hudStudentMeta">Class --</span>
+        <span class="badge" id="hudSyncBadge">Local Mode</span>
+      </div>
+
+      <div class="hud-stats">
+        <div class="hud-stat">Castle HP: <span id="hudHp">100</span></div>
+        <div class="hud-stat">Coins: <span id="hudCoins">120</span></div>
+        <div class="hud-stat">Mana: <span id="hudMana">50</span></div>
+        <div class="hud-stat">Wave: <span id="hudWave">1</span></div>
+        <div class="hud-stat">Score: <span id="hudScore">0</span></div>
+      </div>
+
+      <div style="display:flex; gap:8px; align-items:center;">
+        <select id="inGameLangSelect" style="padding:6px 8px; border-radius:6px; background:#0d1428; color:#fff; border:1px solid var(--border);">
+          <option value="dual">Dual (EN + हि)</option>
+          <option value="en">English + Peek</option>
+          <option value="hi">हिन्दी + Peek</option>
+        </select>
+        <button id="logoutBtn" class="btn btn-secondary" style="padding:6px 10px;">Exit</button>
+      </div>
+    </header>
+
+    <main class="workspace">
+      <div class="stage-wrap">
+        <canvas id="gameCanvas" width="840" height="440"></canvas>
+
+        <div class="build-bar" id="buildBar">
+          <button class="turret-btn selected" data-type="maths">
+            <span class="t-title">Maths Cannon (40g)</span>
+            <span class="t-sub">Splash damage • Arithmetic & Algebra</span>
+          </button>
+          <button class="turret-btn" data-type="science">
+            <span class="t-title">Science Tesla (45g)</span>
+            <span class="t-sub">Chain lightning • Physics, Chem, Bio</span>
+          </button>
+          <button class="turret-btn" data-type="grammar">
+            <span class="t-title">Grammar Gale (35g)</span>
+            <span class="t-sub">Slows enemies • English & व्याकरण</span>
+          </button>
+          <button class="turret-btn" data-type="gk">
+            <span class="t-title">GK Prism Laser (50g)</span>
+            <span class="t-sub">Long-range sniper • India & World</span>
+          </button>
+        </div>
+
+        <div style="display:flex; gap:10px; flex-wrap:wrap; align-items:center; justify-content:space-between;">
+          <div style="font-size:0.82rem; color:var(--muted);">
+            Click highlighted pads to build • Click an existing turret to <strong>Supercharge</strong> via quiz!
+          </div>
+          <div style="display:flex; gap:8px;">
+            <button id="startWaveBtn" class="btn btn-gold">Start Wave 1</button>
+            <button id="ultimateBtn" class="btn btn-purple" disabled>Ultimate Storm (60 Mana)</button>
+          </div>
+        </div>
+      </div>
+
+      <aside class="side-panel">
+        <div class="card">
+          <h3>
+            <span>School Leaderboard</span>
+            <button id="refreshLbBtn" class="btn btn-secondary" style="padding:4px 8px; font-size:0.75rem;">Refresh</button>
+          </h3>
+          <ul class="lb-list" id="leaderboardList"></ul>
+        </div>
+
+        <div class="card">
+          <h3>Subject Mastery (This Run)</h3>
+          <div id="masteryStats" style="font-size:0.84rem; color:var(--muted); line-height:1.7;">
+            Answer turret challenges to track accuracy across Maths, Science, Grammar, GK & Moral Education.
+          </div>
+        </div>
+      </aside>
+    </main>
+  </section>
+
+  <!-- QUESTION / MORAL MODAL -->
+  <div class="modal-backdrop" id="challengeModal">
+    <div class="modal-box">
+      <div class="modal-top">
+        <div>
+          <span class="badge" id="modalSubjectBadge">SUBJECT</span>
+          <span class="badge" id="modalTimerBadge">15.0s</span>
+        </div>
+        <button id="peekLangBtn" class="btn btn-secondary" style="padding:5px 10px; font-size:0.78rem;">Show Translation / अनुवाद</button>
+      </div>
+
+      <div class="timer-bar-wrap"><div class="timer-bar" id="modalTimerBar"></div></div>
+
+      <div id="modalPromptWrap"></div>
+      <div class="options-grid" id="modalOptions"></div>
+      <div class="feedback-box" id="modalFeedback"></div>
+    </div>
+  </div>
+
+  <script src="game.js"></script>
+</body>
+</html>
