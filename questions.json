@@ -1,0 +1,363 @@
+{
+  "meta": {
+    "board": "HPBOSE",
+    "version": "1.0.0",
+    "subjects": ["maths", "science", "grammar", "gk", "moral"]
+  },
+  "questions": [
+    {
+      "id": "M-JR-01",
+      "wing": "junior",
+      "subject": "maths",
+      "difficulty": 1,
+      "isLanguageSpecific": false,
+      "prompt": {
+        "en": "What is the value of 3/4 + 1/2?",
+        "hi": "3/4 + 1/2 का मान क्या है?"
+      },
+      "options": {
+        "en": ["5/4", "4/6", "1", "3/6"],
+        "hi": ["5/4", "4/6", "1", "3/6"]
+      },
+      "answerIndex": 0,
+      "explanation": {
+        "en": "1/2 equals 2/4, so 3/4 + 2/4 = 5/4.",
+        "hi": "1/2 बराबर 2/4 होता है, इसलिए 3/4 + 2/4 = 5/4।"
+      }
+    },
+    {
+      "id": "M-JR-02",
+      "wing": "junior",
+      "subject": "maths",
+      "difficulty": 2,
+      "isLanguageSpecific": false,
+      "prompt": {
+        "en": "The perimeter of a square is 36 cm. What is its area?",
+        "hi": "एक वर्ग का परिमाप 36 सेमी है। इसका क्षेत्रफल क्या होगा?"
+      },
+      "options": {
+        "en": ["81 sq cm", "36 sq cm", "18 sq cm", "72 sq cm"],
+        "hi": ["81 वर्ग सेमी", "36 वर्ग सेमी", "18 वर्ग सेमी", "72 वर्ग सेमी"]
+      },
+      "answerIndex": 0,
+      "explanation": {
+        "en": "Side = 36 / 4 = 9 cm; Area = 9 × 9 = 81 sq cm.",
+        "hi": "भुजा = 36 / 4 = 9 सेमी; क्षेत्रफल = 9 × 9 = 81 वर्ग सेमी।"
+      }
+    },
+    {
+      "id": "M-SR-01",
+      "wing": "senior",
+      "subject": "maths",
+      "difficulty": 2,
+      "isLanguageSpecific": false,
+      "prompt": {
+        "en": "What is the value of sin² 30° + cos² 30°?",
+        "hi": "sin² 30° + cos² 30° का मान क्या होता है?"
+      },
+      "options": {
+        "en": ["1", "0", "1/2", "√3/2"],
+        "hi": ["1", "0", "1/2", "√3/2"]
+      },
+      "answerIndex": 0,
+      "explanation": {
+        "en": "By fundamental trigonometric identity, sin²θ + cos²θ = 1.",
+        "hi": "त्रिकोणमितीय सर्वसमिका के अनुसार sin²θ + cos²θ = 1 होता है।"
+      }
+    },
+    {
+      "id": "M-SR-02",
+      "wing": "senior",
+      "subject": "maths",
+      "difficulty": 3,
+      "isLanguageSpecific": false,
+      "prompt": {
+        "en": "If the discriminant of a quadratic equation is zero, its roots are:",
+        "hi": "यदि किसी द्विघात समीकरण का विविक्तकर (Discriminant) शून्य हो, तो उसके मूल होते हैं:"
+      },
+      "options": {
+        "en": ["Real and equal", "Real and distinct", "Imaginary", "Irrational only"],
+        "hi": ["वास्तविक और बराबर", "वास्तविक और भिन्न", "काल्पनिक", "केवल अपरिमेय"]
+      },
+      "answerIndex": 0,
+      "explanation": {
+        "en": "When b² - 4ac = 0, both roots equal -b / (2a).",
+        "hi": "जब b² - 4ac = 0 होता है, तो दोनों मूल वास्तविक और समान होते हैं।"
+      }
+    },
+    {
+      "id": "S-JR-01",
+      "wing": "junior",
+      "subject": "science",
+      "difficulty": 1,
+      "isLanguageSpecific": false,
+      "prompt": {
+        "en": "Which gas do green plants absorb during photosynthesis?",
+        "hi": "प्रकाश संश्लेषण के दौरान हरे पौधे कौन-सी गैस अवशोषित करते हैं?"
+      },
+      "options": {
+        "en": ["Carbon dioxide", "Oxygen", "Nitrogen", "Hydrogen"],
+        "hi": ["कार्बन डाइऑक्साइड", "ऑक्सीजन", "नाइट्रोजन", "हाइड्रोजन"]
+      },
+      "answerIndex": 0,
+      "explanation": {
+        "en": "Plants use carbon dioxide, water, and sunlight to make glucose.",
+        "hi": "पौधे भोजन बनाने के लिए कार्बन डाइऑक्साइड, जल और सूर्य के प्रकाश का उपयोग करते हैं।"
+      }
+    },
+    {
+      "id": "S-JR-02",
+      "wing": "junior",
+      "subject": "science",
+      "difficulty": 2,
+      "isLanguageSpecific": false,
+      "prompt": {
+        "en": "What is the SI unit of force?",
+        "hi": "बल (Force) का SI मात्रक क्या है?"
+      },
+      "options": {
+        "en": ["Newton", "Joule", "Pascal", "Watt"],
+        "hi": ["न्यूटन", "जूल", "पास्कल", "वाट"]
+      },
+      "answerIndex": 0,
+      "explanation": {
+        "en": "Force is measured in Newtons (N).",
+        "hi": "बल को न्यूटन (N) में मापा जाता है।"
+      }
+    },
+    {
+      "id": "S-SR-01",
+      "wing": "senior",
+      "subject": "science",
+      "difficulty": 2,
+      "isLanguageSpecific": false,
+      "prompt": {
+        "en": "Which cell organelle is known as the powerhouse of the cell?",
+        "hi": "किस कोशिकांग को कोशिका का ऊर्जा घर (Powerhouse) कहा जाता है?"
+      },
+      "options": {
+        "en": ["Mitochondria", "Ribosome", "Lysosome", "Vacuole"],
+        "hi": ["माइटोकॉन्ड्रिया", "राइबोसोम", "लाइसोसोम", "रिक्तिका"]
+      },
+      "answerIndex": 0,
+      "explanation": {
+        "en": "Mitochondria produce ATP energy during cellular respiration.",
+        "hi": "माइटोकॉन्ड्रिया कोशिकीय श्वसन द्वारा ATP ऊर्जा बनाते हैं।"
+      }
+    },
+    {
+      "id": "S-SR-02",
+      "wing": "senior",
+      "subject": "science",
+      "difficulty": 3,
+      "isLanguageSpecific": false,
+      "prompt": {
+        "en": "What is the pH value of a neutral aqueous solution at 25°C?",
+        "hi": "25°C पर एक उदासीन जलीय विलयन का pH मान क्या होता है?"
+      },
+      "options": {
+        "en": ["7", "0", "14", "5.5"],
+        "hi": ["7", "0", "14", "5.5"]
+      },
+      "answerIndex": 0,
+      "explanation": {
+        "en": "Pure water is neutral with pH = 7.",
+        "hi": "शुद्ध जल उदासीन होता है और इसका pH मान 7 होता है।"
+      }
+    },
+    {
+      "id": "G-JR-01",
+      "wing": "junior",
+      "subject": "grammar",
+      "difficulty": 1,
+      "isLanguageSpecific": true,
+      "nativeLang": "en",
+      "prompt": {
+        "en": "Choose the correct past tense form: 'She ____ a letter yesterday.'",
+        "hi": "Choose the correct past tense form: 'She ____ a letter yesterday.'"
+      },
+      "options": {
+        "en": ["wrote", "write", "written", "writing"],
+        "hi": ["wrote", "write", "written", "writing"]
+      },
+      "answerIndex": 0,
+      "explanation": {
+        "en": "'Yesterday' indicates simple past tense, so 'wrote' is correct.",
+        "hi": "'Yesterday' भूतकाल दर्शाता है, इसलिए 'wrote' सही है।"
+      }
+    },
+    {
+      "id": "G-JR-02",
+      "wing": "junior",
+      "subject": "grammar",
+      "difficulty": 2,
+      "isLanguageSpecific": true,
+      "nativeLang": "hi",
+      "prompt": {
+        "en": "'सूर्य' का सही पर्यायवाची शब्द चुनिए:",
+        "hi": "'सूर्य' का सही पर्यायवाची शब्द चुनिए:"
+      },
+      "options": {
+        "en": ["दिनकर", "शशि", "नीर", "पवन"],
+        "hi": ["दिनकर", "शशि", "नीर", "पवन"]
+      },
+      "answerIndex": 0,
+      "explanation": {
+        "en": "दिनकर, रवि और भास्कर सूर्य के पर्यायवाची हैं।",
+        "hi": "दिनकर, रवि और भास्कर सूर्य के पर्यायवाची हैं।"
+      }
+    },
+    {
+      "id": "G-SR-01",
+      "wing": "senior",
+      "subject": "grammar",
+      "difficulty": 2,
+      "isLanguageSpecific": true,
+      "nativeLang": "en",
+      "prompt": {
+        "en": "Identify the passive voice: 'The teacher praised the student.'",
+        "hi": "Identify the passive voice: 'The teacher praised the student.'"
+      },
+      "options": {
+        "en": [
+          "The student was praised by the teacher.",
+          "The student is praised by the teacher.",
+          "The teacher was praised by the student.",
+          "The student had praised the teacher."
+        ],
+        "hi": [
+          "The student was praised by the teacher.",
+          "The student is praised by the teacher.",
+          "The teacher was praised by the student.",
+          "The student had praised the teacher."
+        ]
+      },
+      "answerIndex": 0,
+      "explanation": {
+        "en": "Simple past active ('praised') changes to 'was/were + past participle'.",
+        "hi": "Simple past active ('praised') को 'was praised' में बदला जाता है।"
+      }
+    },
+    {
+      "id": "G-SR-02",
+      "wing": "senior",
+      "subject": "grammar",
+      "difficulty": 2,
+      "isLanguageSpecific": true,
+      "nativeLang": "hi",
+      "prompt": {
+        "en": "'आँखों का तारा' मुहावरे का सही अर्थ क्या है?",
+        "hi": "'आँखों का तारा' मुहावरे का सही अर्थ क्या है?"
+      },
+      "options": {
+        "en": ["बहुत प्यारा होना", "गुस्सा होना", "नींद आना", "दूर चले जाना"],
+        "hi": ["बहुत प्यारा होना", "गुस्सा होना", "नींद आना", "दूर चले जाना"]
+      },
+      "answerIndex": 0,
+      "explanation": {
+        "en": "'आँखों का तारा' का अर्थ है अत्यंत प्रिय या बहुत प्यारा होना।",
+        "hi": "'आँखों का तारा' का अर्थ है अत्यंत प्रिय या बहुत प्यारा होना।"
+      }
+    },
+    {
+      "id": "GK-JR-01",
+      "wing": "junior",
+      "subject": "gk",
+      "difficulty": 1,
+      "isLanguageSpecific": false,
+      "prompt": {
+        "en": "Which river is known as the 'Sorrow of Bihar'?",
+        "hi": "किस नदी को 'बिहार का शोक' कहा जाता है?"
+      },
+      "options": {
+        "en": ["Kosi", "Yamuna", "Narmada", "Kaveri"],
+        "hi": ["कोसी", "यमुना", "नर्मदा", "कावेरी"]
+      },
+      "answerIndex": 0,
+      "explanation": {
+        "en": "The Kosi River frequently changes course and causes floods in Bihar.",
+        "hi": "कोसी नदी मार्ग बदलने और बाढ़ के कारण बिहार का शोक कहलाती है।"
+      }
+    },
+    {
+      "id": "GK-SR-01",
+      "wing": "senior",
+      "subject": "gk",
+      "difficulty": 2,
+      "isLanguageSpecific": false,
+      "prompt": {
+        "en": "Which pass connects Kullu Valley with Lahaul and Spiti in Himachal Pradesh?",
+        "hi": "हिमाचल प्रदेश में कौन-सा दर्रा कुल्लू घाटी को लाहौल और स्पीति से जोड़ता है?"
+      },
+      "options": {
+        "en": ["Rohtang Pass", "Nathu La", "Zoji La", "Lipulekh Pass"],
+        "hi": ["रोहतांग दर्रा", "नाथू ला", "ज़ोजिला", "लिपुलेख दर्रा"]
+      },
+      "answerIndex": 0,
+      "explanation": {
+        "en": "Rohtang Pass on the Pir Panjal Range links Kullu with Lahaul-Spiti.",
+        "hi": "पीर पंजाल श्रेणी में स्थित रोहतांग दर्रा कुल्लू को लाहौल-स्पीति से जोड़ता है।"
+      }
+    },
+    {
+      "id": "MO-JR-01",
+      "wing": "junior",
+      "subject": "moral",
+      "difficulty": 1,
+      "isLanguageSpecific": false,
+      "prompt": {
+        "en": "You find a classmate's lost geometry box near the school gate. What is the best action?",
+        "hi": "आपको स्कूल के गेट के पास सहपाठी का खोया हुआ ज्योमेट्री बॉक्स मिलता है। सबसे सही कदम क्या है?"
+      },
+      "options": {
+        "en": [
+          "Return it to the owner or hand it to the class teacher",
+          "Keep the compass and leave the box there",
+          "Hide it inside your bag",
+          "Ignore it and walk away"
+        ],
+        "hi": [
+          "मालिक को लौटाएँ या कक्षा अध्यापक को सौंप दें",
+          "परकार रख लें और डिब्बा वहीं छोड़ दें",
+          "अपने बैग में छिपा लें",
+          "अनदेखा करके आगे बढ़ जाएँ"
+        ]
+      },
+      "answerIndex": 0,
+      "explanation": {
+        "en": "Honesty and empathy build trust in our school community.",
+        "hi": "ईमानदारी और सहानुभूति विद्यालय समुदाय में विश्वास बढ़ाती है।"
+      }
+    },
+    {
+      "id": "MO-SR-01",
+      "wing": "senior",
+      "subject": "moral",
+      "difficulty": 2,
+      "isLanguageSpecific": false,
+      "prompt": {
+        "en": "A friend asks you to share your exam answers during a test. How should you respond?",
+        "hi": "परीक्षा के दौरान एक मित्र आपसे उत्तर दिखाने को कहता है। आपको क्या करना चाहिए?"
+      },
+      "options": {
+        "en": [
+          "Politely refuse during the test and offer to help them study afterward",
+          "Quietly pass your answer sheet",
+          "Argue loudly in the exam hall",
+          "Write wrong answers to mislead them"
+        ],
+        "hi": [
+          "परीक्षा में विनम्रता से मना करें और बाद में पढ़ाई में मदद करने का प्रस्ताव दें",
+          "चुपचाप अपनी उत्तर पुस्तिका दिखा दें",
+          "परीक्षा कक्ष में ज़ोर से बहस करें",
+          "गुमराह करने के लिए गलत उत्तर लिख दें"
+        ]
+      },
+      "answerIndex": 0,
+      "explanation": {
+        "en": "True friendship supports genuine learning without compromising integrity.",
+        "hi": "सच्ची मित्रता ईमानदारी से समझौता किए बिना सीखने में सहयोग करती है।"
+      }
+    }
+  ]
+}
