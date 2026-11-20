@@ -223,18 +223,43 @@ function questionDuration(q, isUntimed) {
 function canonicalSubject(rawVal) {
   const s = String(rawVal || "").toLowerCase().trim();
   if (!s) return null;
-  if (s.includes("comp") || s.includes("c.s") || s === "cs" || s.includes("computer") || s.includes("it")) {
+
+  // 1. Computer Science / Database / PL-SQL first so "language" in PL/SQL never hits grammar
+  if (
+    /\b(pl\/?sql|sql|dbms|rdbms|database|cursor|trigger|stored\s*procedure|function|package|exception|sqlplus|oracle|python|java|c\+\+|html|css|javascript|algorithm|flowchart|network|cyber|comp\.?\s*sc\.?|computer|it)\b/i.test(s) ||
+    s === "cs"
+  ) {
     return "cs";
   }
-  if (s.includes("math") || s === "maths") return "maths";
-  if (s.includes("sci")) return "science";
-  if (s.includes("gram") || s.includes("eng") || s.includes("hind") || s.includes("lang")) {
-    return "grammar";
+
+  // 2. Mathematics
+  if (/\b(math|maths|mathematics|algebra|geometry|trigonometry|calculus|arithmetic|गणित)\b/i.test(s)) {
+    return "maths";
   }
-  if (s.includes("moral") || s.includes("value") || s.includes("ethic")) return "moral";
-  if (s.includes("gk") || s.includes("general") || s.includes("social") || s.includes("sst")) {
+
+  // 3. Science
+  if (/\b(sci|science|physics|chemistry|biology|विज्ञान|भौतिक|रसायन|जीव)\b/i.test(s)) {
+    return "science";
+  }
+
+  // 4. Moral Education
+  if (/\b(moral|value|ethics|civics|नैतिक)\b/i.test(s)) {
+    return "moral";
+  }
+
+  // 5. General Knowledge / Social Studies
+  if (/\b(gk|general\s*knowledge|social|sst|history|geography|सामान्य\s*ज्ञान)\b/i.test(s)) {
     return "gk";
   }
+
+  // 6. Grammar / Languages (avoid matching generic "language" when paired with SQL/programming)
+  if (
+    /\b(gram|grammar|english|hindi|sanskrit|व्याकरण|अंग्रेजी|हिन्दी|हिंदी)\b/i.test(s) ||
+    /\b(language\s*(arts|paper|subject)|lang)\b/i.test(s)
+  ) {
+    return "grammar";
+  }
+
   return null;
 }
 
@@ -273,15 +298,16 @@ function normalizeRepoPayload(data, path) {
     Number(meta.class) ||
     10;
 
-  const inferredSubject =
-    canonicalSubject(meta.subject) ||
-    parts.map(canonicalSubject).find(Boolean) ||
-    "cs";
-
   const chapterName =
     meta.chapter_title ||
     parts[parts.length - 1]?.replace(/\.json$/i, "") ||
     "Chapter";
+
+  const inferredSubject =
+    canonicalSubject(meta.subject) ||
+    parts.slice(0, -1).map(canonicalSubject).find(Boolean) ||
+    canonicalSubject(chapterName) ||
+    "cs";
 
   const letterOrder = ["a", "b", "c", "d"];
   const out = [];
@@ -1595,7 +1621,6 @@ function drawScene() {
     ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(canvas.width, y); ctx.stroke();
   }
 
-  // Elevated 3D stone road with curb border
   ctx.lineCap = "round";
   ctx.lineJoin = "round";
   ctx.strokeStyle = "#0b1226";
