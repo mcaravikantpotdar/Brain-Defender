@@ -8,18 +8,17 @@ const BACKEND_URL =
 const REPO_OWNER = "mcaravikantpotdar";
 const REPO_NAME = "Multi-Class-Quiz";
 const REPO_BRANCH = "main";
-const REPO_CACHE_KEY = "brain_defender_repo_cache_v1";
+const REPO_CACHE_KEY = "brain_defender_repo_cache_v2";
 const REPO_CACHE_TTL_MS = 6 * 60 * 60 * 1000; // 6 hours
 
 const VICTORY_WAVE = 6;
 const WAVE_CLOCK_SECONDS = 90;
 const STORM_MANA_COST = 60;
 
-// Core base cannons always available + optional repo-unlocked subjects (e.g. "cs")
+// Base cannons always available + repo-unlocked subjects (e.g. "cs")
 const BASE_TOWER_SPECS = {
   maths: {
     key: "maths",
-    hotkey: "1",
     label: "Maths Cannon",
     shortDesc: "Splash blast",
     cost: 40,
@@ -34,7 +33,6 @@ const BASE_TOWER_SPECS = {
   },
   science: {
     key: "science",
-    hotkey: "2",
     label: "Science Tesla",
     shortDesc: "Rapid chain spark",
     cost: 45,
@@ -48,7 +46,6 @@ const BASE_TOWER_SPECS = {
   },
   grammar: {
     key: "grammar",
-    hotkey: "3",
     label: "Grammar Gale",
     shortDesc: "Slowing gale",
     cost: 35,
@@ -63,7 +60,6 @@ const BASE_TOWER_SPECS = {
   },
   gk: {
     key: "gk",
-    hotkey: "4",
     label: "GK Prism Laser",
     shortDesc: "Long-range beam",
     cost: 50,
@@ -76,7 +72,6 @@ const BASE_TOWER_SPECS = {
   },
   cs: {
     key: "cs",
-    hotkey: "5",
     label: "Comp. Sc. Node",
     shortDesc: "High-speed chain pulse",
     cost: 42,
@@ -120,9 +115,8 @@ const state = {
   recentIds: [],
   recentGenKeys: [],
   repoLoadedCount: 0,
-  repoStatusNote: "Base bank ready",
 
-  activeTowers: {},    // computed per class with cost/upgrade boost when class JSON exists
+  activeTowers: {},
   hp: 100,
   gold: 120,
   mana: 50,
@@ -245,10 +239,12 @@ function canonicalSubject(rawVal) {
 }
 
 function inferClassFromText(text) {
-  const m = String(text || "").match(/class[\s\-_]*([6-9]|10)\b/i) || String(text || "").match(/\b(10|[6-9])(?:th)?\b/i);
+  const m =
+    String(text || "").match(/class[\s\-_]*([6-9]|1[0-2])\b/i) ||
+    String(text || "").match(/\b(1[0-2]|[6-9])(?:th)?\b/i);
   if (!m) return null;
   const n = Number(m[1] || m[0]);
-  return (n >= 6 && n <= 10) ? n : null;
+  return (n >= 6 && n <= 12) ? n : null;
 }
 
 function inferDifficultyFromIndex(idx, total, explicit) {
@@ -275,7 +271,7 @@ function normalizeRepoPayload(data, path) {
     inferClassFromText(path) ||
     inferClassFromText(metaNote) ||
     Number(meta.class) ||
-    8;
+    10;
 
   const inferredSubject =
     canonicalSubject(meta.subject) ||
@@ -423,12 +419,8 @@ async function loadQuestionBank(forceRefresh = false) {
   try {
     repoItems = await fetchGitHubRepoQuestions(forceRefresh);
     state.repoLoadedCount = repoItems.length;
-    state.repoStatusNote = repoItems.length > 0
-      ? `${repoItems.length} repo questions synced`
-      : "Using base + procedural bank";
   } catch (_) {
     state.repoLoadedCount = 0;
-    state.repoStatusNote = "Offline/limit fallback: base bank active";
   }
 
   state.questions = [...baseItems, ...repoItems];
@@ -438,17 +430,15 @@ async function loadQuestionBank(forceRefresh = false) {
    4. DYNAMIC CLASS TOWER DECK (BASE CANNONS + AVAILABLE CLASS REPO SUBJECTS)
    ============================================================================ */
 function buildClassTowerDeck(classNum) {
-  const cls = Number(classNum) || 8;
+  const cls = Number(classNum) || 10;
   const deck = {};
 
-  // Subjects that actually have repo questions for this selected class get discounted cost & stronger upgrades
   const classRepoSubjects = new Set(
     state.questions
       .filter(q => q.sourceType === "repo" && Number(q.class) === cls)
       .map(q => q.subject)
   );
 
-  // Always include the 4 base cannons (maths, science, grammar, gk)
   ["maths", "science", "grammar", "gk"].forEach(subj => {
     const base = BASE_TOWER_SPECS[subj];
     const hasRepoBoost = classRepoSubjects.has(subj);
@@ -462,12 +452,10 @@ function buildClassTowerDeck(classNum) {
     };
   });
 
-  // Dynamically add extra subject towers (like Comp. Sc. / "cs") when available for this class
   classRepoSubjects.forEach(subj => {
     if (deck[subj]) return;
     const spec = BASE_TOWER_SPECS[subj] || {
       key: subj,
-      hotkey: String(Object.keys(deck).length + 1),
       label: `${subj.toUpperCase()} Tower`,
       shortDesc: "Class subject pulse",
       cost: 42,
@@ -557,7 +545,7 @@ function uniqueFourOptions(correctVal, candidateDistractors, minBound = 0) {
 }
 
 function generateProceduralMath(cls, tier) {
-  const grade = Math.max(6, Math.min(10, Number(cls) || 8));
+  const grade = Math.max(6, Math.min(12, Number(cls) || 10));
   const diff = Math.max(1, Math.min(4, Number(tier) || 1));
 
   for (let attempt = 0; attempt < 8; attempt++) {
@@ -667,7 +655,7 @@ function generateProceduralMath(cls, tier) {
 }
 
 function selectQuestion(subject) {
-  const cls = Number(state.user?.classNum || 8);
+  const cls = Number(state.user?.classNum || 10);
   const tier = computeTier();
 
   if (subject === "maths" && Math.random() < 0.45) {
@@ -740,20 +728,7 @@ function showEntryMessage(msg, isError = false) {
   el.className = isError ? "auth-status err" : "auth-status";
 }
 
-function getChosenClassOrWarn() {
-  const rawVal = document.getElementById("classSelect").value;
-  const cls = Number(rawVal);
-  if (!cls || cls < 6 || cls > 10) {
-    showEntryMessage("Please select your Class (6–10) first.", true);
-    return null;
-  }
-  return cls;
-}
-
 async function handleVerifyLogin() {
-  const cls = getChosenClassOrWarn();
-  if (!cls) return;
-
   const now = Date.now();
   if (now < state.authCooldownUntil) {
     const secs = Math.ceil((state.authCooldownUntil - now) / 1000);
@@ -786,6 +761,7 @@ async function handleVerifyLogin() {
 
     if (data.ok && data.student) {
       state.failedAuthCount = 0;
+      const cls = Number(document.getElementById("classSelect").value) || 10;
       state.user = {
         pen: String(data.student.pen),
         name: String(data.student.name || "Defender"),
@@ -810,9 +786,7 @@ async function handleVerifyLogin() {
 }
 
 function handleDemoLogin() {
-  const cls = getChosenClassOrWarn();
-  if (!cls) return;
-
+  const cls = Number(document.getElementById("classSelect").value) || 10;
   state.user = {
     pen: "DEMO",
     name: "Demo Explorer",
@@ -1597,7 +1571,6 @@ function renderLoop(now) {
 function drawScene() {
   ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-  // Subtle horizon glow + stars
   const skyGrad = ctx.createLinearGradient(0, 0, 0, canvas.height);
   skyGrad.addColorStop(0, "#050b1d");
   skyGrad.addColorStop(0.55, "#091430");
@@ -1622,7 +1595,7 @@ function drawScene() {
     ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(canvas.width, y); ctx.stroke();
   }
 
-  // Elevated 3D stone road
+  // Elevated 3D stone road with curb border
   ctx.lineCap = "round";
   ctx.lineJoin = "round";
   ctx.strokeStyle = "#0b1226";
@@ -1889,8 +1862,7 @@ function refreshMastery() {
     cs: "Comp. Sc.",
     moral: "Moral Education"
   };
-  const activeKeys = Object.keys(state.activeTowers).concat("moral");
-  const uniqueKeys = Array.from(new Set(activeKeys));
+  const uniqueKeys = Array.from(new Set(Object.keys(state.activeTowers).concat("moral")));
   document.getElementById("masteryList").innerHTML = uniqueKeys
     .filter(k => state.stats[k])
     .map(k => `<div class="mastery-row"><span>${labels[k] || k.toUpperCase()}</span><strong>${state.stats[k].right} / ${state.stats[k].asked}</strong></div>`)
