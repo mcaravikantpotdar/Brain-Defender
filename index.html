@@ -6,287 +6,321 @@
   <title>Brain Defender: Castle of Curiosity</title>
   <style>
     :root {
-      --bg-deep: #050914;
-      --bg-mid: #0b132b;
-      --card: rgba(15, 25, 54, 0.92);
-      --card-elevated: #162347;
-      --border: rgba(96, 165, 250, 0.28);
-      --border-strong: rgba(251, 191, 36, 0.65);
-      --text: #f8fafc;
-      --muted: #94a3b8;
-      --cyan: #38bdf8;
-      --gold: #fbbf24;
-      --emerald: #22c55e;
-      --rose: #fb7185;
-      --violet: #c084fc;
+      --bg-void: #040711;
+      --bg-abyss: #091126;
+      --surface: rgba(14, 24, 52, 0.9);
+      --surface-hi: rgba(24, 40, 84, 0.95);
+      --line: rgba(125, 211, 252, 0.24);
+      --line-gold: rgba(251, 191, 36, 0.65);
+      --ink: #f8fafc;
+      --ink-dim: #94a3b8;
+      --sky: #38bdf8;
+      --amber: #fbbf24;
+      --mint: #22c55e;
+      --coral: #fb7185;
+      --iris: #c084fc;
     }
 
-    * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', system-ui, -apple-system, sans-serif; }
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: 'Segoe UI', system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+    }
 
     body {
       min-height: 100vh;
-      color: var(--text);
+      color: var(--ink);
       background:
-        radial-gradient(circle at 15% 12%, rgba(56, 189, 248, 0.16), transparent 36%),
-        radial-gradient(circle at 85% 18%, rgba(192, 132, 252, 0.14), transparent 38%),
-        radial-gradient(circle at 50% 95%, rgba(251, 191, 36, 0.1), transparent 45%),
-        linear-gradient(180deg, var(--bg-mid) 0%, var(--bg-deep) 100%);
+        radial-gradient(circle at 12% 10%, rgba(56, 189, 248, 0.18), transparent 38%),
+        radial-gradient(circle at 88% 14%, rgba(192, 132, 252, 0.16), transparent 40%),
+        radial-gradient(circle at 50% 100%, rgba(251, 191, 36, 0.12), transparent 48%),
+        linear-gradient(180deg, var(--bg-abyss) 0%, var(--bg-void) 100%);
       display: flex;
       flex-direction: column;
     }
 
-    /* Buttons & Badges */
+    /* Buttons & Pills */
     .btn {
       border: none;
       border-radius: 12px;
       padding: 10px 16px;
       font-weight: 800;
-      font-size: 0.9rem;
+      font-size: 0.88rem;
       cursor: pointer;
-      color: #041021;
+      color: #031124;
       background: linear-gradient(135deg, #38bdf8 0%, #0284c7 100%);
-      box-shadow: 0 6px 20px rgba(2, 132, 199, 0.35);
-      transition: transform 0.14s ease, box-shadow 0.14s ease, opacity 0.15s ease;
+      box-shadow: 0 6px 22px rgba(2, 132, 199, 0.35);
+      transition: transform 0.13s ease, box-shadow 0.15s ease, opacity 0.15s ease;
     }
-    .btn:hover:not(:disabled) { transform: translateY(-1.5px); box-shadow: 0 8px 26px rgba(56, 189, 248, 0.48); }
+    .btn:hover:not(:disabled) {
+      transform: translateY(-1.5px);
+      box-shadow: 0 9px 28px rgba(56, 189, 248, 0.48);
+    }
     .btn:active:not(:disabled) { transform: translateY(0); }
-    .btn:disabled { opacity: 0.42; cursor: not-allowed; box-shadow: none; }
+    .btn:disabled { opacity: 0.4; cursor: not-allowed; box-shadow: none; }
 
     .btn-ghost {
-      background: rgba(22, 35, 71, 0.85);
-      color: var(--text);
-      border: 1px solid var(--border);
+      background: rgba(20, 34, 70, 0.88);
+      color: var(--ink);
+      border: 1px solid var(--line);
       box-shadow: none;
     }
-    .btn-ghost:hover:not(:disabled) { border-color: var(--cyan); background: rgba(30, 48, 96, 0.95); }
+    .btn-ghost:hover:not(:disabled) {
+      border-color: var(--sky);
+      background: rgba(29, 48, 98, 0.96);
+    }
 
-    .btn-gold {
+    .btn-amber {
       background: linear-gradient(135deg, #fde047 0%, #f59e0b 100%);
-      color: #1c1200;
+      color: #1c1100;
       box-shadow: 0 6px 22px rgba(245, 158, 11, 0.36);
     }
-    .btn-gold:hover:not(:disabled) { box-shadow: 0 8px 28px rgba(251, 191, 36, 0.52); }
+    .btn-amber:hover:not(:disabled) {
+      box-shadow: 0 9px 28px rgba(251, 191, 36, 0.54);
+    }
 
-    .btn-violet {
-      background: linear-gradient(135deg, #d8b4fe 0%, #9333ea 100%);
+    .btn-iris {
+      background: linear-gradient(135deg, #e879f9 0%, #7e22ce 100%);
       color: #ffffff;
       box-shadow: 0 6px 22px rgba(147, 51, 234, 0.38);
     }
 
-    .pill {
+    .tag {
       display: inline-flex;
       align-items: center;
-      gap: 6px;
+      gap: 5px;
       padding: 4px 10px;
       border-radius: 999px;
-      font-size: 0.74rem;
+      font-size: 0.73rem;
       font-weight: 800;
-      letter-spacing: 0.3px;
-      background: rgba(22, 35, 71, 0.9);
-      border: 1px solid var(--border);
-      color: var(--cyan);
+      letter-spacing: 0.35px;
+      background: rgba(22, 37, 77, 0.92);
+      border: 1px solid var(--line);
+      color: var(--sky);
     }
-    .pill.live { background: rgba(34, 197, 94, 0.14); border-color: rgba(34, 197, 94, 0.55); color: #86efac; }
-    .pill.demo { background: rgba(251, 113, 133, 0.15); border-color: rgba(251, 113, 133, 0.6); color: #fda4af; }
-    .pill.gold { background: rgba(251, 191, 36, 0.15); border-color: rgba(251, 191, 36, 0.6); color: #fde047; }
+    .tag.verified {
+      background: rgba(34, 197, 94, 0.14);
+      border-color: rgba(34, 197, 94, 0.55);
+      color: #86efac;
+    }
+    .tag.demo {
+      background: rgba(251, 113, 133, 0.16);
+      border-color: rgba(251, 113, 133, 0.65);
+      color: #fda4af;
+    }
+    .tag.amber {
+      background: rgba(251, 191, 36, 0.15);
+      border-color: rgba(251, 191, 36, 0.6);
+      color: #fde047;
+    }
 
     /* Login Gate */
-    #loginGate {
+    #loginScreen {
       flex: 1;
       display: flex;
       align-items: center;
       justify-content: center;
       padding: 24px 16px;
     }
-    .gate-card {
+    .gate-panel {
       width: 100%;
-      max-width: 520px;
-      background: var(--card);
-      backdrop-filter: blur(16px);
-      border: 1px solid var(--border);
-      border-radius: 24px;
+      max-width: 530px;
+      background: var(--surface);
+      backdrop-filter: blur(18px);
+      border: 1px solid var(--line);
+      border-radius: 26px;
       padding: 30px 28px;
-      box-shadow: 0 28px 80px rgba(0, 0, 0, 0.68), inset 0 1px 0 rgba(255, 255, 255, 0.08);
+      box-shadow: 0 30px 85px rgba(0, 0, 0, 0.72), inset 0 1px 0 rgba(255, 255, 255, 0.09);
     }
-    .gate-header { display: flex; align-items: center; gap: 14px; margin-bottom: 18px; }
-    .gate-crest {
-      width: 56px; height: 56px; border-radius: 16px;
-      background: linear-gradient(145deg, #1d4ed8, #0f172a);
-      border: 1.5px solid var(--gold);
+    .brand-row { display: flex; align-items: center; gap: 15px; margin-bottom: 20px; }
+    .brand-sigil {
+      width: 58px; height: 58px; border-radius: 17px;
+      background: linear-gradient(145deg, #1e40af, #091126);
+      border: 1.5px solid var(--amber);
       display: flex; align-items: center; justify-content: center;
-      font-size: 1.7rem; box-shadow: 0 0 28px rgba(251, 191, 36, 0.25);
+      font-size: 1.75rem;
+      box-shadow: 0 0 28px rgba(251, 191, 36, 0.28);
+      animation: floatSigil 3.2s ease-in-out infinite;
     }
-    .gate-title {
-      font-size: 1.75rem; font-weight: 900; line-height: 1.15;
-      background: linear-gradient(90deg, #fde047, #38bdf8, #d8b4fe);
+    @keyframes floatSigil {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-3px); }
+    }
+    .brand-heading {
+      font-size: 1.8rem; font-weight: 900; line-height: 1.15; letter-spacing: -0.3px;
+      background: linear-gradient(90deg, #fde047, #38bdf8, #e879f9);
       -webkit-background-clip: text; -webkit-text-fill-color: transparent;
     }
-    .gate-sub { color: var(--muted); font-size: 0.88rem; margin-top: 3px; }
+    .brand-tagline { color: var(--ink-dim); font-size: 0.88rem; margin-top: 3px; }
 
-    .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
-    @media (max-width: 540px) { .grid-2 { grid-template-columns: 1fr; } }
+    .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+    @media (max-width: 540px) { .two-col { grid-template-columns: 1fr; } }
 
-    .field { margin-bottom: 15px; }
-    .field label {
-      display: block; font-size: 0.76rem; font-weight: 800; text-transform: uppercase;
-      letter-spacing: 0.5px; color: #cbd5e1; margin-bottom: 6px;
+    .input-group { margin-bottom: 15px; }
+    .input-group label {
+      display: block; font-size: 0.75rem; font-weight: 800; text-transform: uppercase;
+      letter-spacing: 0.55px; color: #cbd5e1; margin-bottom: 6px;
     }
-    .field input, .field select {
-      width: 100%; padding: 11px 13px; border-radius: 11px;
-      border: 1px solid var(--border); background: rgba(6, 11, 24, 0.9);
-      color: var(--text); font-size: 0.96rem; transition: border-color 0.15s, box-shadow 0.15s;
+    .input-group input, .input-group select {
+      width: 100%; padding: 11px 14px; border-radius: 12px;
+      border: 1px solid var(--line); background: rgba(4, 8, 19, 0.92);
+      color: var(--ink); font-size: 0.96rem;
+      transition: border-color 0.15s ease, box-shadow 0.15s ease;
     }
-    .field input:focus, .field select:focus {
-      outline: none; border-color: var(--cyan); box-shadow: 0 0 0 3px rgba(56, 189, 248, 0.18);
+    .input-group input:focus, .input-group select:focus {
+      outline: none; border-color: var(--sky);
+      box-shadow: 0 0 0 3px rgba(56, 189, 248, 0.2);
     }
 
-    .seg-group { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
-    .seg-group.two-col { grid-template-columns: repeat(2, 1fr); }
-    .seg-btn {
-      padding: 10px 8px; border-radius: 11px; border: 1px solid var(--border);
-      background: rgba(6, 11, 24, 0.85); color: var(--muted);
+    .choice-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+    .choice-grid.cols-2 { grid-template-columns: repeat(2, 1fr); }
+    .choice-btn {
+      padding: 10px 8px; border-radius: 12px; border: 1px solid var(--line);
+      background: rgba(4, 8, 19, 0.88); color: var(--ink-dim);
       font-weight: 700; font-size: 0.82rem; cursor: pointer; text-align: center;
       transition: all 0.14s ease;
     }
-    .seg-btn.active {
-      color: #ffffff; border-color: var(--cyan);
-      background: linear-gradient(180deg, rgba(56, 189, 248, 0.22), rgba(2, 132, 199, 0.12));
-      box-shadow: 0 0 18px rgba(56, 189, 248, 0.2);
+    .choice-btn:hover { border-color: rgba(125, 211, 252, 0.5); color: var(--ink); }
+    .choice-btn.selected {
+      color: #ffffff; border-color: var(--sky);
+      background: linear-gradient(180deg, rgba(56, 189, 248, 0.24), rgba(2, 132, 199, 0.12));
+      box-shadow: 0 0 18px rgba(56, 189, 248, 0.22);
     }
 
-    .login-msg { min-height: 20px; margin-top: 12px; font-size: 0.85rem; font-weight: 700; color: var(--gold); }
-    .login-msg.err { color: var(--rose); }
+    .auth-feedback { min-height: 20px; margin-top: 12px; font-size: 0.85rem; font-weight: 700; color: var(--amber); }
+    .auth-feedback.fail { color: var(--coral); }
 
-    .demo-footer {
-      margin-top: 18px; padding-top: 16px; border-top: 1px solid var(--border);
+    .demo-bar {
+      margin-top: 18px; padding-top: 16px; border-top: 1px solid var(--line);
       display: flex; align-items: center; justify-content: space-between; gap: 10px;
     }
-    .demo-footer span { font-size: 0.8rem; color: var(--muted); }
+    .demo-bar span { font-size: 0.8rem; color: var(--ink-dim); }
 
-    /* Arena */
-    #arenaApp { display: none; flex-direction: column; min-height: 100vh; }
+    /* Game Screen */
+    #gameScreen { display: none; flex-direction: column; min-height: 100vh; }
 
-    .top-hud {
+    .hud-header {
       display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between;
       gap: 10px; padding: 11px 18px;
-      background: rgba(11, 19, 43, 0.92); backdrop-filter: blur(12px);
-      border-bottom: 1px solid var(--border);
+      background: rgba(9, 17, 38, 0.94); backdrop-filter: blur(14px);
+      border-bottom: 1px solid var(--line);
     }
-    .player-meta { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+    .identity-group { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
 
-    .stat-strip { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
-    .stat-chip {
-      background: rgba(6, 11, 24, 0.88); border: 1px solid var(--border);
-      border-radius: 10px; padding: 6px 11px; font-size: 0.82rem; font-weight: 700;
+    .metrics-bar { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+    .metric-pill {
+      background: rgba(4, 8, 19, 0.9); border: 1px solid var(--line);
+      border-radius: 11px; padding: 6px 11px; font-size: 0.82rem; font-weight: 700;
       display: flex; align-items: center; gap: 5px;
     }
-    .stat-chip strong { color: var(--gold); font-size: 0.92rem; }
-    .stat-chip.timer-chip strong { color: #86efac; }
+    .metric-pill strong { color: var(--amber); font-size: 0.94rem; }
+    .metric-pill.clock-pill strong { color: #86efac; }
 
-    .main-grid {
-      width: 100%; max-width: 1380px; margin: 0 auto; padding: 14px 16px 20px;
-      display: grid; grid-template-columns: 1fr 325px; gap: 16px; flex: 1;
+    .arena-layout {
+      width: 100%; max-width: 1380px; margin: 0 auto; padding: 14px 16px 22px;
+      display: grid; grid-template-columns: 1fr 328px; gap: 16px; flex: 1;
     }
-    @media (max-width: 1020px) { .main-grid { grid-template-columns: 1fr; } }
+    @media (max-width: 1020px) { .arena-layout { grid-template-columns: 1fr; } }
 
-    .board-card {
-      background: var(--card); border: 1px solid var(--border); border-radius: 18px;
+    .stage-panel {
+      background: var(--surface); border: 1px solid var(--line); border-radius: 20px;
       padding: 14px; display: flex; flex-direction: column; gap: 12px;
-      box-shadow: 0 18px 50px rgba(0, 0, 0, 0.45);
+      box-shadow: 0 20px 55px rgba(0, 0, 0, 0.48);
     }
-    canvas#arenaCanvas {
-      width: 100%; height: auto; border-radius: 14px; display: block;
-      cursor: pointer; border: 1px solid rgba(96, 165, 250, 0.35);
-      background: #050a18;
+    canvas#battleCanvas {
+      width: 100%; height: auto; border-radius: 15px; display: block;
+      cursor: pointer; border: 1px solid rgba(125, 211, 252, 0.34);
+      background: #040917;
     }
 
-    .turret-grid {
-      display: grid; grid-template-columns: repeat(auto-fit, minmax(175px, 1fr)); gap: 10px;
+    .towers-deck {
+      display: grid; grid-template-columns: repeat(auto-fit, minmax(176px, 1fr)); gap: 10px;
     }
-    .turret-card {
-      background: linear-gradient(180deg, rgba(24, 38, 78, 0.95) 0%, rgba(13, 22, 48, 0.98) 100%);
-      border: 2px solid var(--border); border-radius: 13px; padding: 10px 12px;
-      color: var(--text); text-align: left; cursor: pointer;
+    .tower-slot {
+      background: linear-gradient(180deg, rgba(25, 42, 86, 0.95) 0%, rgba(12, 21, 46, 0.98) 100%);
+      border: 2px solid var(--line); border-radius: 14px; padding: 10px 12px;
+      color: var(--ink); text-align: left; cursor: pointer;
       transition: transform 0.12s ease, border-color 0.14s ease, box-shadow 0.14s ease;
     }
-    .turret-card:hover { transform: translateY(-2px); border-color: rgba(147, 197, 253, 0.6); }
-    .turret-card.active {
-      border-color: var(--gold);
-      box-shadow: 0 0 22px rgba(251, 191, 36, 0.24);
-      background: linear-gradient(180deg, rgba(35, 53, 106, 0.98) 0%, rgba(18, 29, 62, 0.98) 100%);
+    .tower-slot:hover { transform: translateY(-2px); border-color: rgba(147, 197, 253, 0.65); }
+    .tower-slot.active {
+      border-color: var(--amber);
+      box-shadow: 0 0 22px rgba(251, 191, 36, 0.25);
+      background: linear-gradient(180deg, rgba(36, 56, 112, 0.98) 0%, rgba(16, 28, 60, 0.98) 100%);
     }
-    .turret-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 3px; }
-    .turret-name { font-weight: 800; font-size: 0.88rem; }
-    .turret-gold {
+    .tower-slot-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 3px; }
+    .tower-slot-title { font-weight: 800; font-size: 0.88rem; }
+    .tower-slot-cost {
       font-size: 0.75rem; font-weight: 800; color: #fde047;
-      background: rgba(251, 191, 36, 0.14); padding: 2px 7px; border-radius: 6px;
+      background: rgba(251, 191, 36, 0.15); padding: 2px 7px; border-radius: 6px;
     }
-    .turret-desc { font-size: 0.74rem; color: var(--muted); display: block; }
+    .tower-slot-sub { font-size: 0.74rem; color: var(--ink-dim); display: block; }
 
-    .controls-row {
+    .command-strip {
       display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 10px;
     }
-    .hint-text { font-size: 0.8rem; color: var(--muted); }
+    .tip-copy { font-size: 0.8rem; color: var(--ink-dim); }
 
     /* Sidebar */
-    .sidebar { display: flex; flex-direction: column; gap: 14px; }
-    .panel-box {
-      background: var(--card); border: 1px solid var(--border); border-radius: 18px;
-      padding: 15px; box-shadow: 0 12px 34px rgba(0, 0, 0, 0.35);
+    .side-column { display: flex; flex-direction: column; gap: 14px; }
+    .widget-card {
+      background: var(--surface); border: 1px solid var(--line); border-radius: 20px;
+      padding: 15px; box-shadow: 0 14px 36px rgba(0, 0, 0, 0.38);
     }
-    .panel-head {
+    .widget-title {
       display: flex; justify-content: space-between; align-items: center;
-      margin-bottom: 11px; color: var(--cyan); font-size: 0.92rem; font-weight: 800;
+      margin-bottom: 11px; color: var(--sky); font-size: 0.92rem; font-weight: 800;
     }
-    .lb-list { list-style: none; display: flex; flex-direction: column; gap: 7px; max-height: 270px; overflow-y: auto; }
-    .lb-row {
+    .rank-list { list-style: none; display: flex; flex-direction: column; gap: 7px; max-height: 270px; overflow-y: auto; }
+    .rank-item {
       display: flex; justify-content: space-between; align-items: center;
-      background: rgba(6, 11, 24, 0.85); border: 1px solid rgba(96, 165, 250, 0.18);
-      border-radius: 10px; padding: 8px 11px; font-size: 0.82rem;
+      background: rgba(4, 8, 19, 0.88); border: 1px solid rgba(125, 211, 252, 0.18);
+      border-radius: 11px; padding: 8px 11px; font-size: 0.82rem;
     }
-    .lb-row.highlight { border-color: var(--gold); background: rgba(251, 191, 36, 0.08); }
+    .rank-item.self { border-color: var(--amber); background: rgba(251, 191, 36, 0.09); }
 
-    .mastery-item {
+    .stat-line {
       display: flex; justify-content: space-between; align-items: center;
-      padding: 6px 0; border-bottom: 1px solid rgba(96, 165, 250, 0.14); font-size: 0.83rem;
+      padding: 6px 0; border-bottom: 1px solid rgba(125, 211, 252, 0.14); font-size: 0.83rem;
     }
-    .mastery-item:last-child { border-bottom: none; }
+    .stat-line:last-child { border-bottom: none; }
 
     /* Modals */
-    .overlay {
-      position: fixed; inset: 0; background: rgba(3, 6, 16, 0.86);
+    .backdrop {
+      position: fixed; inset: 0; background: rgba(2, 5, 14, 0.86);
       backdrop-filter: blur(7px); display: none; align-items: center; justify-content: center;
-      padding: 16px; z-index: 80;
+      padding: 16px; z-index: 90;
     }
-    .overlay.open { display: flex; }
-    .modal-card {
-      width: 100%; max-width: 610px; background: #0f1936;
-      border: 1px solid rgba(125, 211, 252, 0.42); border-radius: 20px;
-      padding: 24px; box-shadow: 0 30px 90px rgba(0, 0, 0, 0.8);
+    .backdrop.open { display: flex; }
+    .dialog-card {
+      width: 100%; max-width: 615px; background: #0e1836;
+      border: 1px solid rgba(125, 211, 252, 0.45); border-radius: 22px;
+      padding: 24px; box-shadow: 0 32px 90px rgba(0, 0, 0, 0.82);
     }
-    .modal-bar { display: flex; justify-content: space-between; align-items: center; gap: 10px; margin-bottom: 12px; }
-    .q-progress-track {
-      height: 8px; background: #060b18; border-radius: 999px; overflow: hidden;
-      margin-bottom: 15px; border: 1px solid rgba(96, 165, 250, 0.22);
+    .dialog-top { display: flex; justify-content: space-between; align-items: center; gap: 10px; margin-bottom: 12px; }
+    .countdown-track {
+      height: 8px; background: #050a18; border-radius: 999px; overflow: hidden;
+      margin-bottom: 15px; border: 1px solid rgba(125, 211, 252, 0.22);
     }
-    .q-progress-fill { height: 100%; width: 100%; background: var(--emerald); transition: width 0.1s linear; }
+    .countdown-fill { height: 100%; width: 100%; background: var(--mint); transition: width 0.1s linear; }
 
-    .prompt-primary { font-size: 1.1rem; font-weight: 800; line-height: 1.42; color: #ffffff; margin-bottom: 6px; }
-    .prompt-secondary { font-size: 1.02rem; line-height: 1.48; color: #cbd5e1; margin-bottom: 12px; }
+    .q-main { font-size: 1.12rem; font-weight: 800; line-height: 1.42; color: #ffffff; margin-bottom: 6px; }
+    .q-alt { font-size: 1.02rem; line-height: 1.48; color: #cbd5e1; margin-bottom: 12px; }
 
-    .opt-list { display: grid; gap: 9px; margin-top: 10px; }
-    .opt-choice {
-      width: 100%; text-align: left; padding: 12px 14px; border-radius: 11px;
-      background: #17254d; border: 1px solid rgba(96, 165, 250, 0.3); color: var(--text);
+    .answer-grid { display: grid; gap: 9px; margin-top: 10px; }
+    .answer-btn {
+      width: 100%; text-align: left; padding: 12px 14px; border-radius: 12px;
+      background: #16244c; border: 1px solid rgba(125, 211, 252, 0.3); color: var(--ink);
       font-size: 0.94rem; cursor: pointer; transition: transform 0.08s ease, border-color 0.12s ease, background 0.12s ease;
     }
-    .opt-choice:hover:not(:disabled) { border-color: var(--cyan); background: #1e3163; transform: translateX(2px); }
-    .opt-choice.correct { background: rgba(22, 101, 52, 0.92); border-color: var(--emerald); }
-    .opt-choice.wrong { background: rgba(136, 19, 55, 0.92); border-color: var(--rose); }
+    .answer-btn:hover:not(:disabled) { border-color: var(--sky); background: #1e3266; transform: translateX(2px); }
+    .answer-btn.right { background: rgba(21, 128, 61, 0.9); border-color: var(--mint); }
+    .answer-btn.wrong { background: rgba(159, 18, 57, 0.9); border-color: var(--coral); }
 
-    .exp-box {
-      display: none; margin-top: 13px; padding: 11px 13px; border-radius: 11px;
-      background: #070d1d; border: 1px solid rgba(96, 165, 250, 0.26);
+    .note-panel {
+      display: none; margin-top: 13px; padding: 11px 13px; border-radius: 12px;
+      background: #060b1a; border: 1px solid rgba(125, 211, 252, 0.25);
       font-size: 0.87rem; line-height: 1.45; color: #e2e8f0;
     }
   </style>
@@ -294,24 +328,24 @@
 <body>
 
   <!-- LOGIN GATE -->
-  <section id="loginGate">
-    <div class="gate-card">
-      <div class="gate-header">
-        <div class="gate-crest">🏰</div>
+  <section id="loginScreen">
+    <div class="gate-panel">
+      <div class="brand-row">
+        <div class="brand-sigil">🏰</div>
         <div>
-          <h1 class="gate-title">Brain Defender</h1>
-          <p class="gate-sub">Castle of Curiosity • HPBOSE Bilingual Learning Arena</p>
+          <h1 class="brand-heading">Brain Defender</h1>
+          <p class="brand-tagline">Castle of Curiosity • HPBOSE Bilingual Learning Arena</p>
         </div>
       </div>
 
-      <div class="grid-2">
-        <div class="field">
-          <label for="studentIdInput">Student ID / PEN</label>
-          <input id="studentIdInput" type="text" inputmode="numeric" maxlength="12" placeholder="11–12 digit ID" autocomplete="off" />
+      <div class="two-col">
+        <div class="input-group">
+          <label for="idField">Student ID / PEN</label>
+          <input id="idField" type="text" inputmode="numeric" maxlength="12" placeholder="11–12 digit ID" autocomplete="off" />
         </div>
-        <div class="field">
-          <label for="classSelect">Select Class</label>
-          <select id="classSelect">
+        <div class="input-group">
+          <label for="classField">Select Class</label>
+          <select id="classField">
             <option value="6">Class 6</option>
             <option value="7">Class 7</option>
             <option value="8" selected>Class 8</option>
@@ -321,143 +355,143 @@
         </div>
       </div>
 
-      <div class="field">
-        <label>Game Mode</label>
-        <div class="seg-group two-col" id="modeGroup">
-          <button type="button" class="seg-btn active" data-mode="siege">Siege Mode (90s Scout → Escalate)</button>
-          <button type="button" class="seg-btn" data-mode="test90">90s Test Mode (Wave Timer)</button>
+      <div class="input-group">
+        <label>Select Game Mode</label>
+        <div class="choice-grid cols-2" id="modeSelector">
+          <button type="button" class="choice-btn selected" data-mode="siege">Siege Mode (90s Scout → Escalate)</button>
+          <button type="button" class="choice-btn" data-mode="test90">90s Test Mode (Wave Timer)</button>
         </div>
       </div>
 
-      <div class="field">
+      <div class="input-group">
         <label>Language Mode / भाषा</label>
-        <div class="seg-group" id="langGroup">
-          <button type="button" class="seg-btn active" data-lang="dual">Dual (EN + हि)</button>
-          <button type="button" class="seg-btn" data-lang="en">English</button>
-          <button type="button" class="seg-btn" data-lang="hi">हिन्दी</button>
+        <div class="choice-grid" id="langSelector">
+          <button type="button" class="choice-btn selected" data-lang="dual">Dual (EN + हि)</button>
+          <button type="button" class="choice-btn" data-lang="en">English</button>
+          <button type="button" class="choice-btn" data-lang="hi">हिन्दी</button>
         </div>
       </div>
 
-      <button id="verifyEnterBtn" class="btn" style="width:100%; padding:12px;">Verify ID & Enter Castle</button>
-      <div id="loginStatus" class="login-msg"></div>
+      <button id="enterBtn" class="btn" style="width:100%; padding:12px;">Verify ID & Enter Castle</button>
+      <div id="authMsg" class="auth-feedback"></div>
 
-      <div class="demo-footer">
-        <span>Practice without saving to leaderboard:</span>
-        <button type="button" id="demoBtn" class="btn btn-ghost" style="padding:7px 14px;">Demo</button>
+      <div class="demo-bar">
+        <span>Try gameplay without saving to leaderboard:</span>
+        <button type="button" id="demoLaunchBtn" class="btn btn-ghost" style="padding:7px 14px;">Demo</button>
       </div>
     </div>
   </section>
 
-  <!-- ARENA WORKSPACE -->
-  <section id="arenaApp">
-    <header class="top-hud">
-      <div class="player-meta">
-        <strong id="hudName" style="font-size:1rem;">Player</strong>
-        <span class="pill" id="hudClassMode">CLASS • MODE</span>
-        <span class="pill" id="hudDiffLevel">Tier 1: Super Easy</span>
-        <span class="pill" id="hudAuthBadge">Status</span>
+  <!-- GAME ARENA -->
+  <section id="gameScreen">
+    <header class="hud-header">
+      <div class="identity-group">
+        <strong id="playerNameLabel" style="font-size:1rem;">Defender</strong>
+        <span class="tag" id="classModeLabel">CLASS • MODE</span>
+        <span class="tag" id="tierLabel">Tier 1: Super Easy</span>
+        <span class="tag" id="statusBadge">Ready</span>
       </div>
 
-      <div class="stat-strip">
-        <div class="stat-chip">🏰 HP: <strong id="hudHp">100</strong></div>
-        <div class="stat-chip">🪙 Gold: <strong id="hudGold">120</strong></div>
-        <div class="stat-chip">✨ Mana: <strong id="hudMana">50</strong></div>
-        <div class="stat-chip">🌊 Wave: <strong id="hudWave">1/6</strong></div>
-        <div class="stat-chip timer-chip" id="testTimerChip" style="display:none;">⏱️ Wave Clock: <strong id="hudWaveClock">90.0s</strong></div>
-        <div class="stat-chip">🏆 Score: <strong id="hudScore">0</strong></div>
+      <div class="metrics-bar">
+        <div class="metric-pill">🏰 HP: <strong id="hpVal">100</strong></div>
+        <div class="metric-pill">🪙 Gold: <strong id="goldVal">120</strong></div>
+        <div class="metric-pill">✨ Mana: <strong id="manaVal">50</strong></div>
+        <div class="metric-pill">🌊 Wave: <strong id="waveVal">1/6</strong></div>
+        <div class="metric-pill clock-pill" id="waveClockPill" style="display:none;">⏱️ Clock: <strong id="waveClockVal">90.0s</strong></div>
+        <div class="metric-pill">🏆 Score: <strong id="scoreVal">0</strong></div>
       </div>
 
       <div style="display:flex; gap:8px; align-items:center;">
-        <select id="liveLangSelect" style="padding:7px 10px; border-radius:9px; background:#060b18; color:#fff; border:1px solid var(--border); font-weight:700;">
+        <select id="arenaLangSelect" style="padding:7px 10px; border-radius:9px; background:#040813; color:#fff; border:1px solid var(--line); font-weight:700;">
           <option value="dual">Dual (EN + हि)</option>
           <option value="en">English + Peek</option>
           <option value="hi">हिन्दी + Peek</option>
         </select>
-        <button id="exitBtn" class="btn btn-ghost" style="padding:7px 12px;">Exit</button>
+        <button id="quitBtn" class="btn btn-ghost" style="padding:7px 12px;">Exit</button>
       </div>
     </header>
 
-    <main class="main-grid">
-      <div class="board-card">
-        <canvas id="arenaCanvas" width="880" height="450"></canvas>
+    <main class="arena-layout">
+      <div class="stage-panel">
+        <canvas id="battleCanvas" width="880" height="450"></canvas>
 
-        <div class="turret-grid" id="turretSelector">
-          <button class="turret-card active" data-turret="maths">
-            <div class="turret-top"><span class="turret-name">1. Maths Cannon</span><span class="turret-gold">40g</span></div>
-            <span class="turret-desc">Splash blast • Numbers & Algebra</span>
+        <div class="towers-deck" id="towerDeck">
+          <button class="tower-slot active" data-kind="maths">
+            <div class="tower-slot-top"><span class="tower-slot-title">1. Maths Cannon</span><span class="tower-slot-cost">40g</span></div>
+            <span class="tower-slot-sub">Splash blast • Numbers & Algebra</span>
           </button>
-          <button class="turret-card" data-turret="science">
-            <div class="turret-top"><span class="turret-name">2. Science Tesla</span><span class="turret-gold">45g</span></div>
-            <span class="turret-desc">Rapid spark • Physics, Chem & Bio</span>
+          <button class="tower-slot" data-kind="science">
+            <div class="tower-slot-top"><span class="tower-slot-title">2. Science Tesla</span><span class="tower-slot-cost">45g</span></div>
+            <span class="tower-slot-sub">Rapid spark • Physics, Chem & Bio</span>
           </button>
-          <button class="turret-card" data-turret="grammar">
-            <div class="turret-top"><span class="turret-name">3. Grammar Gale</span><span class="turret-gold">35g</span></div>
-            <span class="turret-desc">Slows demons • English & व्याकरण</span>
+          <button class="tower-slot" data-kind="grammar">
+            <div class="tower-slot-top"><span class="tower-slot-title">3. Grammar Gale</span><span class="tower-slot-cost">35g</span></div>
+            <span class="tower-slot-sub">Slows demons • English & व्याकरण</span>
           </button>
-          <button class="turret-card" data-turret="gk">
-            <div class="turret-top"><span class="turret-name">4. GK Prism</span><span class="turret-gold">50g</span></div>
-            <span class="turret-desc">Long-range beam • India & World GK</span>
+          <button class="tower-slot" data-kind="gk">
+            <div class="tower-slot-top"><span class="tower-slot-title">4. GK Prism</span><span class="tower-slot-cost">50g</span></div>
+            <span class="tower-slot-sub">Long-range beam • India & World GK</span>
           </button>
         </div>
 
-        <div class="controls-row">
-          <div class="hint-text">
-            Click glowing pads to place turrets • Click built turrets to <strong>Supercharge</strong> via quiz • Win Campaign at <strong>Wave 6</strong>!
+        <div class="command-strip">
+          <div class="tip-copy">
+            Click glowing pads to build • Click built towers to <strong>Supercharge</strong> via quiz • Clear <strong>Wave 6</strong> for Victory!
           </div>
           <div style="display:flex; gap:10px; flex-wrap:wrap;">
-            <button id="startWaveBtn" class="btn btn-gold">Start Wave 1</button>
-            <button id="quizChargeBtn" class="btn btn-ghost">Answer Quiz (+Mana/Score)</button>
-            <button id="stormBtn" class="btn btn-violet" disabled>Ultimate Storm (60 Mana)</button>
+            <button id="waveTriggerBtn" class="btn btn-amber">Start Wave 1</button>
+            <button id="boostQuizBtn" class="btn btn-ghost">Answer Quiz (+Mana/Score)</button>
+            <button id="stormCastBtn" class="btn btn-iris" disabled>Ultimate Storm (60 Mana)</button>
           </div>
         </div>
       </div>
 
-      <aside class="sidebar">
-        <div class="panel-box">
-          <div class="panel-head">
-            <span>🏆 School Leaderboard</span>
-            <button id="refreshLbBtn" class="btn btn-ghost" style="padding:4px 9px; font-size:0.74rem;">Refresh</button>
+      <aside class="side-column">
+        <div class="widget-card">
+          <div class="widget-title">
+            <span>🏆 Leaderboard</span>
+            <button id="syncBoardBtn" class="btn btn-ghost" style="padding:4px 9px; font-size:0.74rem;">Refresh</button>
           </div>
-          <ul class="lb-list" id="leaderboardList"></ul>
+          <ul class="rank-list" id="boardList"></ul>
         </div>
 
-        <div class="panel-box">
-          <div class="panel-head"><span>📚 Subject Accuracy</span></div>
-          <div id="masteryBox"></div>
+        <div class="widget-card">
+          <div class="widget-title"><span>📚 Subject Mastery</span></div>
+          <div id="subjectSummary"></div>
         </div>
       </aside>
     </main>
   </section>
 
-  <!-- CHALLENGE MODAL -->
-  <div class="overlay" id="challengeOverlay">
-    <div class="modal-card">
-      <div class="modal-bar">
+  <!-- QUESTION MODAL -->
+  <div class="backdrop" id="questionModal">
+    <div class="dialog-card">
+      <div class="dialog-top">
         <div style="display:flex; gap:8px; align-items:center; flex-wrap:wrap;">
-          <span class="pill gold" id="qTagBadge">SUBJECT</span>
-          <span class="pill" id="qTierBadge">Super Easy</span>
-          <span class="pill" id="qTimerBadge">12.0s</span>
+          <span class="tag amber" id="qCategoryTag">SUBJECT</span>
+          <span class="tag" id="qLevelTag">Tier 1: Super Easy</span>
+          <span class="tag" id="qClockTag">12.0s</span>
         </div>
-        <button type="button" id="peekBtn" class="btn btn-ghost" style="padding:5px 10px; font-size:0.76rem;">Peek / अनुवाद</button>
+        <button type="button" id="translatePeekBtn" class="btn btn-ghost" style="padding:5px 10px; font-size:0.76rem;">Peek / अनुवाद</button>
       </div>
 
-      <div class="q-progress-track"><div class="q-progress-fill" id="qTimerBar"></div></div>
-      <div id="qPromptArea"></div>
-      <div class="opt-list" id="qOptionsArea"></div>
-      <div class="exp-box" id="qFeedbackArea"></div>
+      <div class="countdown-track"><div class="countdown-fill" id="qClockBar"></div></div>
+      <div id="qTextBox"></div>
+      <div class="answer-grid" id="qChoicesBox"></div>
+      <div class="note-panel" id="qExplainBox"></div>
     </div>
   </div>
 
   <!-- END / VICTORY MODAL -->
-  <div class="overlay" id="outcomeOverlay">
-    <div class="modal-card" style="text-align:center;">
-      <div id="outcomeIcon" style="font-size:2.5rem; margin-bottom:8px;">🏆</div>
-      <h2 id="outcomeTitle" style="font-size:1.55rem; color:var(--gold); margin-bottom:6px;">Campaign Victory!</h2>
-      <p id="outcomeText" style="color:var(--muted); line-height:1.5; margin-bottom:14px;"></p>
-      <div id="outcomeSaveNote" style="font-size:0.86rem; font-weight:800; margin-bottom:18px;"></div>
+  <div class="backdrop" id="resultModal">
+    <div class="dialog-card" style="text-align:center;">
+      <div id="resultEmblem" style="font-size:2.5rem; margin-bottom:8px;">🏆</div>
+      <h2 id="resultHeading" style="font-size:1.55rem; color:var(--amber); margin-bottom:6px;">Victory!</h2>
+      <p id="resultBody" style="color:var(--ink-dim); line-height:1.5; margin-bottom:14px;"></p>
+      <div id="resultSaveBanner" style="font-size:0.86rem; font-weight:800; margin-bottom:18px;"></div>
       <div style="display:flex; gap:10px; justify-content:center; flex-wrap:wrap;">
-        <button type="button" id="endlessBtn" class="btn btn-violet" style="display:none;">Continue Endless Mode</button>
-        <button type="button" id="restartRunBtn" class="btn btn-gold">Play Again</button>
+        <button type="button" id="goEndlessBtn" class="btn btn-iris" style="display:none;">Continue Endless Mode</button>
+        <button type="button" id="replayBtn" class="btn btn-amber">Play Again</button>
       </div>
     </div>
   </div>
