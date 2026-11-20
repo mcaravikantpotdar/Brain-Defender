@@ -1,28 +1,28 @@
 /* ============================================================================
-   BRAIN DEFENDER: CASTLE OF CURIOSITY — COMPLETE GAME ENGINE
+   BRAIN DEFENDER: CASTLE OF CURIOSITY — STAGE 2 COMPLETE ENGINE
    ============================================================================ */
 
-const API_CONFIG = {
+const BACKEND_CONFIG = {
   enabled: true,
-  endpoint: "https://script.google.com/macros/s/AKfycbxJ3rbuFzYgVzMjSanjrIJY2Vh8Vw2uVQUIu1tKvMz0mE_W3KoBi_6QwEcWWE2C89OwhA/exec"
+  url: "https://script.google.com/macros/s/AKfycbxJ3rbuFzYgVzMjSanjrIJY2Vh8Vw2uVQUIu1tKvMz0mE_W3KoBi_6QwEcWWE2C89OwhA/exec"
 };
 
-const CAMPAIGN_WIN_WAVE = 6;
-const TEST_MODE_WAVE_SECONDS = 90;
+const TARGET_VICTORY_WAVE = 6;
+const BLITZ_WAVE_SECONDS = 90;
 
-const TURRET_DATA = {
-  maths:   { label: "Maths Cannon",   cost: 40, range: 145, cooldownMax: 1.05, dmg: 12, color: "#fbbf24" },
-  science: { label: "Science Tesla",  cost: 45, range: 135, cooldownMax: 0.85, dmg: 11, color: "#38bdf8" },
-  grammar: { label: "Grammar Gale",   cost: 35, range: 140, cooldownMax: 0.95, dmg: 10, color: "#22c55e" },
-  gk:      { label: "GK Prism Laser", cost: 50, range: 200, cooldownMax: 1.40, dmg: 16, color: "#c084fc" }
+const TOWER_SPECS = {
+  maths:   { label: "Maths Cannon",   cost: 40, range: 148, rate: 1.05, dmg: 12, color: "#fbbf24" },
+  science: { label: "Science Tesla",  cost: 45, range: 138, rate: 0.85, dmg: 11, color: "#38bdf8" },
+  grammar: { label: "Grammar Gale",   cost: 35, range: 142, rate: 0.95, dmg: 10, color: "#22c55e" },
+  gk:      { label: "GK Prism Laser", cost: 50, range: 205, rate: 1.40, dmg: 16, color: "#e879f9" }
 };
 
-const PADS = [
+const BUILD_SPOTS = [
   { x: 155, y: 125 }, { x: 310, y: 125 }, { x: 465, y: 125 }, { x: 620, y: 125 },
   { x: 225, y: 315 }, { x: 380, y: 315 }, { x: 535, y: 315 }, { x: 690, y: 315 }
 ];
 
-const WAYPOINTS = [
+const ROUTE = [
   { x: 0, y: 220 },
   { x: 205, y: 220 },
   { x: 205, y: 68 },
@@ -33,151 +33,150 @@ const WAYPOINTS = [
   { x: 815, y: 220 }
 ];
 
-const state = {
-  player: null,
-  mode: "siege",
-  lang: "dual",
-  endlessMode: false,
-  loginFails: 0,
-  lockoutUntil: 0,
-  questions: [],
+const game = {
+  user: null,
+  mode: "siege", // "siege" | "test90"
+  lang: "dual", // "dual" | "en" | "hi"
+  endless: false,
+  badAttempts: 0,
+  lockUntil: 0,
+  bank: [],
   hp: 100,
   gold: 120,
   mana: 50,
   wave: 1,
   score: 0,
-  waveClock: TEST_MODE_WAVE_SECONDS,
-  waveRunning: false,
-  paused: false,
-  selectedTurret: "maths",
-  hoveredPad: -1,
-  turrets: [],
-  demons: [],
-  shots: [],
-  sparks: [],
-  popups: [],
-  spawnQueue: [],
-  spawnDelay: 0,
-  clock: 0,
-  consecutiveWrong: 0,
-  difficultyOffset: 0,
-  mastery: {
-    maths: { ok: 0, total: 0 },
-    science: { ok: 0, total: 0 },
-    grammar: { ok: 0, total: 0 },
-    gk: { ok: 0, total: 0 },
-    moral: { ok: 0, total: 0 }
+  clockLeft: BLITZ_WAVE_SECONDS,
+  inWave: false,
+  locked: false,
+  chosenTower: "maths",
+  hoverSpot: -1,
+  towers: [],
+  foes: [],
+  bolts: [],
+  bursts: [],
+  floaters: [],
+  queue: [],
+  nextSpawn: 0,
+  elapsed: 0,
+  streakWrong: 0,
+  tierShift: 0,
+  accuracy: {
+    maths: { ok: 0, n: 0 },
+    science: { ok: 0, n: 0 },
+    grammar: { ok: 0, n: 0 },
+    gk: { ok: 0, n: 0 },
+    moral: { ok: 0, n: 0 }
   },
-  challenge: null,
-  countdownId: null
+  activeQ: null,
+  tickHandle: null
 };
 
 /* ============================================================================
-   1. SYNTHESIZED AUDIO
+   1. AUDIO CUES
    ============================================================================ */
-const SFX = (() => {
+const SoundBoard = (() => {
   let ctx = null;
-  function play(freq, type = "sine", dur = 0.12, vol = 0.07) {
+  function pulse(freq, kind = "sine", len = 0.12, amp = 0.07) {
     try {
       if (!ctx) ctx = new (window.AudioContext || window.webkitAudioContext)();
       const osc = ctx.createOscillator();
       const gain = ctx.createGain();
-      osc.type = type;
+      osc.type = kind;
       osc.frequency.value = freq;
-      gain.gain.setValueAtTime(vol, ctx.currentTime);
-      gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + dur);
+      gain.gain.setValueAtTime(amp, ctx.currentTime);
+      gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + len);
       osc.connect(gain);
       gain.connect(ctx.destination);
       osc.start();
-      osc.stop(ctx.currentTime + dur);
+      osc.stop(ctx.currentTime + len);
     } catch (_) {}
   }
   return {
-    shot: () => play(560, "triangle", 0.06, 0.03),
-    hit: () => play(250, "sine", 0.05, 0.025),
-    winQ: () => { play(587.33, "sine", 0.11, 0.08); setTimeout(() => play(880, "sine", 0.17, 0.08), 85); },
-    loseQ: () => play(185, "sawtooth", 0.24, 0.07),
-    place: () => play(440, "square", 0.09, 0.045)
+    fire: () => pulse(560, "triangle", 0.06, 0.03),
+    impact: () => pulse(245, "sine", 0.05, 0.025),
+    chimeGood: () => { pulse(587.33, "sine", 0.11, 0.08); setTimeout(() => pulse(880, "sine", 0.17, 0.08), 85); },
+    chimeBad: () => pulse(185, "sawtooth", 0.24, 0.07),
+    buildOk: () => pulse(440, "square", 0.09, 0.045)
   };
 })();
 
 /* ============================================================================
-   2. DIFFICULTY CURVE (SUPER EASY -> ADVANCING UPWARDS)
+   2. DIFFICULTY & PROGRESSIVE TIMERS (SUPER EASY -> UPWARDS)
    ============================================================================ */
-function getCurrentDifficultyTier() {
-  let baseTier = 1;
-  if (state.wave === 2) baseTier = 2;
-  else if (state.wave >= 3 && state.wave <= 4) baseTier = 3;
-  else if (state.wave >= 5) baseTier = 4;
+function currentTier() {
+  let tier = 1;
+  if (game.wave === 2) tier = 2;
+  else if (game.wave === 3 || game.wave === 4) tier = 3;
+  else if (game.wave >= 5) tier = 4;
 
-  const adjusted = baseTier + state.difficultyOffset;
-  return Math.max(1, Math.min(4, adjusted));
+  return Math.max(1, Math.min(4, tier + game.tierShift));
 }
 
-function getTierLabel(tier) {
-  const map = {
+function tierName(t) {
+  const labels = {
     1: "Tier 1: Super Easy",
     2: "Tier 2: Foundation",
     3: "Tier 3: Challenge",
     4: "Tier 4: Master / Boss"
   };
-  return map[tier] || "Tier 1: Super Easy";
+  return labels[t] || "Tier 1: Super Easy";
 }
 
-function getQuestionDurationSeconds(q) {
-  const tier = q.difficulty || getCurrentDifficultyTier();
-  let secs = 10 + (tier - 1) * 4 + (state.wave - 1) * 1.5;
-  if (state.wave % 3 === 0) secs += 5;
-  if (state.lang === "dual" && !q.isLanguageSpecific) secs += 3;
-  return Math.min(34, Math.round(secs * 10) / 10);
+function questionSeconds(q) {
+  const tier = q.difficulty || currentTier();
+  let sec = 10 + (tier - 1) * 4 + (game.wave - 1) * 1.5;
+  if (game.wave % 3 === 0) sec += 5;
+  if (game.lang === "dual" && !q.isLanguageSpecific) sec += 3;
+  return Math.min(34, Math.round(sec * 10) / 10);
 }
 
 /* ============================================================================
    3. QUESTION BANK, COOLDOWN & SYNCHRONIZED OPTION SHUFFLER
    ============================================================================ */
-async function loadQuestions() {
+async function fetchBank() {
   try {
-    const res = await fetch("questions.json", { cache: "no-store" });
-    if (!res.ok) throw new Error("Failed loading questions.json");
-    const json = await res.json();
-    state.questions = Array.isArray(json.questions) ? json.questions : [];
-  } catch (err) {
-    console.warn("Question bank fetch failed:", err);
-    state.questions = [];
+    const r = await fetch("questions.json", { cache: "no-store" });
+    if (!r.ok) throw new Error("Could not load questions.json");
+    const payload = await r.json();
+    game.bank = Array.isArray(payload.questions) ? payload.questions : [];
+  } catch (e) {
+    console.warn("Question bank warning:", e);
+    game.bank = [];
   }
 }
 
-function seenStorageKey() {
-  const id = state.player?.isDemo ? "demo" : (state.player?.pen || "anon");
-  return `bd_seen_q_${id}`;
+function historyKey() {
+  const tag = game.user?.isDemo ? "demo" : (game.user?.pen || "guest");
+  return `bd_q_hist_${tag}`;
 }
 
-function readSeenIds() {
+function getHistory() {
   try {
-    return JSON.parse(localStorage.getItem(seenStorageKey()) || "[]");
+    return JSON.parse(localStorage.getItem(historyKey()) || "[]");
   } catch (_) {
     return [];
   }
 }
 
-function recordSeenId(id) {
-  if (!id || String(id).startsWith("AUTO-")) return;
-  const arr = readSeenIds().filter(x => x !== id);
-  arr.push(id);
-  localStorage.setItem(seenStorageKey(), JSON.stringify(arr.slice(-40)));
+function saveHistory(id) {
+  if (!id || String(id).startsWith("GEN-")) return;
+  const next = getHistory().filter(x => x !== id);
+  next.push(id);
+  localStorage.setItem(historyKey(), JSON.stringify(next.slice(-40)));
 }
 
-function buildAutoMathQuestion(classNum, tier) {
+function makeFallbackMath(cls, tier) {
   const a = Math.floor(Math.random() * 5) + 2;
-  const x = Math.floor(Math.random() * 8) + 2;
-  const b = Math.floor(Math.random() * 9) + 1;
+  const x = Math.floor(Math.random() * 7) + 2;
+  const b = Math.floor(Math.random() * 8) + 1;
 
   if (tier === 1) {
     const sum = a + x;
-    const opts = [String(sum), String(sum + 1), String(Math.max(1, sum - 1)), String(sum + 2)];
+    const choices = [String(sum), String(sum + 1), String(Math.max(1, sum - 1)), String(sum + 2)];
     return {
-      id: `AUTO-M1-${Date.now()}`,
-      class: classNum,
+      id: `GEN-M1-${Date.now()}`,
+      class: cls,
       subject: "maths",
       difficulty: 1,
       isLanguageSpecific: false,
@@ -185,7 +184,7 @@ function buildAutoMathQuestion(classNum, tier) {
         en: `Super Easy Warm-Up: What is ${a} + ${x}?`,
         hi: `आसान अभ्यास: ${a} + ${x} कितना होता है?`
       },
-      options: { en: opts, hi: [...opts] },
+      options: { en: choices, hi: [...choices] },
       answerIndex: 0,
       explanation: {
         en: `${a} + ${x} = ${sum}.`,
@@ -195,18 +194,18 @@ function buildAutoMathQuestion(classNum, tier) {
   }
 
   const rhs = a * x + b;
-  const opts = [String(x), String(x + 1), String(Math.max(1, x - 1)), String(x + 3)];
+  const choices = [String(x), String(x + 1), String(Math.max(1, x - 1)), String(x + 3)];
   return {
-    id: `AUTO-M-${Date.now()}`,
-    class: classNum,
+    id: `GEN-M-${Date.now()}`,
+    class: cls,
     subject: "maths",
     difficulty: tier,
     isLanguageSpecific: false,
     prompt: {
-      en: `Class ${classNum} Challenge: Solve for x if ${a}x + ${b} = ${rhs}.`,
-      hi: `कक्षा ${classNum} प्रश्न: यदि ${a}x + ${b} = ${rhs}, तो x का मान क्या है?`
+      en: `Class ${cls}: Solve for x if ${a}x + ${b} = ${rhs}.`,
+      hi: `कक्षा ${cls}: यदि ${a}x + ${b} = ${rhs}, तो x का मान क्या है?`
     },
-    options: { en: opts, hi: [...opts] },
+    options: { en: choices, hi: [...choices] },
     answerIndex: 0,
     explanation: {
       en: `${a}x = ${rhs - b}, so x = ${x}.`,
@@ -215,431 +214,415 @@ function buildAutoMathQuestion(classNum, tier) {
   };
 }
 
-function selectQuestion(subject) {
-  const classNum = Number(state.player?.classNum || 8);
-  const desiredTier = getCurrentDifficultyTier();
-  const seenSet = new Set(readSeenIds());
+function pickQuestion(subject) {
+  const cls = Number(game.user?.classNum || 8);
+  const wantTier = currentTier();
+  const seen = new Set(getHistory());
 
-  let pool = state.questions.filter(q => q.subject === subject);
+  let pool = game.bank.filter(q => q.subject === subject);
+  const sameCls = pool.filter(q => Number(q.class) === cls);
+  const adjCls = pool.filter(q => Math.abs(Number(q.class) - cls) === 1);
 
-  const exactClass = pool.filter(q => Number(q.class) === classNum);
-  const nearClass = pool.filter(q => Math.abs(Number(q.class) - classNum) === 1);
-  if (exactClass.length > 0) {
-    pool = nearClass.length > 0 && state.wave >= 3 ? [...exactClass, ...nearClass] : exactClass;
+  if (sameCls.length > 0) {
+    pool = adjCls.length > 0 && game.wave >= 3 ? [...sameCls, ...adjCls] : sameCls;
   }
 
-  let fresh = pool.filter(q => !seenSet.has(q.id));
-  if (fresh.length === 0) fresh = pool;
+  let unseen = pool.filter(q => !seen.has(q.id));
+  if (unseen.length === 0) unseen = pool;
 
-  let tierMatches = fresh.filter(q => Number(q.difficulty || 1) === desiredTier);
-  if (tierMatches.length === 0) {
-    tierMatches = fresh.filter(q => Number(q.difficulty || 1) <= desiredTier);
-  }
-  if (tierMatches.length === 0) tierMatches = fresh;
+  let matched = unseen.filter(q => Number(q.difficulty || 1) === wantTier);
+  if (matched.length === 0) matched = unseen.filter(q => Number(q.difficulty || 1) <= wantTier);
+  if (matched.length === 0) matched = unseen;
 
-  const picked = tierMatches[Math.floor(Math.random() * tierMatches.length)] || buildAutoMathQuestion(classNum, desiredTier);
-  recordSeenId(picked.id);
-  return randomizeQuestionOptions(picked);
+  const chosen = matched[Math.floor(Math.random() * matched.length)] || makeFallbackMath(cls, wantTier);
+  saveHistory(chosen.id);
+  return shuffleSynced(chosen);
 }
 
-function randomizeQuestionOptions(raw) {
-  const len = raw.options.en.length;
-  const order = Array.from({ length: len }, (_, i) => i);
+function shuffleSynced(raw) {
+  const count = raw.options.en.length;
+  const perm = Array.from({ length: count }, (_, i) => i);
 
   if (!raw.lockOrder) {
-    for (let i = order.length - 1; i > 0; i--) {
+    for (let i = perm.length - 1; i > 0; i--) {
       const j = Math.floor(Math.random() * (i + 1));
-      [order[i], order[j]] = [order[j], order[i]];
+      [perm[i], perm[j]] = [perm[j], perm[i]];
     }
   }
 
   return {
     ...raw,
-    shuffledEn: order.map(i => raw.options.en[i]),
-    shuffledHi: order.map(i => (raw.options.hi ? raw.options.hi[i] : raw.options.en[i])),
-    shuffledAnswerIndex: order.indexOf(raw.answerIndex),
-    peekActive: false
+    optEn: perm.map(i => raw.options.en[i]),
+    optHi: perm.map(i => (raw.options.hi ? raw.options.hi[i] : raw.options.en[i])),
+    ansIdx: perm.indexOf(raw.answerIndex),
+    peeking: false
   };
 }
 
 /* ============================================================================
-   4. AUTHENTICATION (SHEET2) & DEMO MODE (STRICTLY NO LEADERBOARD SAVE)
+   4. AUTHENTICATION & DEMO MODE (DEMO NEVER SAVES TO LEADERBOARD)
    ============================================================================ */
-function maskId(val) {
-  const s = String(val || "");
+function maskNumber(raw) {
+  const s = String(raw || "");
   if (s.length <= 4) return "****";
   return `${"*".repeat(s.length - 4)}${s.slice(-4)}`;
 }
 
-function showLoginMessage(msg, isErr) {
-  const el = document.getElementById("loginStatus");
+function setAuthNotice(msg, isFail) {
+  const el = document.getElementById("authMsg");
   el.textContent = msg;
-  el.className = isErr ? "login-msg err" : "login-msg";
+  el.className = isFail ? "auth-feedback fail" : "auth-feedback";
 }
 
-async function handleVerifyLogin() {
+async function verifyAndEnter() {
   const now = Date.now();
-  if (now < state.lockoutUntil) {
-    const wait = Math.ceil((state.lockoutUntil - now) / 1000);
-    showLoginMessage(`Too many attempts. Please wait ${wait}s.`, true);
+  if (now < game.lockUntil) {
+    const left = Math.ceil((game.lockUntil - now) / 1000);
+    setAuthNotice(`Too many attempts. Please wait ${left}s.`, true);
     return;
   }
 
-  const inputEl = document.getElementById("studentIdInput");
-  const cleanId = inputEl.value.replace(/\D/g, "");
-  inputEl.value = cleanId;
+  const field = document.getElementById("idField");
+  const digits = field.value.replace(/\D/g, "");
+  field.value = digits;
 
-  if (cleanId.length < 11 || cleanId.length > 12) {
-    state.loginFails++;
-    if (state.loginFails >= 3) { state.lockoutUntil = Date.now() + 30000; state.loginFails = 0; }
-    showLoginMessage("Enter a valid 11 or 12-digit Student ID / PEN.", true);
+  if (digits.length < 10 || digits.length > 12) {
+    game.badAttempts++;
+    if (game.badAttempts >= 3) { game.lockUntil = Date.now() + 30000; game.badAttempts = 0; }
+    setAuthNotice("Please enter a valid Student ID.", true);
     return;
   }
 
-  if (!API_CONFIG.enabled || !API_CONFIG.endpoint.startsWith("http")) {
-    showLoginMessage("Apps Script endpoint not configured in game.js.", true);
-    return;
-  }
-
-  const btn = document.getElementById("verifyEnterBtn");
+  const btn = document.getElementById("enterBtn");
   btn.disabled = true;
-  showLoginMessage("Checking Student ID in Sheet2...", false);
+  setAuthNotice("Verifying Student ID...", false);
 
   try {
-    const url = `${API_CONFIG.endpoint}?action=verifyPen&pen=${encodeURIComponent(cleanId)}`;
-    const resp = await fetch(url, { method: "GET", redirect: "follow" });
-    const data = await resp.json();
+    const endpoint = `${BACKEND_CONFIG.url}?action=verifyPen&pen=${encodeURIComponent(digits)}`;
+    const res = await fetch(endpoint, { method: "GET", redirect: "follow" });
+    const data = await res.json();
 
     if (data.ok && data.student) {
-      state.loginFails = 0;
-      const chosenClass = Number(document.getElementById("classSelect").value) || 8;
-      state.player = {
+      game.badAttempts = 0;
+      const cls = Number(document.getElementById("classField").value) || 8;
+      game.user = {
         pen: data.student.pen,
         name: data.student.name,
         school: data.student.school || "",
-        classNum: chosenClass,
+        classNum: cls,
         isDemo: false
       };
-      launchArena();
+      openArena();
     } else {
-      state.loginFails++;
-      if (state.loginFails >= 3) { state.lockoutUntil = Date.now() + 30000; state.loginFails = 0; }
-      showLoginMessage(data.message || "Student ID not found in Sheet2.", true);
+      game.badAttempts++;
+      if (game.badAttempts >= 3) { game.lockUntil = Date.now() + 30000; game.badAttempts = 0; }
+      setAuthNotice(data.message || "Student ID not found.", true);
     }
   } catch (_) {
-    showLoginMessage("Could not verify against Sheet2. Check Web App deployment permissions.", true);
+    setAuthNotice("Unable to connect right now. Please try again.", true);
   } finally {
     btn.disabled = false;
   }
 }
 
-function handleDemoLaunch() {
-  const chosenClass = Number(document.getElementById("classSelect").value) || 8;
-  state.player = {
+function enterAsDemo() {
+  const cls = Number(document.getElementById("classField").value) || 8;
+  game.user = {
     pen: "DEMO",
     name: "Demo Player",
-    school: "Practice",
-    classNum: chosenClass,
+    school: "",
+    classNum: cls,
     isDemo: true
   };
-  launchArena();
+  openArena();
 }
 
-function launchArena() {
-  document.getElementById("loginGate").style.display = "none";
-  document.getElementById("arenaApp").style.display = "flex";
-  document.getElementById("liveLangSelect").value = state.lang;
+function openArena() {
+  document.getElementById("loginScreen").style.display = "none";
+  document.getElementById("gameScreen").style.display = "flex";
+  document.getElementById("arenaLangSelect").value = game.lang;
 
-  const isDemo = Boolean(state.player.isDemo);
-  document.getElementById("hudName").textContent = state.player.name;
-  document.getElementById("hudClassMode").textContent =
-    `CLASS ${state.player.classNum} • ${state.mode === "test90" ? "90S TEST MODE" : "SIEGE MODE"}`;
+  const demo = Boolean(game.user.isDemo);
+  document.getElementById("playerNameLabel").textContent = game.user.name;
+  document.getElementById("classModeLabel").textContent =
+    `CLASS ${game.user.classNum} • ${game.mode === "test90" ? "90S TEST MODE" : "SIEGE MODE"}`;
 
-  const badge = document.getElementById("hudAuthBadge");
-  if (isDemo) {
-    badge.textContent = "Demo • No Leaderboard Save";
-    badge.className = "pill demo";
+  const badge = document.getElementById("statusBadge");
+  if (demo) {
+    badge.textContent = "Demo • Not Saved";
+    badge.className = "tag demo";
   } else {
-    badge.textContent = `Verified • ${state.player.school || "Sheet2"}`;
-    badge.className = "pill live";
+    badge.textContent = game.user.school ? `Verified • ${game.user.school}` : "Verified";
+    badge.className = "tag verified";
   }
 
-  document.getElementById("testTimerChip").style.display = state.mode === "test90" ? "flex" : "none";
+  document.getElementById("waveClockPill").style.display = game.mode === "test90" ? "flex" : "none";
 
-  resetSession(false);
-  fetchLeaderboard();
-  requestAnimationFrame(loop);
+  resetArena(false);
+  refreshLeaderboard();
+  requestAnimationFrame(frameLoop);
 }
 
-function resetSession(keepEndless) {
-  state.hp = 100;
-  state.gold = 120;
-  state.mana = 50;
-  state.wave = keepEndless ? (CAMPAIGN_WIN_WAVE + 1) : 1;
-  state.endlessMode = Boolean(keepEndless);
-  state.score = 0;
-  state.waveClock = TEST_MODE_WAVE_SECONDS;
-  state.waveRunning = false;
-  state.paused = false;
-  state.consecutiveWrong = 0;
-  state.difficultyOffset = 0;
-  state.turrets = [];
-  state.demons = [];
-  state.shots = [];
-  state.sparks = [];
-  state.popups = [];
-  state.spawnQueue = [];
-  state.mastery = {
-    maths: { ok: 0, total: 0 },
-    science: { ok: 0, total: 0 },
-    grammar: { ok: 0, total: 0 },
-    gk: { ok: 0, total: 0 },
-    moral: { ok: 0, total: 0 }
+function resetArena(toEndless) {
+  game.hp = 100;
+  game.gold = 120;
+  game.mana = 50;
+  game.wave = toEndless ? (TARGET_VICTORY_WAVE + 1) : 1;
+  game.endless = Boolean(toEndless);
+  game.score = 0;
+  game.clockLeft = BLITZ_WAVE_SECONDS;
+  game.inWave = false;
+  game.locked = false;
+  game.streakWrong = 0;
+  game.tierShift = 0;
+  game.towers = [];
+  game.foes = [];
+  game.bolts = [];
+  game.bursts = [];
+  game.floaters = [];
+  game.queue = [];
+  game.accuracy = {
+    maths: { ok: 0, n: 0 },
+    science: { ok: 0, n: 0 },
+    grammar: { ok: 0, n: 0 },
+    gk: { ok: 0, n: 0 },
+    moral: { ok: 0, n: 0 }
   };
 
-  const wBtn = document.getElementById("startWaveBtn");
+  const wBtn = document.getElementById("waveTriggerBtn");
   wBtn.disabled = false;
-  wBtn.textContent = `Start Wave ${state.wave}`;
-  refreshHud();
-  refreshMastery();
+  wBtn.textContent = `Start Wave ${game.wave}`;
+  syncHud();
+  syncMastery();
 }
 
-async function saveScoreIfEligible(bonusPoints = 0) {
-  if (!state.player || state.player.isDemo) {
-    return { saved: false, msg: "Demo Mode: Scores are never saved to the leaderboard." };
+async function persistScore(bonus = 0) {
+  if (!game.user || game.user.isDemo) {
+    return { saved: false, text: "Demo mode: scores are not saved to the leaderboard." };
   }
 
-  const finalScore = Math.max(0, state.score + bonusPoints);
-  if (finalScore <= 0) {
-    return { saved: false, msg: "Score is 0; nothing recorded." };
+  const totalScore = Math.max(0, game.score + bonus);
+  if (totalScore <= 0) {
+    return { saved: false, text: "No points earned yet to record." };
   }
 
-  const okTotal = Object.values(state.mastery).reduce((s, x) => s + x.ok, 0);
-  const ansTotal = Object.values(state.mastery).reduce((s, x) => s + x.total, 0);
+  const okSum = Object.values(game.accuracy).reduce((a, b) => a + b.ok, 0);
+  const nSum = Object.values(game.accuracy).reduce((a, b) => a + b.n, 0);
 
   const payload = {
-    pen: state.player.pen,
-    maskedPen: maskId(state.player.pen),
-    name: state.player.name,
-    school: state.player.school || "",
-    classNum: state.player.classNum,
-    mode: state.mode,
-    score: finalScore,
-    wave: state.wave,
-    correct: okTotal,
-    total: ansTotal,
+    pen: game.user.pen,
+    maskedPen: maskNumber(game.user.pen),
+    name: game.user.name,
+    school: game.user.school || "",
+    classNum: game.user.classNum,
+    mode: game.mode,
+    score: totalScore,
+    wave: game.wave,
+    correct: okSum,
+    total: nSum,
     isDemo: false
   };
 
-  if (!API_CONFIG.enabled || !API_CONFIG.endpoint.startsWith("http")) {
-    return { saved: false, msg: "Server endpoint not configured." };
-  }
-
   try {
-    const resp = await fetch(API_CONFIG.endpoint, {
+    const res = await fetch(BACKEND_CONFIG.url, {
       method: "POST",
       headers: { "Content-Type": "text/plain;charset=utf-8" },
       body: JSON.stringify({ action: "submitScore", payload })
     });
-    const data = await resp.json();
-    await fetchLeaderboard();
-    return { saved: Boolean(data.ok), best: data.bestScore || finalScore };
+    const out = await res.json();
+    await refreshLeaderboard();
+    return { saved: Boolean(out.ok), best: out.bestScore || totalScore };
   } catch (_) {
-    return { saved: false, msg: "Network error while saving score to Google Sheet." };
+    return { saved: false, text: "Could not update leaderboard right now." };
   }
 }
 
-async function fetchLeaderboard() {
-  const ul = document.getElementById("leaderboardList");
-  if (!API_CONFIG.enabled || !API_CONFIG.endpoint.startsWith("http")) {
-    ul.innerHTML = `<li class="lb-row"><span>Connect Apps Script URL for live school leaderboard.</span></li>`;
-    return;
-  }
-
+async function refreshLeaderboard() {
+  const listEl = document.getElementById("boardList");
   try {
-    const resp = await fetch(`${API_CONFIG.endpoint}?action=getLeaderboard`, { redirect: "follow" });
-    const data = await resp.json();
-    const rows = (data.ok && Array.isArray(data.leaderboard)) ? data.leaderboard : [];
+    const res = await fetch(`${BACKEND_CONFIG.url}?action=getLeaderboard`, { redirect: "follow" });
+    const out = await res.json();
+    const rows = (out.ok && Array.isArray(out.leaderboard)) ? out.leaderboard : [];
 
-    ul.innerHTML = "";
+    listEl.innerHTML = "";
     if (rows.length === 0) {
-      ul.innerHTML = `<li class="lb-row"><span>No scores recorded yet.</span></li>`;
+      listEl.innerHTML = `<li class="rank-item"><span>No scores yet. Play a match to claim #1!</span></li>`;
       return;
     }
 
-    rows.slice(0, 10).forEach((r, idx) => {
-      const mine = state.player && !state.player.isDemo && String(r.pen) === String(state.player.pen);
+    rows.slice(0, 10).forEach((row, i) => {
+      const isSelf = game.user && !game.user.isDemo && String(row.pen) === String(game.user.pen);
       const li = document.createElement("li");
-      li.className = `lb-row${mine ? " highlight" : ""}`;
+      li.className = `rank-item${isSelf ? " self" : ""}`;
       li.innerHTML = `
         <div>
-          <strong>#${idx + 1} ${r.name}</strong>
-          <div style="font-size:0.72rem; color:var(--muted);">
-            Class ${r.classNum || "-"} • ${r.school || "School"} • Wave ${r.wave}
+          <strong>#${i + 1} ${row.name}</strong>
+          <div style="font-size:0.72rem; color:var(--ink-dim);">
+            Class ${row.classNum || "-"} • ${row.school || "Defender"} • Wave ${row.wave}
           </div>
         </div>
-        <strong style="color:var(--gold); font-size:0.94rem;">${r.score}</strong>
+        <strong style="color:var(--amber); font-size:0.94rem;">${row.score}</strong>
       `;
-      ul.appendChild(li);
+      listEl.appendChild(li);
     });
   } catch (_) {
-    ul.innerHTML = `<li class="lb-row"><span>Unable to load leaderboard.</span></li>`;
+    listEl.innerHTML = `<li class="rank-item"><span>Leaderboard temporarily unavailable.</span></li>`;
   }
 }
 
 /* ============================================================================
    5. QUESTION CHALLENGE MODAL
    ============================================================================ */
-function openQuestion({ subject, heading, onPass, onFail }) {
-  const q = selectQuestion(subject);
-  const totalSecs = getQuestionDurationSeconds(q);
+function askChallenge({ subject, title, onWin, onLoss }) {
+  const q = pickQuestion(subject);
+  const limit = questionSeconds(q);
 
-  state.paused = true;
-  state.challenge = { q, totalSecs, leftSecs: totalSecs, done: false, onPass, onFail };
+  game.locked = true;
+  game.activeQ = { q, limit, left: limit, resolved: false, onWin, onLoss };
 
-  document.getElementById("qTagBadge").textContent = heading || `${subject.toUpperCase()} • WAVE ${state.wave}`;
-  document.getElementById("qTierBadge").textContent = getTierLabel(q.difficulty || getCurrentDifficultyTier());
-  document.getElementById("qFeedbackArea").style.display = "none";
+  document.getElementById("qCategoryTag").textContent = title || `${subject.toUpperCase()} • WAVE ${game.wave}`;
+  document.getElementById("qLevelTag").textContent = tierName(q.difficulty || currentTier());
+  document.getElementById("qExplainBox").style.display = "none";
 
-  const peekBtn = document.getElementById("peekBtn");
-  peekBtn.style.display = (state.lang === "dual" || q.isLanguageSpecific) ? "none" : "inline-block";
+  const peek = document.getElementById("translatePeekBtn");
+  peek.style.display = (game.lang === "dual" || q.isLanguageSpecific) ? "none" : "inline-block";
 
-  drawQuestionBody();
-  document.getElementById("challengeOverlay").classList.add("open");
+  renderQuestionCard();
+  document.getElementById("questionModal").classList.add("open");
 
-  clearInterval(state.countdownId);
-  paintQuestionTimer();
+  clearInterval(game.tickHandle);
+  updateQuestionClock();
 
-  state.countdownId = setInterval(() => {
-    const ch = state.challenge;
-    if (!ch || ch.done) return;
-    ch.leftSecs -= 0.1;
-    if (ch.leftSecs <= 0) {
-      ch.leftSecs = 0;
-      paintQuestionTimer();
-      submitAnswer(-1);
+  game.tickHandle = setInterval(() => {
+    const ch = game.activeQ;
+    if (!ch || ch.resolved) return;
+    ch.left -= 0.1;
+    if (ch.left <= 0) {
+      ch.left = 0;
+      updateQuestionClock();
+      answerChallenge(-1);
     } else {
-      paintQuestionTimer();
+      updateQuestionClock();
     }
   }, 100);
 }
 
-function paintQuestionTimer() {
-  const ch = state.challenge;
+function updateQuestionClock() {
+  const ch = game.activeQ;
   if (!ch) return;
-  const pct = Math.max(0, (ch.leftSecs / ch.totalSecs) * 100);
-  const bar = document.getElementById("qTimerBar");
-  bar.style.width = `${pct}%`;
-  bar.style.background = pct > 45 ? "#22c55e" : (pct > 20 ? "#fbbf24" : "#fb7185");
-  document.getElementById("qTimerBadge").textContent = `${ch.leftSecs.toFixed(1)}s`;
+  const ratio = Math.max(0, (ch.left / ch.limit) * 100);
+  const bar = document.getElementById("qClockBar");
+  bar.style.width = `${ratio}%`;
+  bar.style.background = ratio > 45 ? "#22c55e" : (ratio > 20 ? "#fbbf24" : "#fb7185");
+  document.getElementById("qClockTag").textContent = `${ch.left.toFixed(1)}s`;
 }
 
-function drawQuestionBody() {
-  const ch = state.challenge;
+function renderQuestionCard() {
+  const ch = game.activeQ;
   const q = ch.q;
-  const showBoth = (state.lang === "dual" || q.peekActive) && !q.isLanguageSpecific;
-  const primary = q.isLanguageSpecific ? (q.nativeLang || "en") : (state.lang === "hi" ? "hi" : "en");
+  const dualView = (game.lang === "dual" || q.peeking) && !q.isLanguageSpecific;
+  const mainLang = q.isLanguageSpecific ? (q.nativeLang || "en") : (game.lang === "hi" ? "hi" : "en");
 
-  const promptEl = document.getElementById("qPromptArea");
-  if (showBoth) {
-    promptEl.innerHTML = `
-      <div class="prompt-primary">${q.prompt.en}</div>
-      <div class="prompt-secondary">${q.prompt.hi || ""}</div>
+  const textBox = document.getElementById("qTextBox");
+  if (dualView) {
+    textBox.innerHTML = `
+      <div class="q-main">${q.prompt.en}</div>
+      <div class="q-alt">${q.prompt.hi || ""}</div>
     `;
   } else {
-    promptEl.innerHTML = `<div class="prompt-primary">${q.prompt[primary] || q.prompt.en}</div>`;
+    textBox.innerHTML = `<div class="q-main">${q.prompt[mainLang] || q.prompt.en}</div>`;
   }
 
-  const optsEl = document.getElementById("qOptionsArea");
-  optsEl.innerHTML = "";
+  const choicesBox = document.getElementById("qChoicesBox");
+  choicesBox.innerHTML = "";
 
-  q.shuffledEn.forEach((enOpt, i) => {
-    const hiOpt = q.shuffledHi[i] || enOpt;
-    const b = document.createElement("button");
-    b.type = "button";
-    b.className = "opt-choice";
-    if (showBoth && hiOpt !== enOpt) {
-      b.innerHTML = `<strong>${String.fromCharCode(65 + i)}.</strong> ${enOpt} <span style="color:var(--muted);">/ ${hiOpt}</span>`;
+  q.optEn.forEach((enTxt, idx) => {
+    const hiTxt = q.optHi[idx] || enTxt;
+    const btn = document.createElement("button");
+    btn.type = "button";
+    btn.className = "answer-btn";
+    if (dualView && hiTxt !== enTxt) {
+      btn.innerHTML = `<strong>${String.fromCharCode(65 + idx)}.</strong> ${enTxt} <span style="color:var(--ink-dim);">/ ${hiTxt}</span>`;
     } else {
-      b.innerHTML = `<strong>${String.fromCharCode(65 + i)}.</strong> ${primary === "hi" ? hiOpt : enOpt}`;
+      btn.innerHTML = `<strong>${String.fromCharCode(65 + idx)}.</strong> ${mainLang === "hi" ? hiTxt : enTxt}`;
     }
-    b.onclick = () => submitAnswer(i);
-    optsEl.appendChild(b);
+    btn.onclick = () => answerChallenge(idx);
+    choicesBox.appendChild(btn);
   });
 }
 
-function submitAnswer(choiceIdx) {
-  const ch = state.challenge;
-  if (!ch || ch.done) return;
-  ch.done = true;
-  clearInterval(state.countdownId);
+function answerChallenge(pickedIdx) {
+  const ch = game.activeQ;
+  if (!ch || ch.resolved) return;
+  ch.resolved = true;
+  clearInterval(game.tickHandle);
 
   const q = ch.q;
-  const right = choiceIdx === q.shuffledAnswerIndex;
-  const fast = right && (ch.leftSecs / ch.totalSecs) >= 0.5;
+  const correct = pickedIdx === q.ansIdx;
+  const swift = correct && (ch.left / ch.limit) >= 0.5;
 
-  if (state.mastery[q.subject]) {
-    state.mastery[q.subject].total++;
-    if (right) state.mastery[q.subject].ok++;
-    refreshMastery();
+  if (game.accuracy[q.subject]) {
+    game.accuracy[q.subject].n++;
+    if (correct) game.accuracy[q.subject].ok++;
+    syncMastery();
   }
 
-  const btns = document.querySelectorAll("#qOptionsArea .opt-choice");
-  btns.forEach((btn, idx) => {
-    btn.disabled = true;
-    if (idx === q.shuffledAnswerIndex) btn.classList.add("correct");
-    else if (idx === choiceIdx) btn.classList.add("wrong");
+  const btns = document.querySelectorAll("#qChoicesBox .answer-btn");
+  btns.forEach((b, i) => {
+    b.disabled = true;
+    if (i === q.ansIdx) b.classList.add("right");
+    else if (i === pickedIdx) b.classList.add("wrong");
   });
 
-  const fb = document.getElementById("qFeedbackArea");
-  fb.style.display = "block";
-  const note = state.lang === "hi" && q.explanation?.hi ? q.explanation.hi : (q.explanation?.en || "");
+  const expBox = document.getElementById("qExplainBox");
+  expBox.style.display = "block";
+  const note = game.lang === "hi" && q.explanation?.hi ? q.explanation.hi : (q.explanation?.en || "");
 
-  if (right) {
-    SFX.winQ();
-    state.consecutiveWrong = 0;
-    if (state.difficultyOffset > 0 && Math.random() < 0.4) state.difficultyOffset--;
-    const pts = fast ? 40 : 25;
-    state.score += pts;
-    state.gold += fast ? 15 : 10;
-    state.mana = Math.min(100, state.mana + (fast ? 18 : 12));
-    fb.innerHTML = `<strong style="color:#86efac;">${fast ? "Swift Genius! +" + pts + " pts" : "Correct! +" + pts + " pts"}</strong> ${note}`;
+  if (correct) {
+    SoundBoard.chimeGood();
+    game.streakWrong = 0;
+    if (game.tierShift > 0 && Math.random() < 0.4) game.tierShift--;
+    const pts = swift ? 40 : 25;
+    game.score += pts;
+    game.gold += swift ? 15 : 10;
+    game.mana = Math.min(100, game.mana + (swift ? 18 : 12));
+    expBox.innerHTML = `<strong style="color:#86efac;">${swift ? "Quick Genius! +" + pts + " pts" : "Correct! +" + pts + " pts"}</strong> ${note}`;
   } else {
-    SFX.loseQ();
-    state.consecutiveWrong++;
-    if (state.consecutiveWrong >= 2) {
-      state.difficultyOffset = Math.max(-1, state.difficultyOffset - 1);
-      state.consecutiveWrong = 0;
+    SoundBoard.chimeBad();
+    game.streakWrong++;
+    if (game.streakWrong >= 2) {
+      game.tierShift = Math.max(-1, game.tierShift - 1);
+      game.streakWrong = 0;
     }
-    fb.innerHTML = `<strong style="color:#fda4af;">${choiceIdx === -1 ? "Time Expired!" : "Incorrect!"}</strong> ${note}`;
+    expBox.innerHTML = `<strong style="color:#fda4af;">${pickedIdx === -1 ? "Time's Up!" : "Not Quite!"}</strong> ${note}`;
   }
 
-  refreshHud();
+  syncHud();
 
   setTimeout(() => {
-    document.getElementById("challengeOverlay").classList.remove("open");
-    state.paused = false;
-    state.challenge = null;
-    if (right && ch.onPass) ch.onPass(fast);
-    if (!right && ch.onFail) ch.onFail();
+    document.getElementById("questionModal").classList.remove("open");
+    game.locked = false;
+    game.activeQ = null;
+    if (correct && ch.onWin) ch.onWin(swift);
+    if (!correct && ch.onLoss) ch.onLoss();
   }, 1400);
 }
 
 /* ============================================================================
-   6. WAVE & DEMON SIMULATION (SIEGE MODE + 90S TEST MODE + WAVE 6 VICTORY)
+   6. BATTLE SIMULATION (SIEGE MODE, 90S TEST MODE & WAVE 6 VICTORY)
    ============================================================================ */
-const canvas = document.getElementById("arenaCanvas");
+const canvas = document.getElementById("battleCanvas");
 const ctx = canvas.getContext("2d");
-let prevTime = performance.now();
+let lastStamp = performance.now();
 
-function addSparks(x, y, color, count = 10) {
+function addBurst(x, y, color, count = 10) {
   for (let i = 0; i < count; i++) {
-    const ang = Math.random() * Math.PI * 2;
-    const spd = 35 + Math.random() * 110;
-    state.sparks.push({
+    const a = Math.random() * Math.PI * 2;
+    const v = 35 + Math.random() * 110;
+    game.bursts.push({
       x, y,
-      vx: Math.cos(ang) * spd,
-      vy: Math.sin(ang) * spd,
+      vx: Math.cos(a) * v,
+      vy: Math.sin(a) * v,
       life: 0.35 + Math.random() * 0.2,
       maxLife: 0.55,
       color,
@@ -648,144 +631,145 @@ function addSparks(x, y, color, count = 10) {
   }
 }
 
-function addPopup(x, y, text, color = "#fde047") {
-  state.popups.push({ x, y, text, color, life: 0.9 });
+function addFloater(x, y, text, color = "#fde047") {
+  game.floaters.push({ x, y, text, color, life: 0.9 });
 }
 
-function beginWave() {
-  if (state.waveRunning || state.paused) return;
-  state.waveRunning = true;
-  state.waveClock = TEST_MODE_WAVE_SECONDS;
-  document.getElementById("startWaveBtn").disabled = true;
+function startWaveRun() {
+  if (game.inWave || game.locked) return;
+  game.inWave = true;
+  game.clockLeft = BLITZ_WAVE_SECONDS;
+  document.getElementById("waveTriggerBtn").disabled = true;
+  game.queue = [];
 
-  state.spawnQueue = [];
-
-  if (state.mode === "siege" && state.wave === 1 && !state.endlessMode) {
-    state.spawnQueue.push({
+  if (game.mode === "siege" && game.wave === 1 && !game.endless) {
+    // Slow ~90s scout along ~815px route (~9.05 px/s), 20 HP -> defeated in 2 basic 12-dmg shots
+    game.queue.push({
       hp: 20,
       maxHp: 20,
       speed: 9.05,
-      goldReward: 25,
-      scoreReward: 30,
-      gateDamage: 12,
-      isBoss: false,
-      isScout: true
+      gold: 25,
+      pts: 30,
+      breachDmg: 12,
+      boss: false,
+      scout: true
     });
-    state.spawnDelay = 0.2;
+    game.nextSpawn = 0.2;
   } else {
-    const isBoss = state.wave % 3 === 0;
-    const totalCount = isBoss ? (4 + state.wave) : (5 + state.wave * 2);
-    const waveScale = Math.max(1, state.wave - (state.mode === "siege" ? 1 : 0));
+    const isBoss = game.wave % 3 === 0;
+    const totalFoes = isBoss ? (4 + game.wave) : (5 + game.wave * 2);
+    const scale = Math.max(1, game.wave - (game.mode === "siege" ? 1 : 0));
 
-    for (let i = 0; i < totalCount; i++) {
-      const bossUnit = isBoss && i === totalCount - 1;
-      const baseHp = bossUnit ? (85 + waveScale * 34) : (24 + waveScale * 14);
-      const baseSpeed = bossUnit ? (24 + waveScale * 2.5) : (32 + waveScale * 5.5);
+    for (let i = 0; i < totalFoes; i++) {
+      const boss = isBoss && i === totalFoes - 1;
+      const hp = boss ? (85 + scale * 34) : (24 + scale * 14);
+      const speed = boss ? (24 + scale * 2.5) : (32 + scale * 5.5);
 
-      state.spawnQueue.push({
-        hp: baseHp,
-        maxHp: baseHp,
-        speed: Math.min(95, baseSpeed),
-        goldReward: bossUnit ? 35 : (10 + waveScale * 2),
-        scoreReward: bossUnit ? 120 : (20 + waveScale * 5),
-        gateDamage: bossUnit ? 25 : (10 + Math.min(15, waveScale * 2)),
-        isBoss: bossUnit,
-        isScout: false
+      game.queue.push({
+        hp,
+        maxHp: hp,
+        speed: Math.min(95, speed),
+        gold: boss ? 35 : (10 + scale * 2),
+        pts: boss ? 120 : (20 + scale * 5),
+        breachDmg: boss ? 25 : (10 + Math.min(15, scale * 2)),
+        boss,
+        scout: false
       });
     }
-    state.spawnDelay = 0.25;
+    game.nextSpawn = 0.25;
   }
 
-  refreshHud();
+  syncHud();
 }
 
-function triggerManualQuiz() {
-  if (state.paused) return;
-  const subjects = ["maths", "science", "grammar", "gk"];
-  const sub = subjects[Math.floor(Math.random() * subjects.length)];
-  openQuestion({
+function runBoostQuiz() {
+  if (game.locked) return;
+  const pool = ["maths", "science", "grammar", "gk"];
+  const sub = pool[Math.floor(Math.random() * pool.length)];
+  askChallenge({
     subject: sub,
-    heading: `KNOWLEDGE BOOST • ${sub.toUpperCase()}`,
-    onPass: (fast) => {
-      if (state.demons.length > 0) {
-        const front = state.demons[0];
-        front.hp -= fast ? 24 : 15;
-        addSparks(front.x, front.y, "#38bdf8", 12);
-        addPopup(front.x, front.y - 18, fast ? "-24 ARCANE!" : "-15 ARCANE!", "#38bdf8");
+    title: `KNOWLEDGE BOOST • ${sub.toUpperCase()}`,
+    onWin: (swift) => {
+      if (game.foes.length > 0) {
+        const lead = game.foes[0];
+        const hit = swift ? 24 : 15;
+        lead.hp -= hit;
+        addBurst(lead.x, lead.y, "#38bdf8", 12);
+        addFloater(lead.x, lead.y - 18, `-${hit} ARCANE!`, "#38bdf8");
       }
     }
   });
 }
 
-function triggerUltimateStorm() {
-  if (state.mana < 60 || state.paused) return;
-  state.mana -= 60;
-  refreshHud();
+function castStorm() {
+  if (game.mana < 60 || game.locked) return;
+  game.mana -= 60;
+  syncHud();
 
-  const subjects = ["maths", "science", "gk", "grammar"];
-  const chosen = subjects[Math.floor(Math.random() * subjects.length)];
-  openQuestion({
-    subject: chosen,
-    heading: "⚡ ULTIMATE KNOWLEDGE STORM ⚡",
-    onPass: () => {
-      state.demons.forEach(d => {
-        d.hp -= 65;
-        addSparks(d.x, d.y, "#d8b4fe", 14);
+  const pool = ["maths", "science", "gk", "grammar"];
+  const sub = pool[Math.floor(Math.random() * pool.length)];
+  askChallenge({
+    subject: sub,
+    title: "⚡ ULTIMATE KNOWLEDGE STORM ⚡",
+    onWin: () => {
+      game.foes.forEach(f => {
+        f.hp -= 65;
+        addBurst(f.x, f.y, "#e879f9", 14);
       });
-      state.score += 50;
-      addPopup(440, 200, "STORM STRIKE!", "#e879f9");
-      refreshHud();
+      game.score += 50;
+      addFloater(440, 200, "STORM STRIKE!", "#e879f9");
+      syncHud();
     }
   });
 }
 
-function handleBoardClick(evt) {
-  if (state.paused) return;
+function onCanvasClick(evt) {
+  if (game.locked) return;
   const rect = canvas.getBoundingClientRect();
-  const mx = (evt.clientX - rect.left) * (canvas.width / rect.width);
-  const my = (evt.clientY - rect.top) * (canvas.height / rect.height);
+  const cx = (evt.clientX - rect.left) * (canvas.width / rect.width);
+  const cy = (evt.clientY - rect.top) * (canvas.height / rect.height);
 
-  for (let i = 0; i < PADS.length; i++) {
-    const pad = PADS[i];
-    if (Math.hypot(mx - pad.x, my - pad.y) <= 28) {
-      const turret = state.turrets.find(t => t.padIdx === i);
-      if (turret) {
-        if (turret.level >= 3) {
-          addPopup(turret.x, turret.y - 20, "MAX LEVEL", turret.color);
+  for (let i = 0; i < BUILD_SPOTS.length; i++) {
+    const spot = BUILD_SPOTS[i];
+    if (Math.hypot(cx - spot.x, cy - spot.y) <= 28) {
+      const built = game.towers.find(t => t.spotIdx === i);
+      if (built) {
+        if (built.level >= 3) {
+          addFloater(built.x, built.y - 20, "MAX LEVEL", built.color);
           return;
         }
-        openQuestion({
-          subject: turret.type,
-          heading: `SUPERCHARGE ${TURRET_DATA[turret.type].label.toUpperCase()} → LV.${turret.level + 1}`,
-          onPass: (fast) => {
-            turret.level++;
-            turret.dmg += fast ? 12 : 8;
-            turret.range += 16;
-            turret.cooldownMax = Math.max(0.38, turret.cooldownMax * 0.88);
-            addSparks(turret.x, turret.y, turret.color, 18);
-            addPopup(turret.x, turret.y - 24, `SUPERCHARGED LV.${turret.level}!`, turret.color);
+        askChallenge({
+          subject: built.kind,
+          title: `SUPERCHARGE ${TOWER_SPECS[built.kind].label.toUpperCase()} → LV.${built.level + 1}`,
+          onWin: (swift) => {
+            built.level++;
+            built.dmg += swift ? 12 : 8;
+            built.range += 16;
+            built.rate = Math.max(0.38, built.rate * 0.88);
+            addBurst(built.x, built.y, built.color, 18);
+            addFloater(built.x, built.y - 24, `SUPERCHARGED LV.${built.level}!`, built.color);
           }
         });
       } else {
-        const spec = TURRET_DATA[state.selectedTurret];
-        if (state.gold >= spec.cost) {
-          state.gold -= spec.cost;
-          state.turrets.push({
-            padIdx: i,
-            x: pad.x,
-            y: pad.y,
-            type: state.selectedTurret,
+        const spec = TOWER_SPECS[game.chosenTower];
+        if (game.gold >= spec.cost) {
+          game.gold -= spec.cost;
+          game.towers.push({
+            spotIdx: i,
+            x: spot.x,
+            y: spot.y,
+            kind: game.chosenTower,
             level: 1,
-            cooldown: 0,
-            angle: 0,
+            cd: 0,
+            aim: 0,
             ...spec
           });
-          SFX.place();
-          addSparks(pad.x, pad.y, spec.color, 14);
-          addPopup(pad.x, pad.y - 20, `-${spec.cost}g`, "#fde047");
-          refreshHud();
+          SoundBoard.buildOk();
+          addBurst(spot.x, spot.y, spec.color, 14);
+          addFloater(spot.x, spot.y - 20, `-${spec.cost}g`, "#fde047");
+          syncHud();
         } else {
-          addPopup(pad.x, pad.y - 18, "Need More Gold!", "#fb7185");
+          addFloater(spot.x, spot.y - 18, "Need Gold!", "#fb7185");
         }
       }
       return;
@@ -793,224 +777,234 @@ function handleBoardClick(evt) {
   }
 }
 
-function stepSimulation(dt) {
-  state.clock += dt;
-  if (state.paused) return;
+function advanceSimulation(dt) {
+  game.elapsed += dt;
+  if (game.locked) return;
 
-  if (state.mode === "test90" && state.waveRunning) {
-    state.waveClock = Math.max(0, state.waveClock - dt);
-    refreshHud();
-    if (state.waveClock <= 0) {
-      const remainingPenalty = Math.min(state.hp, 15 + state.demons.length * 8);
-      state.hp = Math.max(0, state.hp - remainingPenalty);
-      state.demons = [];
-      state.spawnQueue = [];
-      state.waveRunning = false;
-      addPopup(790, 185, `TIME UP! -${remainingPenalty} HP`, "#fb7185");
-      refreshHud();
-      if (state.hp <= 0) {
-        concludeRun(false);
+  if (game.mode === "test90" && game.inWave) {
+    game.clockLeft = Math.max(0, game.clockLeft - dt);
+    syncHud();
+    if (game.clockLeft <= 0) {
+      const loss = Math.min(game.hp, 15 + game.foes.length * 8);
+      game.hp = Math.max(0, game.hp - loss);
+      game.foes = [];
+      game.queue = [];
+      game.inWave = false;
+      addFloater(790, 185, `TIME UP! -${loss} HP`, "#fb7185");
+      syncHud();
+      if (game.hp <= 0) {
+        finishMatch(false);
         return;
       }
-      advanceWaveOrVictory();
+      progressWave();
       return;
     }
   }
 
-  if (state.waveRunning && state.spawnQueue.length > 0) {
-    state.spawnDelay -= dt;
-    if (state.spawnDelay <= 0) {
-      const item = state.spawnQueue.shift();
-      state.demons.push({
-        ...item,
-        x: WAYPOINTS[0].x,
-        y: WAYPOINTS[0].y,
-        wpIndex: 1,
-        chillTimer: 0
+  if (game.inWave && game.queue.length > 0) {
+    game.nextSpawn -= dt;
+    if (game.nextSpawn <= 0) {
+      const nextFoe = game.queue.shift();
+      game.foes.push({
+        ...nextFoe,
+        x: ROUTE[0].x,
+        y: ROUTE[0].y,
+        pt: 1,
+        slowed: 0
       });
-      state.spawnDelay = state.wave === 1 ? 1.5 : Math.max(0.45, 1.15 - state.wave * 0.08);
+      game.nextSpawn = game.wave === 1 ? 1.5 : Math.max(0.45, 1.15 - game.wave * 0.08);
     }
   }
 
-  for (let i = state.demons.length - 1; i >= 0; i--) {
-    const d = state.demons[i];
-    if (d.hp <= 0) {
-      state.gold += d.goldReward;
-      state.score += d.scoreReward;
-      addSparks(d.x, d.y, d.isBoss ? "#fb7185" : "#fb923c", d.isBoss ? 24 : 12);
-      addPopup(d.x, d.y - 14, `+${d.goldReward}g`, "#fde047");
-      state.demons.splice(i, 1);
-      refreshHud();
+  for (let i = game.foes.length - 1; i >= 0; i--) {
+    const f = game.foes[i];
+    if (f.hp <= 0) {
+      game.gold += f.gold;
+      game.score += f.pts;
+      addBurst(f.x, f.y, f.boss ? "#fb7185" : "#fb923c", f.boss ? 24 : 12);
+      addFloater(f.x, f.y - 14, `+${f.gold}g`, "#fde047");
+      game.foes.splice(i, 1);
+      syncHud();
       continue;
     }
 
-    if (d.chillTimer > 0) d.chillTimer -= dt;
-    const speedNow = d.chillTimer > 0 ? d.speed * 0.55 : d.speed;
-    const wp = WAYPOINTS[d.wpIndex];
-    const dx = wp.x - d.x;
-    const dy = wp.y - d.y;
+    if (f.slowed > 0) f.slowed -= dt;
+    const spd = f.slowed > 0 ? f.speed * 0.55 : f.speed;
+    const dest = ROUTE[f.pt];
+    const dx = dest.x - f.x;
+    const dy = dest.y - f.y;
     const dist = Math.hypot(dx, dy);
 
     if (dist < 3.5) {
-      d.wpIndex++;
-      if (d.wpIndex >= WAYPOINTS.length) {
-        state.hp = Math.max(0, state.hp - d.gateDamage);
-        addSparks(805, 220, "#fb7185", 18);
-        addPopup(785, 185, `BREACH -${d.gateDamage} HP!`, "#fb7185");
-        state.demons.splice(i, 1);
-        refreshHud();
-        if (state.hp <= 0) {
-          concludeRun(false);
+      f.pt++;
+      if (f.pt >= ROUTE.length) {
+        game.hp = Math.max(0, game.hp - f.breachDmg);
+        addBurst(805, 220, "#fb7185", 18);
+        addFloater(785, 185, `-${f.breachDmg} HP!`, "#fb7185");
+        game.foes.splice(i, 1);
+        syncHud();
+        if (game.hp <= 0) {
+          finishMatch(false);
           return;
         }
       }
     } else {
-      d.x += (dx / dist) * speedNow * dt;
-      d.y += (dy / dist) * speedNow * dt;
+      f.x += (dx / dist) * spd * dt;
+      f.y += (dy / dist) * spd * dt;
     }
   }
 
-  state.turrets.forEach(t => {
-    t.cooldown -= dt;
-    const target = state.demons.find(d => Math.hypot(d.x - t.x, d.y - t.y) <= t.range);
+  game.towers.forEach(t => {
+    t.cd -= dt;
+    const target = game.foes.find(f => Math.hypot(f.x - t.x, f.y - t.y) <= t.range);
     if (target) {
-      t.angle = Math.atan2(target.y - t.y, target.x - t.x);
-      if (t.cooldown <= 0) {
-        t.cooldown = t.cooldownMax;
-        SFX.shot();
-        state.shots.push({
+      t.aim = Math.atan2(target.y - t.y, target.x - t.x);
+      if (t.cd <= 0) {
+        t.cd = t.rate;
+        SoundBoard.fire();
+        game.bolts.push({
           x: t.x, y: t.y, target,
-          speed: 370, dmg: t.dmg, color: t.color, type: t.type
+          speed: 370, dmg: t.dmg, color: t.color, kind: t.kind
         });
       }
     }
   });
 
-  for (let i = state.shots.length - 1; i >= 0; i--) {
-    const s = state.shots[i];
-    if (!state.demons.includes(s.target)) {
-      state.shots.splice(i, 1);
+  for (let i = game.bolts.length - 1; i >= 0; i--) {
+    const b = game.bolts[i];
+    if (!game.foes.includes(b.target)) {
+      game.bolts.splice(i, 1);
       continue;
     }
-    const dx = s.target.x - s.x;
-    const dy = s.target.y - s.y;
+    const dx = b.target.x - b.x;
+    const dy = b.target.y - b.y;
     const dist = Math.hypot(dx, dy);
     if (dist < 10) {
-      SFX.hit();
-      s.target.hp -= s.dmg;
-      addSparks(s.target.x, s.target.y, s.color, 6);
-      if (s.type === "grammar") s.target.chillTimer = 2.8;
-      if (s.type === "maths") {
-        state.demons.forEach(other => {
-          if (other !== s.target && Math.hypot(other.x - s.target.x, other.y - s.target.y) < 58) {
-            other.hp -= Math.round(s.dmg * 0.5);
+      SoundBoard.impact();
+      b.target.hp -= b.dmg;
+      addBurst(b.target.x, b.target.y, b.color, 6);
+      if (b.kind === "grammar") b.target.slowed = 2.8;
+      if (b.kind === "maths") {
+        game.foes.forEach(other => {
+          if (other !== b.target && Math.hypot(other.x - b.target.x, other.y - b.target.y) < 58) {
+            other.hp -= Math.round(b.dmg * 0.5);
           }
         });
       }
-      state.shots.splice(i, 1);
+      game.bolts.splice(i, 1);
     } else {
-      s.x += (dx / dist) * s.speed * dt;
-      s.y += (dy / dist) * s.speed * dt;
+      b.x += (dx / dist) * b.speed * dt;
+      b.y += (dy / dist) * b.speed * dt;
     }
   }
 
-  for (let i = state.sparks.length - 1; i >= 0; i--) {
-    const sp = state.sparks[i];
-    sp.x += sp.vx * dt;
-    sp.y += sp.vy * dt;
-    sp.life -= dt;
-    if (sp.life <= 0) state.sparks.splice(i, 1);
+  for (let i = game.bursts.length - 1; i >= 0; i--) {
+    const p = game.bursts[i];
+    p.x += p.vx * dt;
+    p.y += p.vy * dt;
+    p.life -= dt;
+    if (p.life <= 0) game.bursts.splice(i, 1);
   }
 
-  for (let i = state.popups.length - 1; i >= 0; i--) {
-    const pop = state.popups[i];
-    pop.y -= 25 * dt;
-    pop.life -= dt;
-    if (pop.life <= 0) state.popups.splice(i, 1);
+  for (let i = game.floaters.length - 1; i >= 0; i--) {
+    const fl = game.floaters[i];
+    fl.y -= 25 * dt;
+    fl.life -= dt;
+    if (fl.life <= 0) game.floaters.splice(i, 1);
   }
 
-  if (state.waveRunning && state.spawnQueue.length === 0 && state.demons.length === 0) {
-    state.waveRunning = false;
-    if (state.mode === "test90") {
-      const timeBonus = Math.round(state.waveClock * 2);
-      state.score += timeBonus;
-      addPopup(440, 140, `WAVE CLEAR! +${timeBonus} SPEED PTS`, "#86efac");
+  if (game.inWave && game.queue.length === 0 && game.foes.length === 0) {
+    game.inWave = false;
+    if (game.mode === "test90") {
+      const timePts = Math.round(game.clockLeft * 2);
+      game.score += timePts;
+      addFloater(440, 140, `WAVE CLEAR! +${timePts} SPEED PTS`, "#86efac");
     }
-    refreshHud();
-    advanceWaveOrVictory();
+    syncHud();
+    progressWave();
   }
 }
 
-function advanceWaveOrVictory() {
-  if (!state.endlessMode && state.wave === CAMPAIGN_WIN_WAVE) {
-    concludeRun(true);
+function progressWave() {
+  if (!game.endless && game.wave === TARGET_VICTORY_WAVE) {
+    finishMatch(true);
     return;
   }
 
-  state.wave++;
-  const btn = document.getElementById("startWaveBtn");
+  game.wave++;
+  const btn = document.getElementById("waveTriggerBtn");
   btn.disabled = false;
-  btn.textContent = `Start Wave ${state.wave}${state.wave % 3 === 0 ? " (BOSS)" : ""}`;
-  refreshHud();
+  btn.textContent = `Start Wave ${game.wave}${game.wave % 3 === 0 ? " (BOSS)" : ""}`;
+  syncHud();
 
-  openQuestion({
+  askChallenge({
     subject: "moral",
-    heading: "⚖️ MORAL VALUES • CARAVAN CHOICE",
-    onPass: () => {
-      state.hp = Math.min(100, state.hp + 15);
-      state.gold += 20;
-      addPopup(790, 175, "+15 HP & +20g", "#22c55e");
-      refreshHud();
+    title: "⚖️ MORAL VALUES • CARAVAN CHOICE",
+    onWin: () => {
+      game.hp = Math.min(100, game.hp + 15);
+      game.gold += 20;
+      addFloater(790, 175, "+15 HP & +20g", "#22c55e");
+      syncHud();
     }
   });
 }
 
-async function concludeRun(isVictory) {
-  state.paused = true;
-  state.waveRunning = false;
-  const winBonus = isVictory ? 150 + state.hp : 0;
-  const saveRes = await saveScoreIfEligible(winBonus);
+async function finishMatch(won) {
+  game.locked = true;
+  game.inWave = false;
+  const bonus = won ? 150 + game.hp : 0;
+  const saved = await persistScore(bonus);
 
-  const iconEl = document.getElementById("outcomeIcon");
-  const titleEl = document.getElementById("outcomeTitle");
-  const textEl = document.getElementById("outcomeText");
-  const saveEl = document.getElementById("outcomeSaveNote");
-  const endlessBtn = document.getElementById("endlessBtn");
+  const emblem = document.getElementById("resultEmblem");
+  const heading = document.getElementById("resultHeading");
+  const body = document.getElementById("resultBody");
+  const banner = document.getElementById("resultSaveBanner");
+  const endlessBtn = document.getElementById("goEndlessBtn");
 
-  if (isVictory) {
-    iconEl.textContent = "👑";
-    titleEl.textContent = "Castle Saved — Campaign Victory!";
-    titleEl.style.color = "#fde047";
-    textEl.textContent = `You cleared all ${CAMPAIGN_WIN_WAVE} waves with ${state.hp} HP remaining! Victory bonus: +${winBonus} pts (Total: ${state.score + winBonus}).`;
+  if (won) {
+    emblem.textContent = "👑";
+    heading.textContent = "Castle Saved — Campaign Victory!";
+    heading.style.color = "#fde047";
+    body.textContent = `You defended the Castle through Wave ${TARGET_VICTORY_WAVE} with ${game.hp} HP left! Bonus: +${bonus} pts (Total: ${game.score + bonus}).`;
     endlessBtn.style.display = "inline-block";
   } else {
-    iconEl.textContent = "🛡️";
-    titleEl.textContent = "Castle Breached!";
-    titleEl.style.color = "#fda4af";
-    textEl.textContent = `Your defense held through Wave ${state.wave} with ${state.score} points.`;
+    emblem.textContent = "🛡️";
+    heading.textContent = "Castle Breached!";
+    heading.style.color = "#fda4af";
+    body.textContent = `Your defense held through Wave ${game.wave} with ${game.score} points.`;
     endlessBtn.style.display = "none";
   }
 
-  if (state.player.isDemo) {
-    saveEl.style.color = "#fda4af";
-    saveEl.textContent = "Demo Mode: Score was not saved to the school leaderboard.";
-  } else if (saveRes.saved) {
-    saveEl.style.color = "#86efac";
-    saveEl.textContent = `Score Recorded! Personal Best: ${saveRes.best}`;
+  if (game.user.isDemo) {
+    banner.style.color = "#fda4af";
+    banner.textContent = "Demo mode: scores are not saved to the leaderboard.";
+  } else if (saved.saved) {
+    banner.style.color = "#86efac";
+    banner.textContent = `Score Recorded! Personal Best: ${saved.best}`;
   } else {
-    saveEl.style.color = "#fde047";
-    saveEl.textContent = saveRes.msg || "Session finished.";
+    banner.style.color = "#fde047";
+    banner.textContent = saved.text || "Session complete.";
   }
 
-  document.getElementById("outcomeOverlay").classList.add("open");
+  document.getElementById("resultModal").classList.add("open");
 }
 
 /* ============================================================================
    7. CANVAS RENDERING
    ============================================================================ */
-function renderBoard() {
+function renderCanvas() {
   ctx.clearRect(0, 0, canvas.width, canvas.height);
 
+  // Twinkling ambient stars
+  for (let i = 0; i < 24; i++) {
+    const sx = ((i * 173) % canvas.width);
+    const sy = ((i * 97) % canvas.height);
+    const alpha = 0.18 + 0.16 * Math.sin(game.elapsed * 2.4 + i);
+    ctx.fillStyle = `rgba(186, 230, 253, ${alpha.toFixed(2)})`;
+    ctx.fillRect(sx, sy, 2, 2);
+  }
+
+  // Subtle tactical grid
   ctx.strokeStyle = "rgba(56, 189, 248, 0.05)";
   ctx.lineWidth = 1;
   for (let x = 0; x < canvas.width; x += 44) {
@@ -1020,29 +1014,31 @@ function renderBoard() {
     ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(canvas.width, y); ctx.stroke();
   }
 
+  // Path & animated energy stream
   ctx.lineCap = "round";
   ctx.lineJoin = "round";
-  ctx.strokeStyle = "#162140";
+  ctx.strokeStyle = "#142042";
   ctx.lineWidth = 42;
   ctx.beginPath();
-  WAYPOINTS.forEach((pt, idx) => idx === 0 ? ctx.moveTo(pt.x, pt.y) : ctx.lineTo(pt.x, pt.y));
+  ROUTE.forEach((pt, idx) => idx === 0 ? ctx.moveTo(pt.x, pt.y) : ctx.lineTo(pt.x, pt.y));
   ctx.stroke();
 
-  ctx.strokeStyle = "#25386b";
+  ctx.strokeStyle = "#243769";
   ctx.lineWidth = 30;
   ctx.stroke();
 
   ctx.setLineDash([12, 18]);
-  ctx.lineDashOffset = -state.clock * 32;
-  ctx.strokeStyle = "rgba(56, 189, 248, 0.34)";
+  ctx.lineDashOffset = -game.elapsed * 32;
+  ctx.strokeStyle = "rgba(56, 189, 248, 0.36)";
   ctx.lineWidth = 3;
   ctx.stroke();
   ctx.setLineDash([]);
 
+  // Castle Keep
   ctx.save();
   ctx.shadowColor = "rgba(251, 191, 36, 0.45)";
   ctx.shadowBlur = 18;
-  ctx.fillStyle = "#172342";
+  ctx.fillStyle = "#162242";
   ctx.strokeStyle = "#fbbf24";
   ctx.lineWidth = 2.5;
   ctx.beginPath();
@@ -1059,14 +1055,15 @@ function renderBoard() {
   ctx.fillText("CASTLE", 829, 224);
   ctx.restore();
 
-  PADS.forEach((pad, idx) => {
-    const occupied = state.turrets.some(t => t.padIdx === idx);
-    const hover = state.hoveredPad === idx;
+  // Build pads + range preview
+  BUILD_SPOTS.forEach((spot, idx) => {
+    const built = game.towers.find(t => t.spotIdx === idx);
+    const hovered = game.hoverSpot === idx;
 
-    if (hover) {
-      const spec = occupied ? state.turrets.find(t => t.padIdx === idx) : TURRET_DATA[state.selectedTurret];
+    if (hovered) {
+      const ref = built || TOWER_SPECS[game.chosenTower];
       ctx.beginPath();
-      ctx.arc(pad.x, pad.y, spec.range, 0, Math.PI * 2);
+      ctx.arc(spot.x, spot.y, ref.range, 0, Math.PI * 2);
       ctx.fillStyle = "rgba(56, 189, 248, 0.08)";
       ctx.fill();
       ctx.strokeStyle = "rgba(125, 211, 252, 0.45)";
@@ -1074,31 +1071,32 @@ function renderBoard() {
       ctx.stroke();
     }
 
-    if (!occupied) {
-      const pulse = 20 + Math.sin(state.clock * 4 + idx) * 2;
+    if (!built) {
+      const rad = 20 + Math.sin(game.elapsed * 4 + idx) * 2;
       ctx.beginPath();
-      ctx.arc(pad.x, pad.y, pulse, 0, Math.PI * 2);
-      ctx.fillStyle = hover ? "rgba(56, 189, 248, 0.24)" : "rgba(56, 189, 248, 0.1)";
+      ctx.arc(spot.x, spot.y, rad, 0, Math.PI * 2);
+      ctx.fillStyle = hovered ? "rgba(56, 189, 248, 0.24)" : "rgba(56, 189, 248, 0.1)";
       ctx.fill();
-      ctx.strokeStyle = hover ? "#fde047" : "#38bdf8";
+      ctx.strokeStyle = hovered ? "#fde047" : "#38bdf8";
       ctx.lineWidth = 1.8;
       ctx.stroke();
 
       ctx.fillStyle = "#cbd5e1";
       ctx.font = "bold 14px sans-serif";
       ctx.textAlign = "center";
-      ctx.fillText("+", pad.x, pad.y + 5);
+      ctx.fillText("+", spot.x, spot.y + 5);
     }
   });
 
-  state.turrets.forEach(t => {
+  // Towers
+  game.towers.forEach(t => {
     ctx.save();
     ctx.shadowColor = t.color;
     ctx.shadowBlur = 14;
 
     ctx.beginPath();
     ctx.arc(t.x, t.y, 21, 0, Math.PI * 2);
-    ctx.fillStyle = "#0b132b";
+    ctx.fillStyle = "#091126";
     ctx.fill();
     ctx.strokeStyle = t.color;
     ctx.lineWidth = 2.5;
@@ -1106,7 +1104,7 @@ function renderBoard() {
 
     ctx.save();
     ctx.translate(t.x, t.y);
-    ctx.rotate(t.angle);
+    ctx.rotate(t.aim);
     ctx.fillStyle = t.color;
     ctx.fillRect(4, -4, 18, 8);
     ctx.restore();
@@ -1123,178 +1121,188 @@ function renderBoard() {
     ctx.restore();
   });
 
-  state.demons.forEach(d => {
-    const bob = Math.sin(state.clock * 8 + d.x * 0.05) * 2;
-    const rad = d.isBoss ? 20 : (d.isScout ? 14 : 13);
+  // Foes
+  game.foes.forEach(f => {
+    const bob = Math.sin(game.elapsed * 8 + f.x * 0.05) * 2;
+    const r = f.boss ? 20 : (f.scout ? 14 : 13);
 
     ctx.save();
-    ctx.shadowColor = d.isBoss ? "#fb7185" : "#fb923c";
-    ctx.shadowBlur = d.isBoss ? 16 : 8;
+    ctx.shadowColor = f.boss ? "#fb7185" : "#fb923c";
+    ctx.shadowBlur = f.boss ? 16 : 8;
     ctx.beginPath();
-    ctx.arc(d.x, d.y + bob, rad, 0, Math.PI * 2);
-    ctx.fillStyle = d.isBoss ? "#e11d48" : (d.chillTimer > 0 ? "#22c55e" : (d.isScout ? "#f59e0b" : "#f97316"));
+    ctx.arc(f.x, f.y + bob, r, 0, Math.PI * 2);
+    ctx.fillStyle = f.boss ? "#e11d48" : (f.slowed > 0 ? "#22c55e" : (f.scout ? "#f59e0b" : "#f97316"));
     ctx.fill();
     ctx.strokeStyle = "#ffffff";
     ctx.lineWidth = 1.5;
     ctx.stroke();
 
     ctx.fillStyle = "#ffffff";
-    ctx.fillRect(d.x - 5, d.y + bob - 3, 3, 3);
-    ctx.fillRect(d.x + 2, d.y + bob - 3, 3, 3);
+    ctx.fillRect(f.x - 5, f.y + bob - 3, 3, 3);
+    ctx.fillRect(f.x + 2, f.y + bob - 3, 3, 3);
     ctx.restore();
 
-    const barW = d.isBoss ? 40 : 26;
-    ctx.fillStyle = "#070c1a";
-    ctx.fillRect(d.x - barW / 2, d.y - rad - 10, barW, 5);
-    ctx.fillStyle = d.isBoss ? "#fb7185" : "#22c55e";
-    ctx.fillRect(d.x - barW / 2, d.y - rad - 10, barW * Math.max(0, d.hp / d.maxHp), 5);
+    const w = f.boss ? 40 : 26;
+    ctx.fillStyle = "#060b18";
+    ctx.fillRect(f.x - w / 2, f.y - r - 10, w, 5);
+    ctx.fillStyle = f.boss ? "#fb7185" : "#22c55e";
+    ctx.fillRect(f.x - w / 2, f.y - r - 10, w * Math.max(0, f.hp / f.maxHp), 5);
   });
 
-  state.shots.forEach(s => {
+  // Bolts
+  game.bolts.forEach(b => {
     ctx.save();
-    ctx.shadowColor = s.color;
+    ctx.shadowColor = b.color;
     ctx.shadowBlur = 10;
     ctx.beginPath();
-    ctx.arc(s.x, s.y, 5.5, 0, Math.PI * 2);
-    ctx.fillStyle = s.color;
+    ctx.arc(b.x, b.y, 5.5, 0, Math.PI * 2);
+    ctx.fillStyle = b.color;
     ctx.fill();
     ctx.restore();
   });
 
-  state.sparks.forEach(sp => {
-    ctx.globalAlpha = Math.max(0, sp.life / sp.maxLife);
-    ctx.fillStyle = sp.color;
+  // Bursts
+  game.bursts.forEach(p => {
+    ctx.globalAlpha = Math.max(0, p.life / p.maxLife);
+    ctx.fillStyle = p.color;
     ctx.beginPath();
-    ctx.arc(sp.x, sp.y, sp.r, 0, Math.PI * 2);
+    ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
     ctx.fill();
   });
   ctx.globalAlpha = 1;
 
-  state.popups.forEach(pop => {
-    ctx.globalAlpha = Math.min(1, pop.life);
-    ctx.fillStyle = pop.color;
+  // Floaters
+  game.floaters.forEach(fl => {
+    ctx.globalAlpha = Math.min(1, fl.life);
+    ctx.fillStyle = fl.color;
     ctx.font = "800 13px sans-serif";
     ctx.textAlign = "center";
-    ctx.fillText(pop.text, pop.x, pop.y);
+    ctx.fillText(fl.text, fl.x, fl.y);
   });
   ctx.globalAlpha = 1;
 }
 
-function loop(now) {
-  const dt = Math.min(0.05, (now - prevTime) / 1000);
-  prevTime = now;
-  if (state.player) {
-    stepSimulation(dt);
-    renderBoard();
+function frameLoop(now) {
+  const dt = Math.min(0.05, (now - lastStamp) / 1000);
+  lastStamp = now;
+  if (game.user) {
+    advanceSimulation(dt);
+    renderCanvas();
   }
-  requestAnimationFrame(loop);
+  requestAnimationFrame(frameLoop);
 }
 
-function refreshHud() {
-  document.getElementById("hudHp").textContent = state.hp;
-  document.getElementById("hudGold").textContent = state.gold;
-  document.getElementById("hudMana").textContent = state.mana;
-  document.getElementById("hudWave").textContent = state.endlessMode ? `${state.wave} (∞)` : `${state.wave}/${CAMPAIGN_WIN_WAVE}`;
-  document.getElementById("hudScore").textContent = state.score;
-  document.getElementById("hudWaveClock").textContent = `${state.waveClock.toFixed(1)}s`;
-  document.getElementById("hudDiffLevel").textContent = getTierLabel(getCurrentDifficultyTier());
-  document.getElementById("stormBtn").disabled = state.mana < 60;
+function syncHud() {
+  document.getElementById("hpVal").textContent = game.hp;
+  document.getElementById("goldVal").textContent = game.gold;
+  document.getElementById("manaVal").textContent = game.mana;
+  document.getElementById("waveVal").textContent = game.endless ? `${game.wave} (∞)` : `${game.wave}/${TARGET_VICTORY_WAVE}`;
+  document.getElementById("scoreVal").textContent = game.score;
+  document.getElementById("waveClockVal").textContent = `${game.clockLeft.toFixed(1)}s`;
+  document.getElementById("tierLabel").textContent = tierName(currentTier());
+  document.getElementById("stormCastBtn").disabled = game.mana < 60;
 }
 
-function refreshMastery() {
-  const labels = { maths: "Maths", science: "Science", grammar: "Grammar", gk: "General Knowledge", moral: "Moral Education" };
-  document.getElementById("masteryBox").innerHTML = Object.entries(state.mastery)
-    .map(([k, v]) => `<div class="mastery-item"><span>${labels[k]}</span><strong>${v.ok} / ${v.total}</strong></div>`)
+function syncMastery() {
+  const names = {
+    maths: "Maths",
+    science: "Science",
+    grammar: "Grammar",
+    gk: "General Knowledge",
+    moral: "Moral Education"
+  };
+  document.getElementById("subjectSummary").innerHTML = Object.entries(game.accuracy)
+    .map(([k, v]) => `<div class="stat-line"><span>${names[k]}</span><strong>${v.ok} / ${v.n}</strong></div>`)
     .join("");
 }
 
 /* ============================================================================
-   8. UI EVENT BINDINGS
+   8. UI BINDINGS
    ============================================================================ */
 document.addEventListener("DOMContentLoaded", async () => {
-  await loadQuestions();
+  await fetchBank();
 
-  document.getElementById("studentIdInput").addEventListener("input", e => {
+  document.getElementById("idField").addEventListener("input", e => {
     e.target.value = e.target.value.replace(/\D/g, "");
   });
 
-  document.querySelectorAll("#modeGroup .seg-btn").forEach(btn => {
-    btn.addEventListener("click", () => {
-      document.querySelectorAll("#modeGroup .seg-btn").forEach(b => b.classList.remove("active"));
-      btn.classList.add("active");
-      state.mode = btn.dataset.mode;
+  document.querySelectorAll("#modeSelector .choice-btn").forEach(b => {
+    b.addEventListener("click", () => {
+      document.querySelectorAll("#modeSelector .choice-btn").forEach(x => x.classList.remove("selected"));
+      b.classList.add("selected");
+      game.mode = b.dataset.mode;
     });
   });
 
-  document.querySelectorAll("#langGroup .seg-btn").forEach(btn => {
-    btn.addEventListener("click", () => {
-      document.querySelectorAll("#langGroup .seg-btn").forEach(b => b.classList.remove("active"));
-      btn.classList.add("active");
-      state.lang = btn.dataset.lang;
+  document.querySelectorAll("#langSelector .choice-btn").forEach(b => {
+    b.addEventListener("click", () => {
+      document.querySelectorAll("#langSelector .choice-btn").forEach(x => x.classList.remove("selected"));
+      b.classList.add("selected");
+      game.lang = b.dataset.lang;
     });
   });
 
-  document.getElementById("verifyEnterBtn").addEventListener("click", handleVerifyLogin);
-  document.getElementById("demoBtn").addEventListener("click", handleDemoLaunch);
+  document.getElementById("enterBtn").addEventListener("click", verifyAndEnter);
+  document.getElementById("demoLaunchBtn").addEventListener("click", enterAsDemo);
 
-  document.getElementById("liveLangSelect").addEventListener("change", e => {
-    state.lang = e.target.value;
+  document.getElementById("arenaLangSelect").addEventListener("change", e => {
+    game.lang = e.target.value;
   });
 
-  document.querySelectorAll(".turret-card").forEach(card => {
-    card.addEventListener("click", () => {
-      document.querySelectorAll(".turret-card").forEach(c => c.classList.remove("active"));
-      card.classList.add("active");
-      state.selectedTurret = card.dataset.turret;
+  document.querySelectorAll("#towerDeck .tower-slot").forEach(slot => {
+    slot.addEventListener("click", () => {
+      document.querySelectorAll("#towerDeck .tower-slot").forEach(x => x.classList.remove("active"));
+      slot.classList.add("active");
+      game.chosenTower = slot.dataset.kind;
     });
   });
 
   document.addEventListener("keydown", e => {
-    if (!state.player || state.paused) return;
-    const hotkeys = { "1": "maths", "2": "science", "3": "grammar", "4": "gk" };
-    if (hotkeys[e.key]) {
-      state.selectedTurret = hotkeys[e.key];
-      document.querySelectorAll(".turret-card").forEach(c => {
-        c.classList.toggle("active", c.dataset.turret === hotkeys[e.key]);
+    if (!game.user || game.locked) return;
+    const map = { "1": "maths", "2": "science", "3": "grammar", "4": "gk" };
+    if (map[e.key]) {
+      game.chosenTower = map[e.key];
+      document.querySelectorAll("#towerDeck .tower-slot").forEach(x => {
+        x.classList.toggle("active", x.dataset.kind === map[e.key]);
       });
     }
   });
 
   canvas.addEventListener("mousemove", evt => {
     const rect = canvas.getBoundingClientRect();
-    const mx = (evt.clientX - rect.left) * (canvas.width / rect.width);
-    const my = (evt.clientY - rect.top) * (canvas.height / rect.height);
-    state.hoveredPad = PADS.findIndex(p => Math.hypot(mx - p.x, my - p.y) <= 28);
+    const cx = (evt.clientX - rect.left) * (canvas.width / rect.width);
+    const cy = (evt.clientY - rect.top) * (canvas.height / rect.height);
+    game.hoverSpot = BUILD_SPOTS.findIndex(s => Math.hypot(cx - s.x, cy - s.y) <= 28);
   });
 
-  canvas.addEventListener("click", handleBoardClick);
-  document.getElementById("startWaveBtn").addEventListener("click", beginWave);
-  document.getElementById("quizChargeBtn").addEventListener("click", triggerManualQuiz);
-  document.getElementById("stormBtn").addEventListener("click", triggerUltimateStorm);
-  document.getElementById("refreshLbBtn").addEventListener("click", fetchLeaderboard);
+  canvas.addEventListener("click", onCanvasClick);
+  document.getElementById("waveTriggerBtn").addEventListener("click", startWaveRun);
+  document.getElementById("boostQuizBtn").addEventListener("click", runBoostQuiz);
+  document.getElementById("stormCastBtn").addEventListener("click", castStorm);
+  document.getElementById("syncBoardBtn").addEventListener("click", refreshLeaderboard);
 
-  document.getElementById("peekBtn").addEventListener("click", () => {
-    if (!state.challenge) return;
-    state.challenge.q.peekActive = !state.challenge.q.peekActive;
-    drawQuestionBody();
+  document.getElementById("translatePeekBtn").addEventListener("click", () => {
+    if (!game.activeQ) return;
+    game.activeQ.q.peeking = !game.activeQ.q.peeking;
+    renderQuestionCard();
   });
 
-  document.getElementById("endlessBtn").addEventListener("click", () => {
-    document.getElementById("outcomeOverlay").classList.remove("open");
-    resetSession(true);
+  document.getElementById("goEndlessBtn").addEventListener("click", () => {
+    document.getElementById("resultModal").classList.remove("open");
+    resetArena(true);
   });
 
-  document.getElementById("restartRunBtn").addEventListener("click", () => {
-    document.getElementById("outcomeOverlay").classList.remove("open");
-    resetSession(false);
+  document.getElementById("replayBtn").addEventListener("click", () => {
+    document.getElementById("resultModal").classList.remove("open");
+    resetArena(false);
   });
 
-  document.getElementById("exitBtn").addEventListener("click", async () => {
-    if (state.player && !state.player.isDemo && state.score > 0) {
-      await saveScoreIfEligible(0);
+  document.getElementById("quitBtn").addEventListener("click", async () => {
+    if (game.user && !game.user.isDemo && game.score > 0) {
+      await persistScore(0);
     }
-    state.player = null;
-    document.getElementById("arenaApp").style.display = "none";
-    document.getElementById("loginGate").style.display = "flex";
+    game.user = null;
+    document.getElementById("gameScreen").style.display = "none";
+    document.getElementById("loginScreen").style.display = "flex";
   });
 });
