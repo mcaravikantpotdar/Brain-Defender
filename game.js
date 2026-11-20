@@ -1,5 +1,5 @@
 /* ============================================================================
-   BRAIN DEFENDER — COMPLETE GAME.JS (STEP 2: PL/SQL FIX + WAVE/UPGRADE BALANCE)
+   BRAIN DEFENDER — COMPLETE GAME.JS (STEP 3: PL/SQL + BALANCE + 90S TEST MODE)
    ============================================================================ */
 
 const BACKEND_URL =
@@ -178,6 +178,10 @@ const AudioCue = (() => {
     shoot: () => tone(540, "triangle", 0.055, 0.025),
     hit: () => tone(235, "sine", 0.05, 0.02),
     build: () => tone(440, "square", 0.09, 0.04),
+    strike: () => {
+      tone(740, "sawtooth", 0.09, 0.05);
+      setTimeout(() => tone(1046.5, "sine", 0.14, 0.06), 60);
+    },
     win: () => {
       tone(587.33, "sine", 0.11, 0.075);
       setTimeout(() => tone(880, "sine", 0.17, 0.075), 85);
@@ -215,6 +219,7 @@ function questionDuration(q, isUntimed) {
   let secs = 11 + (t - 1) * 4 + (state.wave - 1) * 1.5;
   if (state.wave % 3 === 0) secs += 5;
   if (state.lang === "dual") secs += 3;
+  if (state.mode === "test90") secs = Math.max(8, secs - 2);
   return Math.min(35, Math.round(secs * 10) / 10);
 }
 
@@ -842,7 +847,11 @@ function enterArena() {
     statusBadge.className = "badge ok";
   }
 
-  document.getElementById("hudTimerChip").style.display = state.mode === "test90" ? "flex" : "none";
+  const isTest90 = state.mode === "test90";
+  document.getElementById("hudTimerChip").style.display = isTest90 ? "flex" : "none";
+  document.getElementById("arenaHintText").innerHTML = isTest90
+    ? `<strong>90s Test Mode:</strong> Waves auto-launch against a 90s clock • Every right answer fires a direct <strong>Quiz Strike</strong> beam & awards speed bonus!`
+    : `Pick a subject tower → click a pad & answer right to build • Click built towers to upgrade • Clear <strong>Wave 6</strong> for Victory!`;
 
   buildClassTowerDeck(state.user.classNum);
   resetMatch(false);
@@ -887,6 +896,11 @@ function resetMatch(startEndless) {
 
   refreshHud();
   refreshMastery();
+
+  // In 90s Test Mode, auto-start the timed wave sprint immediately
+  if (state.mode === "test90") {
+    beginWave();
+  }
 }
 
 async function submitMatchScore(bonusPoints = 0) {
@@ -1078,6 +1092,40 @@ function renderPromptBody() {
   });
 }
 
+function triggerTest90QuizStrike(swift) {
+  if (state.mode !== "test90" || state.demons.length === 0) return;
+
+  // Target the most threatening demon (closest to castle or boss)
+  const target = state.demons.reduce((best, cur) =>
+    (cur.wpIndex > best.wpIndex || (cur.wpIndex === best.wpIndex && cur.hp > best.hp)) ? cur : best
+  , state.demons[0]);
+
+  const strikeDmg = swift ? 38 : 24;
+  target.hp -= strikeDmg;
+  target.hitFlash = 0.22;
+
+  AudioCue.strike();
+  // Fire visible arc from Castle keep (802, 222) directly to the target demon
+  state.zapArcs.push({
+    x1: 802,
+    y1: 222,
+    x2: target.x,
+    y2: target.y,
+    color: swift ? "#fde047" : "#38bdf8",
+    life: 0.35
+  });
+  spawnBurst(target.x, target.y, swift ? "#fde047" : "#38bdf8", 16);
+  spawnPopup(target.x, target.y - 20, `⚡ QUIZ STRIKE -${strikeDmg}!`, swift ? "#fde047" : "#38bdf8");
+
+  // Splash shockwave to nearby enemies within 65px
+  state.demons.forEach(other => {
+    if (other !== target && Math.hypot(other.x - target.x, other.y - target.y) <= 65) {
+      other.hp -= Math.round(strikeDmg * 0.45);
+      other.hitFlash = 0.14;
+    }
+  });
+}
+
 function resolveQuestion(choiceIdx) {
   const ch = state.currentChallenge;
   if (!ch || ch.done) return;
@@ -1114,15 +1162,11 @@ function resolveQuestion(choiceIdx) {
     state.score += pts;
     state.mana = Math.min(100, state.mana + (fastAnswer ? 16 : 10));
 
-    if (state.mode === "test90" && state.demons.length > 0) {
-      const lead = state.demons[0];
-      const strike = fastAnswer ? 26 : 16;
-      lead.hp -= strike;
-      spawnBurst(lead.x, lead.y, "#38bdf8", 12);
-      spawnPopup(lead.x, lead.y - 18, `-${strike} STRIKE!`, "#38bdf8");
-    }
+    const strikeNote = (state.mode === "test90" && state.demons.length > 0)
+      ? ` • Quiz Strike fired!`
+      : "";
 
-    fb.innerHTML = `<strong style="color:#86efac;">${fastAnswer ? "Swift & Right! +" + pts + " pts" : "Correct! +" + pts + " pts"}</strong> ${expText}`;
+    fb.innerHTML = `<strong style="color:#86efac;">${fastAnswer ? "Swift & Right! +" + pts + " pts" : "Correct! +" + pts + " pts"}${strikeNote}</strong> ${expText}`;
   } else {
     AudioCue.lose();
     state.wrongStreak++;
@@ -1139,8 +1183,12 @@ function resolveQuestion(choiceIdx) {
     document.getElementById("questionModal").classList.remove("open");
     state.modalOpen = false;
     state.currentChallenge = null;
-    if (isRight && ch.onSuccess) ch.onSuccess(fastAnswer);
-    if (!isRight && ch.onFail) ch.onFail();
+    if (isRight) {
+      triggerTest90QuizStrike(fastAnswer);
+      if (ch.onSuccess) ch.onSuccess(fastAnswer);
+    } else if (ch.onFail) {
+      ch.onFail();
+    }
   }, 1350);
 }
 
@@ -1175,7 +1223,9 @@ function beginWave() {
   if (state.waveActive || state.modalOpen) return;
   state.waveActive = true;
   state.waveTimeLeft = WAVE_CLOCK_SECONDS;
-  document.getElementById("startWaveBtn").disabled = true;
+  const waveBtn = document.getElementById("startWaveBtn");
+  waveBtn.disabled = true;
+  waveBtn.textContent = state.mode === "test90" ? `Wave ${state.wave} Running (90s)...` : `Wave ${state.wave} In Progress...`;
   state.spawnQueue = [];
 
   if (state.mode === "siege" && state.wave === 1 && !state.endless) {
@@ -1192,23 +1242,28 @@ function beginWave() {
     state.spawnDelay = 0.25;
   } else {
     const isBossWave = state.wave % 3 === 0;
-    const powerScale = Math.max(1, state.wave - (state.mode === "siege" ? 1 : 0));
-    const count = isBossWave ? 6 + state.wave : 6 + state.wave * 2;
+    const isTest90 = state.mode === "test90";
+    const powerScale = Math.max(1, state.wave - (isTest90 ? 0 : 1));
+    // 90s Test Mode spawns slightly tighter, faster packs tuned for a 90s sprint + Quiz Strikes
+    const count = isTest90
+      ? (isBossWave ? 5 + state.wave : 5 + Math.round(state.wave * 1.5))
+      : (isBossWave ? 6 + state.wave : 6 + state.wave * 2);
 
     for (let i = 0; i < count; i++) {
       const boss = isBossWave && i === count - 1;
       const miniGuard = isBossWave && i === count - 2 && state.wave >= 6;
-      const hp = boss
+      const baseHp = boss
         ? 220 + powerScale * 95
         : (miniGuard ? 115 + powerScale * 35 : 36 + powerScale * 22 + Math.pow(powerScale, 2) * 5);
+      const hp = isTest90 ? Math.round(baseHp * 0.88) : Math.round(baseHp);
 
       const speed = boss
-        ? 30 + powerScale * 3.5
-        : Math.min(115, 42 + powerScale * 6.5);
+        ? (isTest90 ? 36 + powerScale * 3.5 : 30 + powerScale * 3.5)
+        : Math.min(122, (isTest90 ? 48 : 42) + powerScale * 6.5);
 
       state.spawnQueue.push({
-        hp: Math.round(hp),
-        maxHp: Math.round(hp),
+        hp,
+        maxHp: hp,
         speed,
         goldReward: boss ? 32 : (miniGuard ? 16 : 8 + Math.min(8, powerScale)),
         scoreReward: boss ? 150 : 25 + powerScale * 6,
@@ -1334,7 +1389,7 @@ function stepSimulation(dt) {
       state.demons = [];
       state.spawnQueue = [];
       state.waveActive = false;
-      spawnPopup(795, 190, `TIME UP! -${breachLoss} HP`, "#fb7185");
+      spawnPopup(795, 190, `90S TIME UP! -${breachLoss} HP`, "#fb7185");
       refreshHud();
       if (state.hp <= 0) {
         concludeMatch(false);
@@ -1358,7 +1413,9 @@ function stepSimulation(dt) {
         slowStrength: BASE_TOWER_SPECS.grammar.slowFactor,
         hitFlash: 0
       });
-      state.spawnDelay = state.wave === 1 ? 1.35 : Math.max(0.38, 1.05 - state.wave * 0.08);
+      state.spawnDelay = state.mode === "test90"
+        ? Math.max(0.32, 0.85 - state.wave * 0.06)
+        : (state.wave === 1 ? 1.35 : Math.max(0.38, 1.05 - state.wave * 0.08));
     }
   }
 
@@ -1418,7 +1475,6 @@ function stepSimulation(dt) {
           spawnBurst(foe.x, foe.y, t.primary, 6);
           state.zapArcs.push({ x1: t.x, y1: t.y, x2: foe.x, y2: foe.y, color: t.primary, life: 0.14 });
 
-          // Level 1 hits primary target; Level 2 chains to 1 neighbor; Level 3 chains to 2 neighbors
           const maxChains = t.level >= 3 ? 2 : (t.level === 2 ? 1 : 0);
           if (maxChains > 0) {
             const chainTargets = state.demons
@@ -1468,7 +1524,6 @@ function stepSimulation(dt) {
       p.target.hitFlash = 0.12;
       spawnBurst(p.target.x, p.target.y, p.color, 7);
 
-      // Maths splash unlocks at Level 2 and widens at Level 3
       if (p.subject === "maths" && p.level >= 2) {
         const splashRad = p.level >= 3 ? 76 : 56;
         const splashDmg = Math.round(p.damage * (p.level >= 3 ? 0.62 : 0.45));
@@ -1514,9 +1569,9 @@ function stepSimulation(dt) {
   if (state.waveActive && state.spawnQueue.length === 0 && state.demons.length === 0) {
     state.waveActive = false;
     if (state.mode === "test90") {
-      const bonus = Math.round(state.waveTimeLeft * 2);
+      const bonus = Math.round(state.waveTimeLeft * 3);
       state.score += bonus;
-      spawnPopup(440, 145, `WAVE CLEAR! +${bonus} SPEED PTS`, "#86efac");
+      spawnPopup(440, 145, `90S CLEAR! +${bonus} SPEED PTS`, "#86efac");
     }
     refreshHud();
     completeWaveStep();
@@ -1559,6 +1614,11 @@ function afterWaveMoralStep(finishedWave) {
   waveBtn.disabled = false;
   waveBtn.textContent = `Start Wave ${state.wave}${state.wave % 3 === 0 ? " (Boss)" : ""}`;
   refreshHud();
+
+  // In 90s Test Mode, automatically roll into the next 90s wave sprint
+  if (state.mode === "test90") {
+    beginWave();
+  }
 }
 
 async function concludeMatch(victory) {
@@ -1706,7 +1766,7 @@ function drawScene() {
   state.zapArcs.forEach(z => {
     ctx.save();
     ctx.strokeStyle = z.color;
-    ctx.lineWidth = 2.6;
+    ctx.lineWidth = 2.8;
     ctx.beginPath();
     ctx.moveTo(z.x1, z.y1);
     const midX = (z.x1 + z.x2) / 2 + (Math.random() - 0.5) * 16;
@@ -1894,7 +1954,11 @@ function refreshHud() {
     ? `${state.wave} (∞)`
     : `${Math.min(state.wave, VICTORY_WAVE)}/${VICTORY_WAVE}`;
   document.getElementById("hudScore").textContent = state.score;
-  document.getElementById("hudTimer").textContent = `${state.waveTimeLeft.toFixed(1)}s`;
+
+  const timerEl = document.getElementById("hudTimer");
+  timerEl.textContent = `${state.waveTimeLeft.toFixed(1)}s`;
+  timerEl.style.color = state.waveTimeLeft <= 20 ? "#fb7185" : "#86efac";
+
   document.getElementById("hudTierBadge").textContent = tierLabel(computeTier());
   document.getElementById("stormBtn").disabled = state.mana < STORM_MANA_COST;
 }
