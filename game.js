@@ -1,5 +1,5 @@
 /* ============================================================================
-   BRAIN DEFENDER — FILE 2 OF 3: GAME ENGINE, REPO LOADER & PSEUDO-3D UI
+   BRAIN DEFENDER — COMPLETE GAME.JS (STEP 2: PL/SQL FIX + WAVE/UPGRADE BALANCE)
    ============================================================================ */
 
 const BACKEND_URL =
@@ -13,20 +13,21 @@ const REPO_CACHE_TTL_MS = 6 * 60 * 60 * 1000; // 6 hours
 
 const VICTORY_WAVE = 6;
 const WAVE_CLOCK_SECONDS = 90;
-const STORM_MANA_COST = 60;
+const STORM_MANA_COST = 65;
 
 // Base cannons always available + repo-unlocked subjects (e.g. "cs")
+// Level 1 is focused; Levels 2 & 3 unlock stronger splash, chain, slow, and beam punch.
 const BASE_TOWER_SPECS = {
   maths: {
     key: "maths",
     label: "Maths Cannon",
-    shortDesc: "Splash blast",
+    shortDesc: "Heavy shell • L2+ splash",
     cost: 40,
-    range: 154,
-    fireRate: 1.05,
-    damage: 12,
-    splashRadius: 64,
-    splashRatio: 0.52,
+    range: 148,
+    fireRate: 1.12,
+    damage: 11,
+    splashRadius: 56,
+    splashRatio: 0.48,
     primary: "#fbbf24",
     accent: "#fef08a",
     isBase: true
@@ -34,11 +35,11 @@ const BASE_TOWER_SPECS = {
   science: {
     key: "science",
     label: "Science Tesla",
-    shortDesc: "Rapid chain spark",
+    shortDesc: "Rapid bolt • L2+ chain arc",
     cost: 45,
-    range: 144,
-    fireRate: 0.72,
-    damage: 10,
+    range: 140,
+    fireRate: 0.78,
+    damage: 9,
     chainCount: 2,
     primary: "#38bdf8",
     accent: "#bae6fd",
@@ -47,13 +48,13 @@ const BASE_TOWER_SPECS = {
   grammar: {
     key: "grammar",
     label: "Grammar Gale",
-    shortDesc: "Slowing gale",
+    shortDesc: "Slowing gust (stronger at L2/L3)",
     cost: 35,
-    range: 150,
-    fireRate: 0.92,
-    damage: 9,
-    slowDuration: 3.0,
-    slowFactor: 0.55,
+    range: 146,
+    fireRate: 0.96,
+    damage: 8,
+    slowDuration: 2.6,
+    slowFactor: 0.72,
     primary: "#22c55e",
     accent: "#86efac",
     isBase: true
@@ -61,11 +62,11 @@ const BASE_TOWER_SPECS = {
   gk: {
     key: "gk",
     label: "GK Prism Laser",
-    shortDesc: "Long-range beam",
+    shortDesc: "Long-range precision beam",
     cost: 50,
-    range: 218,
-    fireRate: 1.32,
-    damage: 20,
+    range: 208,
+    fireRate: 1.38,
+    damage: 18,
     primary: "#c084fc",
     accent: "#f3e8ff",
     isBase: true
@@ -73,11 +74,11 @@ const BASE_TOWER_SPECS = {
   cs: {
     key: "cs",
     label: "Comp. Sc. Node",
-    shortDesc: "High-speed chain pulse",
+    shortDesc: "Fast pulse • L2+ multi-chain",
     cost: 42,
-    range: 175,
-    fireRate: 0.68,
-    damage: 13,
+    range: 166,
+    fireRate: 0.74,
+    damage: 11,
     chainCount: 2,
     primary: "#2dd4bf",
     accent: "#99f6e4",
@@ -118,8 +119,8 @@ const state = {
 
   activeTowers: {},
   hp: 100,
-  gold: 120,
-  mana: 50,
+  gold: 105,
+  mana: 45,
   wave: 1,
   score: 0,
   waveTimeLeft: WAVE_CLOCK_SECONDS,
@@ -252,7 +253,7 @@ function canonicalSubject(rawVal) {
     return "gk";
   }
 
-  // 6. Grammar / Languages (avoid matching generic "language" when paired with SQL/programming)
+  // 6. Grammar / Languages
   if (
     /\b(gram|grammar|english|hindi|sanskrit|व्याकरण|अंग्रेजी|हिन्दी|हिंदी)\b/i.test(s) ||
     /\b(language\s*(arts|paper|subject)|lang)\b/i.test(s)
@@ -471,10 +472,10 @@ function buildClassTowerDeck(classNum) {
     deck[subj] = {
       ...base,
       hasRepoBoost,
-      cost: hasRepoBoost ? Math.max(25, base.cost - 8) : base.cost,
-      damage: hasRepoBoost ? base.damage + 3 : base.damage,
-      upgradeDmgBonus: hasRepoBoost ? 13 : 8,
-      upgradeRangeBonus: hasRepoBoost ? 22 : 15
+      cost: hasRepoBoost ? Math.max(28, base.cost - 6) : base.cost,
+      damage: hasRepoBoost ? base.damage + 2 : base.damage,
+      upgradeDmgBonus: hasRepoBoost ? 14 : 9,
+      upgradeRangeBonus: hasRepoBoost ? 22 : 16
     };
   });
 
@@ -483,11 +484,11 @@ function buildClassTowerDeck(classNum) {
     const spec = BASE_TOWER_SPECS[subj] || {
       key: subj,
       label: `${subj.toUpperCase()} Tower`,
-      shortDesc: "Class subject pulse",
+      shortDesc: "Class subject pulse • L2+ chain",
       cost: 42,
-      range: 170,
-      fireRate: 0.75,
-      damage: 13,
+      range: 166,
+      fireRate: 0.74,
+      damage: 11,
       chainCount: 2,
       primary: "#2dd4bf",
       accent: "#99f6e4",
@@ -496,9 +497,9 @@ function buildClassTowerDeck(classNum) {
     deck[subj] = {
       ...spec,
       hasRepoBoost: true,
-      cost: Math.max(28, spec.cost - 7),
-      damage: spec.damage + 3,
-      upgradeDmgBonus: 14,
+      cost: Math.max(30, spec.cost - 5),
+      damage: spec.damage + 2,
+      upgradeDmgBonus: 15,
       upgradeRangeBonus: 22
     };
   });
@@ -851,8 +852,8 @@ function enterArena() {
 
 function resetMatch(startEndless) {
   state.hp = 100;
-  state.gold = 120;
-  state.mana = 50;
+  state.gold = 105;
+  state.mana = 45;
   state.wave = startEndless ? VICTORY_WAVE + 1 : 1;
   state.endless = Boolean(startEndless);
   state.waveClearedCount = 0;
@@ -1111,7 +1112,7 @@ function resolveQuestion(choiceIdx) {
 
     const pts = fastAnswer ? 40 : 25;
     state.score += pts;
-    state.mana = Math.min(100, state.mana + (fastAnswer ? 20 : 12));
+    state.mana = Math.min(100, state.mana + (fastAnswer ? 16 : 10));
 
     if (state.mode === "test90" && state.demons.length > 0) {
       const lead = state.demons[0];
@@ -1179,10 +1180,10 @@ function beginWave() {
 
   if (state.mode === "siege" && state.wave === 1 && !state.endless) {
     state.spawnQueue.push({
-      hp: 20,
-      maxHp: 20,
+      hp: 24,
+      maxHp: 24,
       speed: 9.05,
-      goldReward: 25,
+      goldReward: 22,
       scoreReward: 30,
       castleDamage: 12,
       isBoss: false,
@@ -1191,22 +1192,28 @@ function beginWave() {
     state.spawnDelay = 0.25;
   } else {
     const isBossWave = state.wave % 3 === 0;
-    const count = isBossWave ? 4 + state.wave : 5 + state.wave * 2;
     const powerScale = Math.max(1, state.wave - (state.mode === "siege" ? 1 : 0));
+    const count = isBossWave ? 6 + state.wave : 6 + state.wave * 2;
 
     for (let i = 0; i < count; i++) {
       const boss = isBossWave && i === count - 1;
-      const hp = boss ? 95 + powerScale * 35 : 24 + powerScale * 14;
-      const speed = boss ? 25 + powerScale * 2.5 : 34 + powerScale * 5.5;
+      const miniGuard = isBossWave && i === count - 2 && state.wave >= 6;
+      const hp = boss
+        ? 220 + powerScale * 95
+        : (miniGuard ? 115 + powerScale * 35 : 36 + powerScale * 22 + Math.pow(powerScale, 2) * 5);
+
+      const speed = boss
+        ? 30 + powerScale * 3.5
+        : Math.min(115, 42 + powerScale * 6.5);
 
       state.spawnQueue.push({
-        hp,
-        maxHp: hp,
-        speed: Math.min(98, speed),
-        goldReward: boss ? 35 : 10 + powerScale * 2,
-        scoreReward: boss ? 120 : 20 + powerScale * 5,
-        castleDamage: boss ? 25 : 10 + Math.min(15, powerScale * 2),
-        isBoss: boss,
+        hp: Math.round(hp),
+        maxHp: Math.round(hp),
+        speed,
+        goldReward: boss ? 32 : (miniGuard ? 16 : 8 + Math.min(8, powerScale)),
+        scoreReward: boss ? 150 : 25 + powerScale * 6,
+        castleDamage: boss ? 32 : 12 + Math.min(18, powerScale * 2),
+        isBoss: boss || miniGuard,
         isScout: false
       });
     }
@@ -1229,7 +1236,9 @@ function triggerUltimateStorm() {
     headerText: "⚡ ULTIMATE STORM • ANSWER TO UNLEASH",
     onSuccess: () => {
       state.demons.forEach(d => {
-        d.hp -= 60;
+        const dmg = d.isBoss ? 40 : 48;
+        d.hp -= dmg;
+        d.hitFlash = 0.16;
         spawnBurst(d.x, d.y, "#e879f9", 14);
       });
       state.score += 50;
@@ -1261,9 +1270,9 @@ function handleBoardClick(evt) {
           headerText: `UPGRADE ${cfg.label.toUpperCase()} → LV.${existing.level + 1}`,
           onSuccess: (swift) => {
             existing.level++;
-            existing.damage += (cfg.upgradeDmgBonus || 8) + (swift ? 4 : 0);
+            existing.damage += (cfg.upgradeDmgBonus || 9) + (swift ? 4 : 0);
             existing.range += cfg.upgradeRangeBonus || 16;
-            existing.fireRate = Math.max(0.34, existing.fireRate * (cfg.hasRepoBoost ? 0.84 : 0.88));
+            existing.fireRate = Math.max(0.34, existing.fireRate * (cfg.hasRepoBoost ? 0.82 : 0.86));
             AudioCue.build();
             spawnBurst(existing.x, existing.y, existing.primary, 18);
             spawnPopup(existing.x, existing.y - 24, `LEVEL ${existing.level}!`, existing.primary);
@@ -1346,9 +1355,10 @@ function stepSimulation(dt) {
         y: CASTLE_PATH[0].y,
         wpIndex: 1,
         slowTimer: 0,
+        slowStrength: BASE_TOWER_SPECS.grammar.slowFactor,
         hitFlash: 0
       });
-      state.spawnDelay = state.wave === 1 ? 1.5 : Math.max(0.45, 1.15 - state.wave * 0.08);
+      state.spawnDelay = state.wave === 1 ? 1.35 : Math.max(0.38, 1.05 - state.wave * 0.08);
     }
   }
 
@@ -1367,7 +1377,7 @@ function stepSimulation(dt) {
     }
 
     if (d.slowTimer > 0) d.slowTimer -= dt;
-    const speedNow = d.slowTimer > 0 ? d.speed * BASE_TOWER_SPECS.grammar.slowFactor : d.speed;
+    const speedNow = d.slowTimer > 0 ? d.speed * (d.slowStrength || 0.65) : d.speed;
     const targetPt = CASTLE_PATH[d.wpIndex];
     const dx = targetPt.x - d.x;
     const dy = targetPt.y - d.y;
@@ -1408,15 +1418,22 @@ function stepSimulation(dt) {
           spawnBurst(foe.x, foe.y, t.primary, 6);
           state.zapArcs.push({ x1: t.x, y1: t.y, x2: foe.x, y2: foe.y, color: t.primary, life: 0.14 });
 
-          const neighbor = state.demons.find(
-            other => other !== foe && Math.hypot(other.x - foe.x, other.y - foe.y) <= 90
-          );
-          if (neighbor) {
-            const chainDmg = Math.round(t.damage * 0.65);
-            neighbor.hp -= chainDmg;
-            neighbor.hitFlash = 0.12;
-            state.zapArcs.push({
-              x1: foe.x, y1: foe.y, x2: neighbor.x, y2: neighbor.y, color: t.accent, life: 0.14
+          // Level 1 hits primary target; Level 2 chains to 1 neighbor; Level 3 chains to 2 neighbors
+          const maxChains = t.level >= 3 ? 2 : (t.level === 2 ? 1 : 0);
+          if (maxChains > 0) {
+            const chainTargets = state.demons
+              .filter(other => other !== foe && Math.hypot(other.x - foe.x, other.y - foe.y) <= 92)
+              .slice(0, maxChains);
+
+            let prevPt = foe;
+            chainTargets.forEach(neighbor => {
+              const chainDmg = Math.round(t.damage * (t.level >= 3 ? 0.72 : 0.55));
+              neighbor.hp -= chainDmg;
+              neighbor.hitFlash = 0.12;
+              state.zapArcs.push({
+                x1: prevPt.x, y1: prevPt.y, x2: neighbor.x, y2: neighbor.y, color: t.accent, life: 0.14
+              });
+              prevPt = neighbor;
             });
           }
         } else {
@@ -1424,8 +1441,9 @@ function stepSimulation(dt) {
             x: t.x,
             y: t.y,
             target: foe,
-            speed: t.subject === "gk" ? 530 : 380,
+            speed: t.subject === "gk" ? 540 : 385,
             damage: t.damage,
+            level: t.level,
             subject: t.subject,
             color: t.primary
           });
@@ -1450,16 +1468,19 @@ function stepSimulation(dt) {
       p.target.hitFlash = 0.12;
       spawnBurst(p.target.x, p.target.y, p.color, 7);
 
-      if (p.subject === "maths") {
-        const splashDmg = Math.round(p.damage * BASE_TOWER_SPECS.maths.splashRatio);
+      // Maths splash unlocks at Level 2 and widens at Level 3
+      if (p.subject === "maths" && p.level >= 2) {
+        const splashRad = p.level >= 3 ? 76 : 56;
+        const splashDmg = Math.round(p.damage * (p.level >= 3 ? 0.62 : 0.45));
         state.demons.forEach(other => {
-          if (other !== p.target && Math.hypot(other.x - p.target.x, other.y - p.target.y) <= BASE_TOWER_SPECS.maths.splashRadius) {
+          if (other !== p.target && Math.hypot(other.x - p.target.x, other.y - p.target.y) <= splashRad) {
             other.hp -= splashDmg;
             other.hitFlash = 0.1;
           }
         });
       } else if (p.subject === "grammar") {
-        p.target.slowTimer = BASE_TOWER_SPECS.grammar.slowDuration;
+        p.target.slowTimer = BASE_TOWER_SPECS.grammar.slowDuration + (p.level - 1) * 0.45;
+        p.target.slowStrength = p.level >= 3 ? 0.45 : (p.level === 2 ? 0.58 : 0.72);
         spawnPopup(p.target.x, p.target.y - 24, "SLOWED", "#86efac");
       }
 
@@ -1515,8 +1536,8 @@ function completeWaveStep() {
         state.hp = Math.min(100, state.hp + 18);
         spawnPopup(795, 175, "+18 CASTLE HP!", "#22c55e");
       } else {
-        state.gold += 25;
-        spawnPopup(795, 175, "+25 BONUS GOLD!", "#fde047");
+        state.gold += 22;
+        spawnPopup(795, 175, "+22 BONUS GOLD!", "#fde047");
       }
       refreshHud();
       afterWaveMoralStep(finishedWave);
