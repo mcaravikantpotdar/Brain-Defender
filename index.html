@@ -8,9 +8,8 @@
     :root {
       --bg-night: #040814;
       --bg-keep: #09132b;
-      --panel: rgba(12, 23, 50, 0.93);
-      --panel-lift: rgba(20, 36, 78, 0.97);
-      --border: rgba(125, 211, 252, 0.24);
+      --panel: rgba(12, 23, 50, 0.94);
+      --border: rgba(125, 211, 252, 0.25);
       --text: #f8fafc;
       --muted: #94a3b8;
       --cyan: #38bdf8;
@@ -242,9 +241,7 @@
       border-color: rgba(56, 189, 248, 0.62);
       background: linear-gradient(180deg, rgba(20, 52, 98, 0.97) 0%, rgba(10, 22, 48, 0.99) 100%);
     }
-    .tower-card.boosted.selected {
-      border-color: var(--gold);
-    }
+    .tower-card.boosted.selected { border-color: var(--gold); }
     .tower-card-top { display: flex; justify-content: space-between; align-items: center; gap: 6px; margin-bottom: 3px; }
     .tower-card-name { font-weight: 800; font-size: 0.88rem; }
     .tower-card-cost {
@@ -342,17 +339,18 @@
       <div class="row-2">
         <div class="field">
           <label for="studentIdInput">Student ID</label>
-          <input id="studentIdInput" type="text" inputmode="numeric" maxlength="12" placeholder="11–12 digit ID" autocomplete="off" />
+          <input id="studentIdInput" type="text" inputmode="numeric" maxlength="12" placeholder="Student ID" autocomplete="off" />
         </div>
         <div class="field">
           <label for="classSelect">Select Class (Locked for Run)</label>
           <select id="classSelect">
-            <option value="" selected disabled>Choose Class (6–10)</option>
             <option value="6">Class 6</option>
             <option value="7">Class 7</option>
             <option value="8">Class 8</option>
             <option value="9">Class 9</option>
-            <option value="10">Class 10</option>
+            <option value="10" selected>Class 10</option>
+            <option value="11">Class 11</option>
+            <option value="12">Class 12</option>
           </select>
         </div>
       </div>
@@ -417,7 +415,7 @@
       <div class="board-card">
         <canvas id="gameCanvas" width="880" height="450"></canvas>
 
-        <!-- Subject-wise tower tiles populated dynamically from base cannons + class-matched JSONs -->
+        <!-- Dynamic subject-wise tower tiles populated by game.js -->
         <div class="tower-picker" id="towerPicker"></div>
 
         <div class="action-bar">
