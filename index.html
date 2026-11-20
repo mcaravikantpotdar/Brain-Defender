@@ -3,22 +3,22 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Brain Defender: Castle of Curiosity</title>
+  <title>Brain Defender — Castle of Curiosity</title>
   <style>
     :root {
-      --bg-void: #040711;
-      --bg-abyss: #091126;
-      --surface: rgba(14, 24, 52, 0.9);
-      --surface-hi: rgba(24, 40, 84, 0.95);
-      --line: rgba(125, 211, 252, 0.24);
-      --line-gold: rgba(251, 191, 36, 0.65);
-      --ink: #f8fafc;
-      --ink-dim: #94a3b8;
-      --sky: #38bdf8;
-      --amber: #fbbf24;
-      --mint: #22c55e;
-      --coral: #fb7185;
-      --iris: #c084fc;
+      --bg-night: #040814;
+      --bg-keep: #0a142c;
+      --panel: rgba(13, 24, 52, 0.92);
+      --panel-lift: rgba(21, 38, 80, 0.96);
+      --border: rgba(125, 211, 252, 0.24);
+      --border-gold: rgba(251, 191, 36, 0.72);
+      --text: #f8fafc;
+      --muted: #94a3b8;
+      --cyan: #38bdf8;
+      --gold: #fbbf24;
+      --emerald: #22c55e;
+      --rose: #fb7185;
+      --violet: #c084fc;
     }
 
     * {
@@ -30,17 +30,17 @@
 
     body {
       min-height: 100vh;
-      color: var(--ink);
+      color: var(--text);
       background:
-        radial-gradient(circle at 12% 10%, rgba(56, 189, 248, 0.18), transparent 38%),
-        radial-gradient(circle at 88% 14%, rgba(192, 132, 252, 0.16), transparent 40%),
-        radial-gradient(circle at 50% 100%, rgba(251, 191, 36, 0.12), transparent 48%),
-        linear-gradient(180deg, var(--bg-abyss) 0%, var(--bg-void) 100%);
+        radial-gradient(circle at 14% 12%, rgba(56, 189, 248, 0.16), transparent 36%),
+        radial-gradient(circle at 86% 16%, rgba(192, 132, 252, 0.15), transparent 38%),
+        radial-gradient(circle at 50% 96%, rgba(251, 191, 36, 0.12), transparent 45%),
+        linear-gradient(180deg, var(--bg-keep) 0%, var(--bg-night) 100%);
       display: flex;
       flex-direction: column;
     }
 
-    /* Buttons & Pills */
+    /* Buttons & Badges */
     .btn {
       border: none;
       border-radius: 12px;
@@ -48,45 +48,42 @@
       font-weight: 800;
       font-size: 0.88rem;
       cursor: pointer;
-      color: #031124;
+      color: #031024;
       background: linear-gradient(135deg, #38bdf8 0%, #0284c7 100%);
-      box-shadow: 0 6px 22px rgba(2, 132, 199, 0.35);
-      transition: transform 0.13s ease, box-shadow 0.15s ease, opacity 0.15s ease;
+      box-shadow: 0 6px 20px rgba(2, 132, 199, 0.34);
+      transition: transform 0.12s ease, box-shadow 0.15s ease, opacity 0.15s ease;
     }
     .btn:hover:not(:disabled) {
-      transform: translateY(-1.5px);
-      box-shadow: 0 9px 28px rgba(56, 189, 248, 0.48);
+      transform: translateY(-1px);
+      box-shadow: 0 9px 26px rgba(56, 189, 248, 0.46);
     }
     .btn:active:not(:disabled) { transform: translateY(0); }
-    .btn:disabled { opacity: 0.4; cursor: not-allowed; box-shadow: none; }
+    .btn:disabled { opacity: 0.42; cursor: not-allowed; box-shadow: none; }
 
     .btn-ghost {
-      background: rgba(20, 34, 70, 0.88);
-      color: var(--ink);
-      border: 1px solid var(--line);
+      background: rgba(19, 33, 68, 0.9);
+      color: var(--text);
+      border: 1px solid var(--border);
       box-shadow: none;
     }
     .btn-ghost:hover:not(:disabled) {
-      border-color: var(--sky);
-      background: rgba(29, 48, 98, 0.96);
+      border-color: var(--cyan);
+      background: rgba(28, 48, 96, 0.96);
     }
 
-    .btn-amber {
+    .btn-gold {
       background: linear-gradient(135deg, #fde047 0%, #f59e0b 100%);
       color: #1c1100;
-      box-shadow: 0 6px 22px rgba(245, 158, 11, 0.36);
-    }
-    .btn-amber:hover:not(:disabled) {
-      box-shadow: 0 9px 28px rgba(251, 191, 36, 0.54);
+      box-shadow: 0 6px 20px rgba(245, 158, 11, 0.36);
     }
 
-    .btn-iris {
+    .btn-violet {
       background: linear-gradient(135deg, #e879f9 0%, #7e22ce 100%);
       color: #ffffff;
-      box-shadow: 0 6px 22px rgba(147, 51, 234, 0.38);
+      box-shadow: 0 6px 20px rgba(147, 51, 234, 0.36);
     }
 
-    .tag {
+    .badge {
       display: inline-flex;
       align-items: center;
       gap: 5px;
@@ -94,231 +91,222 @@
       border-radius: 999px;
       font-size: 0.73rem;
       font-weight: 800;
-      letter-spacing: 0.35px;
-      background: rgba(22, 37, 77, 0.92);
-      border: 1px solid var(--line);
-      color: var(--sky);
+      background: rgba(20, 35, 74, 0.92);
+      border: 1px solid var(--border);
+      color: var(--cyan);
     }
-    .tag.verified {
+    .badge.ok {
       background: rgba(34, 197, 94, 0.14);
       border-color: rgba(34, 197, 94, 0.55);
       color: #86efac;
     }
-    .tag.demo {
+    .badge.demo {
       background: rgba(251, 113, 133, 0.16);
       border-color: rgba(251, 113, 133, 0.65);
       color: #fda4af;
     }
-    .tag.amber {
+    .badge.gold {
       background: rgba(251, 191, 36, 0.15);
-      border-color: rgba(251, 191, 36, 0.6);
+      border-color: rgba(251, 191, 36, 0.62);
       color: #fde047;
     }
 
-    /* Login Gate */
-    #loginScreen {
+    /* Entry / Login Screen */
+    #entryScreen {
       flex: 1;
       display: flex;
       align-items: center;
       justify-content: center;
       padding: 24px 16px;
     }
-    .gate-panel {
+    .entry-card {
       width: 100%;
-      max-width: 530px;
-      background: var(--surface);
-      backdrop-filter: blur(18px);
-      border: 1px solid var(--line);
+      max-width: 540px;
+      background: var(--panel);
+      backdrop-filter: blur(16px);
+      border: 1px solid var(--border);
       border-radius: 26px;
       padding: 30px 28px;
-      box-shadow: 0 30px 85px rgba(0, 0, 0, 0.72), inset 0 1px 0 rgba(255, 255, 255, 0.09);
+      box-shadow: 0 28px 80px rgba(0, 0, 0, 0.72), inset 0 1px 0 rgba(255, 255, 255, 0.08);
     }
-    .brand-row { display: flex; align-items: center; gap: 15px; margin-bottom: 20px; }
-    .brand-sigil {
+    .entry-head { display: flex; align-items: center; gap: 15px; margin-bottom: 22px; }
+    .entry-crest {
       width: 58px; height: 58px; border-radius: 17px;
-      background: linear-gradient(145deg, #1e40af, #091126);
-      border: 1.5px solid var(--amber);
+      background: linear-gradient(145deg, #1d4ed8, #081024);
+      border: 1.5px solid var(--gold);
       display: flex; align-items: center; justify-content: center;
       font-size: 1.75rem;
-      box-shadow: 0 0 28px rgba(251, 191, 36, 0.28);
-      animation: floatSigil 3.2s ease-in-out infinite;
+      box-shadow: 0 0 26px rgba(251, 191, 36, 0.25);
     }
-    @keyframes floatSigil {
-      0%, 100% { transform: translateY(0); }
-      50% { transform: translateY(-3px); }
-    }
-    .brand-heading {
-      font-size: 1.8rem; font-weight: 900; line-height: 1.15; letter-spacing: -0.3px;
+    .entry-title {
+      font-size: 1.8rem; font-weight: 900; line-height: 1.15;
       background: linear-gradient(90deg, #fde047, #38bdf8, #e879f9);
       -webkit-background-clip: text; -webkit-text-fill-color: transparent;
     }
-    .brand-tagline { color: var(--ink-dim); font-size: 0.88rem; margin-top: 3px; }
+    .entry-sub { font-size: 0.88rem; color: var(--muted); margin-top: 3px; }
 
-    .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
-    @media (max-width: 540px) { .two-col { grid-template-columns: 1fr; } }
+    .row-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+    @media (max-width: 540px) { .row-2 { grid-template-columns: 1fr; } }
 
-    .input-group { margin-bottom: 15px; }
-    .input-group label {
+    .field { margin-bottom: 15px; }
+    .field label {
       display: block; font-size: 0.75rem; font-weight: 800; text-transform: uppercase;
       letter-spacing: 0.55px; color: #cbd5e1; margin-bottom: 6px;
     }
-    .input-group input, .input-group select {
+    .field input, .field select {
       width: 100%; padding: 11px 14px; border-radius: 12px;
-      border: 1px solid var(--line); background: rgba(4, 8, 19, 0.92);
-      color: var(--ink); font-size: 0.96rem;
-      transition: border-color 0.15s ease, box-shadow 0.15s ease;
+      border: 1px solid var(--border); background: rgba(4, 8, 19, 0.92);
+      color: var(--text); font-size: 0.96rem;
     }
-    .input-group input:focus, .input-group select:focus {
-      outline: none; border-color: var(--sky);
+    .field input:focus, .field select:focus {
+      outline: none; border-color: var(--cyan);
       box-shadow: 0 0 0 3px rgba(56, 189, 248, 0.2);
     }
 
-    .choice-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
-    .choice-grid.cols-2 { grid-template-columns: repeat(2, 1fr); }
-    .choice-btn {
-      padding: 10px 8px; border-radius: 12px; border: 1px solid var(--line);
-      background: rgba(4, 8, 19, 0.88); color: var(--ink-dim);
+    .seg-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+    .seg-grid.two { grid-template-columns: repeat(2, 1fr); }
+    .seg-btn {
+      padding: 10px 8px; border-radius: 12px; border: 1px solid var(--border);
+      background: rgba(4, 8, 19, 0.88); color: var(--muted);
       font-weight: 700; font-size: 0.82rem; cursor: pointer; text-align: center;
       transition: all 0.14s ease;
     }
-    .choice-btn:hover { border-color: rgba(125, 211, 252, 0.5); color: var(--ink); }
-    .choice-btn.selected {
-      color: #ffffff; border-color: var(--sky);
+    .seg-btn:hover { border-color: rgba(125, 211, 252, 0.5); color: var(--text); }
+    .seg-btn.active {
+      color: #ffffff; border-color: var(--cyan);
       background: linear-gradient(180deg, rgba(56, 189, 248, 0.24), rgba(2, 132, 199, 0.12));
-      box-shadow: 0 0 18px rgba(56, 189, 248, 0.22);
     }
 
-    .auth-feedback { min-height: 20px; margin-top: 12px; font-size: 0.85rem; font-weight: 700; color: var(--amber); }
-    .auth-feedback.fail { color: var(--coral); }
+    .auth-status { min-height: 20px; margin-top: 12px; font-size: 0.85rem; font-weight: 700; color: var(--gold); }
+    .auth-status.err { color: var(--rose); }
 
-    .demo-bar {
-      margin-top: 18px; padding-top: 16px; border-top: 1px solid var(--line);
+    .demo-row {
+      margin-top: 18px; padding-top: 16px; border-top: 1px solid var(--border);
       display: flex; align-items: center; justify-content: space-between; gap: 10px;
     }
-    .demo-bar span { font-size: 0.8rem; color: var(--ink-dim); }
+    .demo-row span { font-size: 0.8rem; color: var(--muted); }
 
-    /* Game Screen */
-    #gameScreen { display: none; flex-direction: column; min-height: 100vh; }
+    /* Arena Screen */
+    #arenaScreen { display: none; flex-direction: column; min-height: 100vh; }
 
-    .hud-header {
+    .top-hud {
       display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between;
       gap: 10px; padding: 11px 18px;
-      background: rgba(9, 17, 38, 0.94); backdrop-filter: blur(14px);
-      border-bottom: 1px solid var(--line);
+      background: rgba(8, 15, 34, 0.95); backdrop-filter: blur(14px);
+      border-bottom: 1px solid var(--border);
     }
-    .identity-group { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+    .player-meta { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
 
-    .metrics-bar { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
-    .metric-pill {
-      background: rgba(4, 8, 19, 0.9); border: 1px solid var(--line);
+    .hud-stats { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+    .stat-chip {
+      background: rgba(4, 8, 19, 0.9); border: 1px solid var(--border);
       border-radius: 11px; padding: 6px 11px; font-size: 0.82rem; font-weight: 700;
       display: flex; align-items: center; gap: 5px;
     }
-    .metric-pill strong { color: var(--amber); font-size: 0.94rem; }
-    .metric-pill.clock-pill strong { color: #86efac; }
+    .stat-chip strong { color: var(--gold); font-size: 0.94rem; }
+    .stat-chip.timer-chip strong { color: #86efac; }
 
-    .arena-layout {
+    .main-grid {
       width: 100%; max-width: 1380px; margin: 0 auto; padding: 14px 16px 22px;
-      display: grid; grid-template-columns: 1fr 328px; gap: 16px; flex: 1;
+      display: grid; grid-template-columns: 1fr 324px; gap: 16px; flex: 1;
     }
-    @media (max-width: 1020px) { .arena-layout { grid-template-columns: 1fr; } }
+    @media (max-width: 1020px) { .main-grid { grid-template-columns: 1fr; } }
 
-    .stage-panel {
-      background: var(--surface); border: 1px solid var(--line); border-radius: 20px;
+    .board-card {
+      background: var(--panel); border: 1px solid var(--border); border-radius: 20px;
       padding: 14px; display: flex; flex-direction: column; gap: 12px;
       box-shadow: 0 20px 55px rgba(0, 0, 0, 0.48);
     }
-    canvas#battleCanvas {
+    canvas#gameCanvas {
       width: 100%; height: auto; border-radius: 15px; display: block;
       cursor: pointer; border: 1px solid rgba(125, 211, 252, 0.34);
       background: #040917;
     }
 
-    .towers-deck {
+    .tower-picker {
       display: grid; grid-template-columns: repeat(auto-fit, minmax(176px, 1fr)); gap: 10px;
     }
-    .tower-slot {
-      background: linear-gradient(180deg, rgba(25, 42, 86, 0.95) 0%, rgba(12, 21, 46, 0.98) 100%);
-      border: 2px solid var(--line); border-radius: 14px; padding: 10px 12px;
-      color: var(--ink); text-align: left; cursor: pointer;
+    .tower-card {
+      background: linear-gradient(180deg, rgba(24, 41, 84, 0.95) 0%, rgba(11, 20, 44, 0.98) 100%);
+      border: 2px solid var(--border); border-radius: 14px; padding: 10px 12px;
+      color: var(--text); text-align: left; cursor: pointer;
       transition: transform 0.12s ease, border-color 0.14s ease, box-shadow 0.14s ease;
     }
-    .tower-slot:hover { transform: translateY(-2px); border-color: rgba(147, 197, 253, 0.65); }
-    .tower-slot.active {
-      border-color: var(--amber);
-      box-shadow: 0 0 22px rgba(251, 191, 36, 0.25);
-      background: linear-gradient(180deg, rgba(36, 56, 112, 0.98) 0%, rgba(16, 28, 60, 0.98) 100%);
+    .tower-card:hover { transform: translateY(-2px); border-color: rgba(147, 197, 253, 0.65); }
+    .tower-card.selected {
+      border-color: var(--gold);
+      box-shadow: 0 0 20px rgba(251, 191, 36, 0.24);
     }
-    .tower-slot-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 3px; }
-    .tower-slot-title { font-weight: 800; font-size: 0.88rem; }
-    .tower-slot-cost {
+    .tower-card-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 3px; }
+    .tower-card-name { font-weight: 800; font-size: 0.88rem; }
+    .tower-card-cost {
       font-size: 0.75rem; font-weight: 800; color: #fde047;
       background: rgba(251, 191, 36, 0.15); padding: 2px 7px; border-radius: 6px;
     }
-    .tower-slot-sub { font-size: 0.74rem; color: var(--ink-dim); display: block; }
+    .tower-card-desc { font-size: 0.74rem; color: var(--muted); display: block; }
 
-    .command-strip {
+    .action-bar {
       display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 10px;
     }
-    .tip-copy { font-size: 0.8rem; color: var(--ink-dim); }
+    .hint-text { font-size: 0.8rem; color: var(--muted); }
 
-    /* Sidebar */
-    .side-column { display: flex; flex-direction: column; gap: 14px; }
-    .widget-card {
-      background: var(--surface); border: 1px solid var(--line); border-radius: 20px;
+    /* Side Column */
+    .side-col { display: flex; flex-direction: column; gap: 14px; }
+    .side-box {
+      background: var(--panel); border: 1px solid var(--border); border-radius: 20px;
       padding: 15px; box-shadow: 0 14px 36px rgba(0, 0, 0, 0.38);
     }
-    .widget-title {
+    .side-title {
       display: flex; justify-content: space-between; align-items: center;
-      margin-bottom: 11px; color: var(--sky); font-size: 0.92rem; font-weight: 800;
+      margin-bottom: 11px; color: var(--cyan); font-size: 0.92rem; font-weight: 800;
     }
-    .rank-list { list-style: none; display: flex; flex-direction: column; gap: 7px; max-height: 270px; overflow-y: auto; }
-    .rank-item {
+    .board-list { list-style: none; display: flex; flex-direction: column; gap: 7px; max-height: 270px; overflow-y: auto; }
+    .board-row {
       display: flex; justify-content: space-between; align-items: center;
       background: rgba(4, 8, 19, 0.88); border: 1px solid rgba(125, 211, 252, 0.18);
       border-radius: 11px; padding: 8px 11px; font-size: 0.82rem;
     }
-    .rank-item.self { border-color: var(--amber); background: rgba(251, 191, 36, 0.09); }
+    .board-row.me { border-color: var(--gold); background: rgba(251, 191, 36, 0.09); }
 
-    .stat-line {
+    .mastery-row {
       display: flex; justify-content: space-between; align-items: center;
       padding: 6px 0; border-bottom: 1px solid rgba(125, 211, 252, 0.14); font-size: 0.83rem;
     }
-    .stat-line:last-child { border-bottom: none; }
+    .mastery-row:last-child { border-bottom: none; }
 
     /* Modals */
-    .backdrop {
+    .modal-wrap {
       position: fixed; inset: 0; background: rgba(2, 5, 14, 0.86);
       backdrop-filter: blur(7px); display: none; align-items: center; justify-content: center;
       padding: 16px; z-index: 90;
     }
-    .backdrop.open { display: flex; }
-    .dialog-card {
+    .modal-wrap.open { display: flex; }
+    .modal-box {
       width: 100%; max-width: 615px; background: #0e1836;
       border: 1px solid rgba(125, 211, 252, 0.45); border-radius: 22px;
       padding: 24px; box-shadow: 0 32px 90px rgba(0, 0, 0, 0.82);
     }
-    .dialog-top { display: flex; justify-content: space-between; align-items: center; gap: 10px; margin-bottom: 12px; }
-    .countdown-track {
+    .modal-top { display: flex; justify-content: space-between; align-items: center; gap: 10px; margin-bottom: 12px; }
+    .q-meter {
       height: 8px; background: #050a18; border-radius: 999px; overflow: hidden;
       margin-bottom: 15px; border: 1px solid rgba(125, 211, 252, 0.22);
     }
-    .countdown-fill { height: 100%; width: 100%; background: var(--mint); transition: width 0.1s linear; }
+    .q-meter-fill { height: 100%; width: 100%; background: var(--emerald); transition: width 0.1s linear; }
 
-    .q-main { font-size: 1.12rem; font-weight: 800; line-height: 1.42; color: #ffffff; margin-bottom: 6px; }
-    .q-alt { font-size: 1.02rem; line-height: 1.48; color: #cbd5e1; margin-bottom: 12px; }
+    .q-stem-main { font-size: 1.12rem; font-weight: 800; line-height: 1.42; color: #ffffff; margin-bottom: 6px; }
+    .q-stem-sub { font-size: 1.02rem; line-height: 1.48; color: #cbd5e1; margin-bottom: 12px; }
 
-    .answer-grid { display: grid; gap: 9px; margin-top: 10px; }
-    .answer-btn {
+    .choice-stack { display: grid; gap: 9px; margin-top: 10px; }
+    .choice-opt {
       width: 100%; text-align: left; padding: 12px 14px; border-radius: 12px;
-      background: #16244c; border: 1px solid rgba(125, 211, 252, 0.3); color: var(--ink);
+      background: #16244c; border: 1px solid rgba(125, 211, 252, 0.3); color: var(--text);
       font-size: 0.94rem; cursor: pointer; transition: transform 0.08s ease, border-color 0.12s ease, background 0.12s ease;
     }
-    .answer-btn:hover:not(:disabled) { border-color: var(--sky); background: #1e3266; transform: translateX(2px); }
-    .answer-btn.right { background: rgba(21, 128, 61, 0.9); border-color: var(--mint); }
-    .answer-btn.wrong { background: rgba(159, 18, 57, 0.9); border-color: var(--coral); }
+    .choice-opt:hover:not(:disabled) { border-color: var(--cyan); background: #1e3266; transform: translateX(2px); }
+    .choice-opt.correct { background: rgba(21, 128, 61, 0.92); border-color: var(--emerald); }
+    .choice-opt.wrong { background: rgba(159, 18, 57, 0.92); border-color: var(--rose); }
 
-    .note-panel {
+    .q-feedback {
       display: none; margin-top: 13px; padding: 11px 13px; border-radius: 12px;
       background: #060b1a; border: 1px solid rgba(125, 211, 252, 0.25);
       font-size: 0.87rem; line-height: 1.45; color: #e2e8f0;
@@ -327,25 +315,25 @@
 </head>
 <body>
 
-  <!-- LOGIN GATE -->
-  <section id="loginScreen">
-    <div class="gate-panel">
-      <div class="brand-row">
-        <div class="brand-sigil">🏰</div>
+  <!-- ENTRY / AUTHENTICATION SCREEN -->
+  <section id="entryScreen">
+    <div class="entry-card">
+      <div class="entry-head">
+        <div class="entry-crest">🏰</div>
         <div>
-          <h1 class="brand-heading">Brain Defender</h1>
-          <p class="brand-tagline">Castle of Curiosity • HPBOSE Bilingual Learning Arena</p>
+          <h1 class="entry-title">Brain Defender</h1>
+          <p class="entry-sub">Castle of Curiosity • Bilingual Learning Arena</p>
         </div>
       </div>
 
-      <div class="two-col">
-        <div class="input-group">
-          <label for="idField">Student ID / PEN</label>
-          <input id="idField" type="text" inputmode="numeric" maxlength="12" placeholder="11–12 digit ID" autocomplete="off" />
+      <div class="row-2">
+        <div class="field">
+          <label for="studentIdInput">Student ID</label>
+          <input id="studentIdInput" type="text" inputmode="numeric" maxlength="12" placeholder="11–12 digit ID" autocomplete="off" />
         </div>
-        <div class="input-group">
-          <label for="classField">Select Class</label>
-          <select id="classField">
+        <div class="field">
+          <label for="classSelect">Select Class (Locked for Run)</label>
+          <select id="classSelect">
             <option value="6">Class 6</option>
             <option value="7">Class 7</option>
             <option value="8" selected>Class 8</option>
@@ -355,143 +343,142 @@
         </div>
       </div>
 
-      <div class="input-group">
-        <label>Select Game Mode</label>
-        <div class="choice-grid cols-2" id="modeSelector">
-          <button type="button" class="choice-btn selected" data-mode="siege">Siege Mode (90s Scout → Escalate)</button>
-          <button type="button" class="choice-btn" data-mode="test90">90s Test Mode (Wave Timer)</button>
+      <div class="field">
+        <label>Select Play Mode</label>
+        <div class="seg-grid two" id="modeGroup">
+          <button type="button" class="seg-btn active" data-mode="siege">Siege Mode (90s Scout → Waves)</button>
+          <button type="button" class="seg-btn" data-mode="test90">90s Test Mode (Wave Timer)</button>
         </div>
       </div>
 
-      <div class="input-group">
+      <div class="field">
         <label>Language Mode / भाषा</label>
-        <div class="choice-grid" id="langSelector">
-          <button type="button" class="choice-btn selected" data-lang="dual">Dual (EN + हि)</button>
-          <button type="button" class="choice-btn" data-lang="en">English</button>
-          <button type="button" class="choice-btn" data-lang="hi">हिन्दी</button>
+        <div class="seg-grid" id="langGroup">
+          <button type="button" class="seg-btn active" data-lang="dual">Dual (EN + हि)</button>
+          <button type="button" class="seg-btn" data-lang="en">English</button>
+          <button type="button" class="seg-btn" data-lang="hi">हिन्दी</button>
         </div>
       </div>
 
-      <button id="enterBtn" class="btn" style="width:100%; padding:12px;">Verify ID & Enter Castle</button>
-      <div id="authMsg" class="auth-feedback"></div>
+      <button id="verifyEnterBtn" class="btn" style="width:100%; padding:12px;">Verify ID & Enter Castle</button>
+      <div id="entryNotice" class="auth-status"></div>
 
-      <div class="demo-bar">
-        <span>Try gameplay without saving to leaderboard:</span>
-        <button type="button" id="demoLaunchBtn" class="btn btn-ghost" style="padding:7px 14px;">Demo</button>
+      <div class="demo-row">
+        <span>Try gameplay freely (scores not saved):</span>
+        <button type="button" id="demoEnterBtn" class="btn btn-ghost" style="padding:7px 14px;">Demo</button>
       </div>
     </div>
   </section>
 
-  <!-- GAME ARENA -->
-  <section id="gameScreen">
-    <header class="hud-header">
-      <div class="identity-group">
-        <strong id="playerNameLabel" style="font-size:1rem;">Defender</strong>
-        <span class="tag" id="classModeLabel">CLASS • MODE</span>
-        <span class="tag" id="tierLabel">Tier 1: Super Easy</span>
-        <span class="tag" id="statusBadge">Ready</span>
+  <!-- GAME ARENA SCREEN -->
+  <section id="arenaScreen">
+    <header class="top-hud">
+      <div class="player-meta">
+        <strong id="hudPlayerName" style="font-size:1rem;">Defender</strong>
+        <span class="badge" id="hudClassMode">CLASS • MODE</span>
+        <span class="badge" id="hudTierBadge">Tier 1: Super Easy</span>
+        <span class="badge" id="hudModeStatus">Verified</span>
       </div>
 
-      <div class="metrics-bar">
-        <div class="metric-pill">🏰 HP: <strong id="hpVal">100</strong></div>
-        <div class="metric-pill">🪙 Gold: <strong id="goldVal">120</strong></div>
-        <div class="metric-pill">✨ Mana: <strong id="manaVal">50</strong></div>
-        <div class="metric-pill">🌊 Wave: <strong id="waveVal">1/6</strong></div>
-        <div class="metric-pill clock-pill" id="waveClockPill" style="display:none;">⏱️ Clock: <strong id="waveClockVal">90.0s</strong></div>
-        <div class="metric-pill">🏆 Score: <strong id="scoreVal">0</strong></div>
+      <div class="hud-stats">
+        <div class="stat-chip">🏰 HP: <strong id="hudHp">100</strong></div>
+        <div class="stat-chip">🪙 Gold: <strong id="hudGold">120</strong></div>
+        <div class="stat-chip">✨ Mana: <strong id="hudMana">50</strong></div>
+        <div class="stat-chip">🌊 Wave: <strong id="hudWave">1/6</strong></div>
+        <div class="stat-chip timer-chip" id="hudTimerChip" style="display:none;">⏱️ Timer: <strong id="hudTimer">90.0s</strong></div>
+        <div class="stat-chip">🏆 Score: <strong id="hudScore">0</strong></div>
       </div>
 
       <div style="display:flex; gap:8px; align-items:center;">
-        <select id="arenaLangSelect" style="padding:7px 10px; border-radius:9px; background:#040813; color:#fff; border:1px solid var(--line); font-weight:700;">
+        <select id="liveLangSelect" title="Switch Language Mode anytime" style="padding:7px 10px; border-radius:9px; background:#040813; color:#fff; border:1px solid var(--border); font-weight:700;">
           <option value="dual">Dual (EN + हि)</option>
           <option value="en">English + Peek</option>
           <option value="hi">हिन्दी + Peek</option>
         </select>
-        <button id="quitBtn" class="btn btn-ghost" style="padding:7px 12px;">Exit</button>
+        <button id="exitArenaBtn" class="btn btn-ghost" style="padding:7px 12px;">Exit</button>
       </div>
     </header>
 
-    <main class="arena-layout">
-      <div class="stage-panel">
-        <canvas id="battleCanvas" width="880" height="450"></canvas>
+    <main class="main-grid">
+      <div class="board-card">
+        <canvas id="gameCanvas" width="880" height="450"></canvas>
 
-        <div class="towers-deck" id="towerDeck">
-          <button class="tower-slot active" data-kind="maths">
-            <div class="tower-slot-top"><span class="tower-slot-title">1. Maths Cannon</span><span class="tower-slot-cost">40g</span></div>
-            <span class="tower-slot-sub">Splash blast • Numbers & Algebra</span>
+        <div class="tower-picker" id="towerPicker">
+          <button type="button" class="tower-card selected" data-subject="maths">
+            <div class="tower-card-top"><span class="tower-card-name">1. Maths Cannon</span><span class="tower-card-cost">40g</span></div>
+            <span class="tower-card-desc">Splash blast • Quiz builds & upgrades</span>
           </button>
-          <button class="tower-slot" data-kind="science">
-            <div class="tower-slot-top"><span class="tower-slot-title">2. Science Tesla</span><span class="tower-slot-cost">45g</span></div>
-            <span class="tower-slot-sub">Rapid spark • Physics, Chem & Bio</span>
+          <button type="button" class="tower-card" data-subject="science">
+            <div class="tower-card-top"><span class="tower-card-name">2. Science Tesla</span><span class="tower-card-cost">45g</span></div>
+            <span class="tower-card-desc">Rapid chain spark • Quiz builds & upgrades</span>
           </button>
-          <button class="tower-slot" data-kind="grammar">
-            <div class="tower-slot-top"><span class="tower-slot-title">3. Grammar Gale</span><span class="tower-slot-cost">35g</span></div>
-            <span class="tower-slot-sub">Slows demons • English & व्याकरण</span>
+          <button type="button" class="tower-card" data-subject="grammar">
+            <div class="tower-card-top"><span class="tower-card-name">3. Grammar Gale</span><span class="tower-card-cost">35g</span></div>
+            <span class="tower-card-desc">Slowing blast • Quiz builds & upgrades</span>
           </button>
-          <button class="tower-slot" data-kind="gk">
-            <div class="tower-slot-top"><span class="tower-slot-title">4. GK Prism</span><span class="tower-slot-cost">50g</span></div>
-            <span class="tower-slot-sub">Long-range beam • India & World GK</span>
+          <button type="button" class="tower-card" data-subject="gk">
+            <div class="tower-card-top"><span class="tower-card-name">4. GK Prism Laser</span><span class="tower-card-cost">50g</span></div>
+            <span class="tower-card-desc">Long-range beam • Quiz builds & upgrades</span>
           </button>
         </div>
 
-        <div class="command-strip">
-          <div class="tip-copy">
-            Click glowing pads to build • Click built towers to <strong>Supercharge</strong> via quiz • Clear <strong>Wave 6</strong> for Victory!
+        <div class="action-bar">
+          <div class="hint-text">
+            Pick a subject tower → click a pad & answer right to build (Gold spent on right answer) • Click built towers to upgrade • Clear <strong>Wave 6</strong> for Victory!
           </div>
           <div style="display:flex; gap:10px; flex-wrap:wrap;">
-            <button id="waveTriggerBtn" class="btn btn-amber">Start Wave 1</button>
-            <button id="boostQuizBtn" class="btn btn-ghost">Answer Quiz (+Mana/Score)</button>
-            <button id="stormCastBtn" class="btn btn-iris" disabled>Ultimate Storm (60 Mana)</button>
+            <button type="button" id="startWaveBtn" class="btn btn-gold">Start Wave 1</button>
+            <button type="button" id="stormBtn" class="btn btn-violet" disabled>Ultimate Storm (60 Mana)</button>
           </div>
         </div>
       </div>
 
-      <aside class="side-column">
-        <div class="widget-card">
-          <div class="widget-title">
+      <aside class="side-col">
+        <div class="side-box">
+          <div class="side-title">
             <span>🏆 Leaderboard</span>
-            <button id="syncBoardBtn" class="btn btn-ghost" style="padding:4px 9px; font-size:0.74rem;">Refresh</button>
+            <button type="button" id="refreshBoardBtn" class="btn btn-ghost" style="padding:4px 9px; font-size:0.74rem;">Refresh</button>
           </div>
-          <ul class="rank-list" id="boardList"></ul>
+          <ul class="board-list" id="leaderboardList"></ul>
         </div>
 
-        <div class="widget-card">
-          <div class="widget-title"><span>📚 Subject Mastery</span></div>
-          <div id="subjectSummary"></div>
+        <div class="side-box">
+          <div class="side-title"><span>📚 Subject & Moral Tracker</span></div>
+          <div id="masteryList"></div>
         </div>
       </aside>
     </main>
   </section>
 
-  <!-- QUESTION MODAL -->
-  <div class="backdrop" id="questionModal">
-    <div class="dialog-card">
-      <div class="dialog-top">
+  <!-- QUESTION / MORAL EVENT MODAL -->
+  <div class="modal-wrap" id="questionModal">
+    <div class="modal-box">
+      <div class="modal-top">
         <div style="display:flex; gap:8px; align-items:center; flex-wrap:wrap;">
-          <span class="tag amber" id="qCategoryTag">SUBJECT</span>
-          <span class="tag" id="qLevelTag">Tier 1: Super Easy</span>
-          <span class="tag" id="qClockTag">12.0s</span>
+          <span class="badge gold" id="qSubjectBadge">SUBJECT</span>
+          <span class="badge" id="qTierBadge">Tier 1: Super Easy</span>
+          <span class="badge" id="qTimerBadge">12.0s</span>
         </div>
-        <button type="button" id="translatePeekBtn" class="btn btn-ghost" style="padding:5px 10px; font-size:0.76rem;">Peek / अनुवाद</button>
+        <button type="button" id="peekLangBtn" class="btn btn-ghost" style="padding:5px 10px; font-size:0.76rem;">Peek / अनुवाद</button>
       </div>
 
-      <div class="countdown-track"><div class="countdown-fill" id="qClockBar"></div></div>
-      <div id="qTextBox"></div>
-      <div class="answer-grid" id="qChoicesBox"></div>
-      <div class="note-panel" id="qExplainBox"></div>
+      <div class="q-meter" id="qMeterWrap"><div class="q-meter-fill" id="qMeterFill"></div></div>
+      <div id="qPromptArea"></div>
+      <div class="choice-stack" id="qChoicesArea"></div>
+      <div class="q-feedback" id="qFeedbackArea"></div>
     </div>
   </div>
 
-  <!-- END / VICTORY MODAL -->
-  <div class="backdrop" id="resultModal">
-    <div class="dialog-card" style="text-align:center;">
-      <div id="resultEmblem" style="font-size:2.5rem; margin-bottom:8px;">🏆</div>
-      <h2 id="resultHeading" style="font-size:1.55rem; color:var(--amber); margin-bottom:6px;">Victory!</h2>
-      <p id="resultBody" style="color:var(--ink-dim); line-height:1.5; margin-bottom:14px;"></p>
-      <div id="resultSaveBanner" style="font-size:0.86rem; font-weight:800; margin-bottom:18px;"></div>
+  <!-- VICTORY / GAME OVER MODAL -->
+  <div class="modal-wrap" id="endModal">
+    <div class="modal-box" style="text-align:center;">
+      <div id="endIcon" style="font-size:2.5rem; margin-bottom:8px;">🏆</div>
+      <h2 id="endTitle" style="font-size:1.55rem; color:var(--gold); margin-bottom:6px;">Victory!</h2>
+      <p id="endSummary" style="color:var(--muted); line-height:1.5; margin-bottom:14px;"></p>
+      <div id="endSaveStatus" style="font-size:0.86rem; font-weight:800; margin-bottom:18px;"></div>
       <div style="display:flex; gap:10px; justify-content:center; flex-wrap:wrap;">
-        <button type="button" id="goEndlessBtn" class="btn btn-iris" style="display:none;">Continue Endless Mode</button>
-        <button type="button" id="replayBtn" class="btn btn-amber">Play Again</button>
+        <button type="button" id="endlessBtn" class="btn btn-violet" style="display:none;">Continue Endless Mode</button>
+        <button type="button" id="replayMatchBtn" class="btn btn-gold">Play Again</button>
       </div>
     </div>
   </div>
