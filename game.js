@@ -4,7 +4,7 @@
 
 const API_CONFIG = {
   enabled: false, // Set to true after deploying Code.gs Web App
-  endpoint: "PASTE_YOUR_GOOGLE_APPS_SCRIPT_WEB_APP_URL_HERE",
+  endpoint: "https://script.google.com/macros/s/AKfycbxJ3rbuFzYgVzMjSanjrIJY2Vh8Vw2uVQUIu1tKvMz0mE_W3KoBi_6QwEcWWE2C89OwhA/exec",
   allowOfflineFallback: true
 };
 
