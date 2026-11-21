@@ -1,0 +1,70 @@
+name: Update Question Manifest
+
+on:
+  push:
+    branches:
+      - main
+
+permissions:
+  contents: write
+
+jobs:
+  sync-manifest:
+    runs-on: ubuntu-latest
+    # Prevent workflow loops when the bot commits an updated manifest.json
+    if: "!contains(github.event.head_commit.message, '[skip-manifest-sync]')"
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          ref: main
+
+      - name: Generate manifest.json from class-*/**/*.json
+        run: |
+          node -e '
+          const fs = require("fs");
+          const path = require("path");
+
+          const files = [];
+          function walk(dir) {
+            if (!fs.existsSync(dir)) return;
+            for (const entry of fs.readdirSync(dir, { withFileTypes: true })) {
+              const full = path.join(dir, entry.name);
+              if (entry.isDirectory()) {
+                walk(full);
+              } else if (entry.isFile() && entry.name.toLowerCase().endsWith(".json")) {
+                files.push(full.split(path.sep).join("/"));
+              }
+            }
+          }
+
+          for (const entry of fs.existsSync(".") ? fs.readdirSync(".", { withFileTypes: true }) : []) {
+            if (entry.isDirectory() && /^class-(?:[6-9]|1[0-2])$/i.test(entry.name)) {
+              walk(entry.name);
+            }
+          }
+
+          files.sort((a, b) => a.localeCompare(b));
+
+          const manifest = {
+            version: 1,
+            updatedAt: new Date().toISOString(),
+            count: files.length,
+            files
+          };
+
+          fs.writeFileSync("manifest.json", JSON.stringify(manifest, null, 2) + "\n", "utf8");
+          '
+
+      - name: Commit manifest.json if changed
+        run: |
+          if git diff --quiet -- manifest.json; then
+            echo "manifest.json is already up to date."
+          else
+            git config user.name "github-actions[bot]"
+            git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+            git add manifest.json
+            git commit -m "chore: sync manifest.json [skip-manifest-sync]"
+            git push origin main
+          fi
