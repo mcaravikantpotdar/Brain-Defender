@@ -8,8 +8,8 @@
     :root {
       --bg-night: #040814;
       --bg-keep: #09132b;
-      --panel: rgba(12, 23, 50, 0.94);
-      --border: rgba(125, 211, 252, 0.25);
+      --panel: rgba(12, 23, 50, 0.95);
+      --border: rgba(125, 211, 252, 0.28);
       --text: #f8fafc;
       --muted: #94a3b8;
       --cyan: #38bdf8;
@@ -23,7 +23,7 @@
       box-sizing: border-box;
       margin: 0;
       padding: 0;
-      font-family: 'Segoe UI', system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+      font-family: "Segoe UI", system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
     }
 
     body {
@@ -130,7 +130,7 @@
     .entry-crest {
       width: 58px; height: 58px; border-radius: 17px;
       background: linear-gradient(145deg, #1d4ed8, #081024);
-      border: 1.5px solid var(--gold);
+      border: 2px solid var(--gold);
       display: flex; align-items: center; justify-content: center;
       font-size: 1.75rem;
       box-shadow: 0 0 26px rgba(251, 191, 36, 0.25);
@@ -196,13 +196,93 @@
 
     .hud-stats { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
     .stat-chip {
-      background: rgba(4, 8, 19, 0.92); border: 1px solid var(--border);
-      border-radius: 11px; padding: 6px 11px; font-size: 0.82rem; font-weight: 700;
-      display: flex; align-items: center; gap: 5px;
-      box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.05);
+      position: relative;
+      background: rgba(4, 8, 19, 0.94);
+      border: 1.5px solid var(--border);
+      border-radius: 11px;
+      padding: 6px 12px;
+      font-size: 0.82rem;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.06), 0 3px 0 rgba(2, 5, 14, 0.85);
+      transition: transform 0.16s ease, border-color 0.16s ease;
     }
-    .stat-chip strong { color: var(--gold); font-size: 0.94rem; }
+    .stat-chip strong { color: var(--gold); font-size: 0.95rem; }
     .stat-chip.timer-chip strong { color: #86efac; }
+    .stat-chip.pulse-up {
+      transform: translateY(-2px) scale(1.04);
+      border-color: var(--emerald);
+    }
+    .stat-chip.pulse-down {
+      transform: translateY(1px) scale(0.98);
+      border-color: var(--rose);
+    }
+
+    @keyframes flyInOutUp {
+      0% {
+        opacity: 0;
+        transform: translate(-50%, 6px) scale(0.86);
+      }
+      18% {
+        opacity: 1;
+        transform: translate(-50%, -6px) scale(1.06);
+      }
+      75% {
+        opacity: 1;
+        transform: translate(-50%, -18px) scale(1);
+      }
+      100% {
+        opacity: 0;
+        transform: translate(-50%, -28px) scale(0.92);
+      }
+    }
+
+    @keyframes flyInOutDown {
+      0% {
+        opacity: 0;
+        transform: translate(-50%, -6px) scale(0.86);
+      }
+      18% {
+        opacity: 1;
+        transform: translate(-50%, 4px) scale(1.05);
+      }
+      75% {
+        opacity: 1;
+        transform: translate(-50%, 14px) scale(1);
+      }
+      100% {
+        opacity: 0;
+        transform: translate(-50%, 24px) scale(0.92);
+      }
+    }
+
+    .fly-delta {
+      position: absolute;
+      left: 50%;
+      top: 100%;
+      margin-top: 3px;
+      padding: 2px 7px;
+      border-radius: 7px;
+      font-size: 0.74rem;
+      font-weight: 900;
+      letter-spacing: 0.3px;
+      pointer-events: none;
+      white-space: nowrap;
+      z-index: 40;
+      background: rgba(6, 12, 28, 0.96);
+      border: 1px solid currentColor;
+      box-shadow: 0 6px 16px rgba(0, 0, 0, 0.65);
+    }
+    .fly-delta.pos {
+      color: #4ade80;
+      animation: flyInOutUp 1.05s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+    }
+    .fly-delta.neg {
+      color: #fb7185;
+      animation: flyInOutDown 1.05s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+    }
 
     .main-grid {
       width: 100%; max-width: 1400px; margin: 0 auto; padding: 14px 16px 22px;
@@ -217,19 +297,19 @@
     }
     canvas#gameCanvas {
       width: 100%; height: auto; border-radius: 16px; display: block;
-      cursor: pointer; border: 1px solid rgba(125, 211, 252, 0.36);
+      cursor: pointer; border: 2px solid rgba(125, 211, 252, 0.38);
       background: #040917;
       box-shadow: inset 0 0 36px rgba(2, 6, 18, 0.85), 0 12px 30px rgba(0, 0, 0, 0.55);
     }
 
     .tower-picker {
-      display: grid; grid-template-columns: repeat(auto-fit, minmax(182px, 1fr)); gap: 10px;
+      display: grid; grid-template-columns: repeat(auto-fit, minmax(195px, 1fr)); gap: 10px;
     }
     .tower-card {
       background: linear-gradient(180deg, rgba(24, 41, 84, 0.96) 0%, rgba(10, 19, 42, 0.99) 100%);
       border: 2px solid var(--border); border-radius: 14px; padding: 10px 12px;
       color: var(--text); text-align: left; cursor: pointer;
-      box-shadow: 0 5px 0 rgba(4, 8, 19, 0.85);
+      box-shadow: 0 5px 0 rgba(4, 8, 19, 0.88);
       transition: transform 0.12s ease, border-color 0.14s ease, box-shadow 0.14s ease;
     }
     .tower-card:hover { transform: translateY(-2px); border-color: rgba(147, 197, 253, 0.65); }
@@ -242,16 +322,26 @@
       background: linear-gradient(180deg, rgba(20, 52, 98, 0.97) 0%, rgba(10, 22, 48, 0.99) 100%);
     }
     .tower-card.boosted.selected { border-color: var(--gold); }
+    .tower-card.capped { opacity: 0.76; }
     .tower-card-top { display: flex; justify-content: space-between; align-items: center; gap: 6px; margin-bottom: 3px; }
     .tower-card-name { font-weight: 800; font-size: 0.88rem; }
     .tower-card-cost {
       font-size: 0.74rem; font-weight: 800; color: #fde047;
       background: rgba(251, 191, 36, 0.15); padding: 2px 7px; border-radius: 6px; white-space: nowrap;
     }
-    .tower-card-desc { font-size: 0.73rem; color: var(--muted); display: block; line-height: 1.32; }
+    .tower-card-desc { font-size: 0.73rem; color: #cbd5e1; display: block; line-height: 1.32; }
+    .tower-card-meta {
+      display: flex; justify-content: space-between; align-items: center; gap: 6px; margin-top: 6px;
+    }
+    .tower-card-count {
+      font-size: 0.7rem; font-weight: 800; padding: 2px 7px; border-radius: 6px;
+      background: rgba(56, 189, 248, 0.15); color: #7dd3fc;
+    }
+    .tower-card-count.maxed {
+      background: rgba(251, 191, 36, 0.22); color: #fde047;
+    }
     .tower-card-tag {
-      display: inline-block; margin-top: 5px; font-size: 0.68rem; font-weight: 800;
-      padding: 1px 6px; border-radius: 5px;
+      font-size: 0.68rem; font-weight: 800; padding: 2px 6px; border-radius: 5px;
       background: rgba(34, 197, 94, 0.16); color: #86efac;
     }
 
@@ -286,11 +376,34 @@
 
     /* Modals */
     .modal-wrap {
-      position: fixed; inset: 0; background: rgba(2, 5, 14, 0.86);
-      backdrop-filter: blur(7px); display: none; align-items: center; justify-content: center;
-      padding: 16px; z-index: 90;
+      position: fixed;
+      inset: 0;
+      background: rgba(2, 5, 14, 0.88);
+      backdrop-filter: blur(8px);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 16px;
+      z-index: 90;
     }
     .modal-wrap.open { display: flex; }
+
+    /* Full-Screen Question Overlay */
+    #questionModal {
+      background: rgba(3, 7, 20, 0.97);
+      backdrop-filter: blur(12px);
+      padding: 20px;
+      z-index: 120;
+    }
+    #questionModal .modal-box {
+      max-width: 780px;
+      width: 100%;
+      max-height: 94vh;
+      overflow-y: auto;
+      border: 2px solid rgba(56, 189, 248, 0.65);
+      box-shadow: 0 0 0 9999px rgba(3, 7, 20, 0.95), 0 32px 90px rgba(0, 0, 0, 0.92);
+    }
+
     .modal-box {
       width: 100%; max-width: 620px; background: #0e1836;
       border: 1px solid rgba(125, 211, 252, 0.45); border-radius: 22px;
@@ -303,8 +416,8 @@
     }
     .q-meter-fill { height: 100%; width: 100%; background: var(--emerald); transition: width 0.1s linear; }
 
-    .q-stem-main { font-size: 1.12rem; font-weight: 800; line-height: 1.42; color: #ffffff; margin-bottom: 6px; }
-    .q-stem-sub { font-size: 1.02rem; line-height: 1.48; color: #cbd5e1; margin-bottom: 12px; }
+    .q-stem-main { font-size: 1.16rem; font-weight: 800; line-height: 1.42; color: #ffffff; margin-bottom: 6px; }
+    .q-stem-sub { font-size: 1.03rem; line-height: 1.48; color: #cbd5e1; margin-bottom: 12px; }
 
     .choice-stack { display: grid; gap: 9px; margin-top: 10px; }
     .choice-opt {
@@ -372,7 +485,7 @@
         </div>
       </div>
 
-      <button id="verifyEnterBtn" class="btn" style="width:100%; padding:12px;">Verify ID & Enter Castle</button>
+      <button id="verifyEnterBtn" class="btn" style="width:100%; padding:12px;">Verify ID &amp; Enter Castle</button>
       <div id="entryNotice" class="auth-status"></div>
 
       <div class="demo-row">
@@ -390,15 +503,16 @@
         <span class="badge" id="hudClassMode">CLASS • MODE</span>
         <span class="badge" id="hudTierBadge">Tier 1: Super Easy</span>
         <span class="badge" id="hudModeStatus">Verified</span>
+        <span class="badge" id="hudRepoBadge">Bank: Syncing...</span>
       </div>
 
       <div class="hud-stats">
         <div class="stat-chip">🏰 HP: <strong id="hudHp">100</strong></div>
-        <div class="stat-chip">🪙 Gold: <strong id="hudGold">120</strong></div>
-        <div class="stat-chip">✨ Mana: <strong id="hudMana">50</strong></div>
+        <div class="stat-chip" id="goldChip">🪙 Gold: <strong id="hudGold">105</strong></div>
+        <div class="stat-chip" id="manaChip">✨ Mana: <strong id="hudMana">45</strong></div>
         <div class="stat-chip">🌊 Wave: <strong id="hudWave">1/6</strong></div>
         <div class="stat-chip timer-chip" id="hudTimerChip" style="display:none;">⏱️ Timer: <strong id="hudTimer">90.0s</strong></div>
-        <div class="stat-chip">🏆 Score: <strong id="hudScore">0</strong></div>
+        <div class="stat-chip" id="scoreChip">🏆 Score: <strong id="hudScore">0</strong></div>
       </div>
 
       <div style="display:flex; gap:8px; align-items:center;">
@@ -420,11 +534,11 @@
 
         <div class="action-bar">
           <div class="hint-text" id="arenaHintText">
-            Pick a subject tower → click a pad & answer right to build • Click built towers to upgrade • Clear <strong>Wave 6</strong> for Victory!
+            Max <strong>3 cannons per subject</strong> across <strong>8 pads</strong> • Lower starting range grows with upgrades • Clear <strong>Wave 6</strong> for Victory!
           </div>
           <div style="display:flex; gap:10px; flex-wrap:wrap;">
             <button type="button" id="startWaveBtn" class="btn btn-gold">Start Wave 1</button>
-            <button type="button" id="stormBtn" class="btn btn-violet" disabled>Ultimate Storm (60 Mana)</button>
+            <button type="button" id="stormBtn" class="btn btn-violet" disabled>Ultimate Storm (65 Mana)</button>
           </div>
         </div>
       </div>
@@ -432,22 +546,25 @@
       <aside class="side-col">
         <div class="side-box">
           <div class="side-title">
-            <span>🏆 Leaderboard</span>
-            <button type="button" id="refreshBoardBtn" class="btn btn-ghost" style="padding:4px 9px; font-size:0.74rem;">Refresh</button>
+            <span>🏆 Top Leaderboard</span>
+            <div style="display:flex; gap:6px;">
+              <button type="button" id="openLatest50Btn" class="btn btn-ghost" style="padding:4px 9px; font-size:0.74rem;">Latest 50</button>
+              <button type="button" id="refreshBoardBtn" class="btn btn-ghost" style="padding:4px 9px; font-size:0.74rem;">Refresh</button>
+            </div>
           </div>
           <ul class="board-list" id="leaderboardList"></ul>
         </div>
 
         <div class="side-box">
-          <div class="side-title"><span>📚 Subject & Moral Tracker</span></div>
+          <div class="side-title"><span>📚 Subject &amp; Moral Tracker</span></div>
           <div id="masteryList"></div>
         </div>
       </aside>
     </main>
   </section>
 
-  <!-- QUESTION / MORAL EVENT MODAL -->
-  <div class="modal-wrap" id="questionModal">
+  <!-- FULL-SCREEN QUESTION / MORAL EVENT MODAL -->
+  <div class="modal-wrap" id="questionModal" role="dialog" aria-modal="true">
     <div class="modal-box">
       <div class="modal-top">
         <div style="display:flex; gap:8px; align-items:center; flex-wrap:wrap;">
@@ -465,8 +582,22 @@
     </div>
   </div>
 
+  <!-- LATEST 50 SUBMISSIONS MODAL -->
+  <div class="modal-wrap" id="latest50Modal" role="dialog" aria-modal="true">
+    <div class="modal-box">
+      <div class="modal-top">
+        <h2 style="font-size:1.15rem; color:var(--cyan);">🕒 Latest 50 Arena Submissions</h2>
+        <div style="display:flex; gap:8px;">
+          <button type="button" id="refreshLatest50Btn" class="btn btn-ghost" style="padding:5px 10px; font-size:0.78rem;">Refresh</button>
+          <button type="button" id="closeLatest50Btn" class="btn btn-ghost" style="padding:5px 10px; font-size:0.78rem;">Close</button>
+        </div>
+      </div>
+      <ul class="board-list" id="latest50List" style="max-height:420px;"></ul>
+    </div>
+  </div>
+
   <!-- VICTORY / GAME OVER MODAL -->
-  <div class="modal-wrap" id="endModal">
+  <div class="modal-wrap" id="endModal" role="dialog" aria-modal="true">
     <div class="modal-box" style="text-align:center;">
       <div id="endIcon" style="font-size:2.5rem; margin-bottom:8px;">🏆</div>
       <h2 id="endTitle" style="font-size:1.55rem; color:var(--gold); margin-bottom:6px;">Victory!</h2>
@@ -479,6 +610,6 @@
     </div>
   </div>
 
-  <script src="game.js"></script>
+  <script type="module" src="game.js"></script>
 </body>
 </html>
