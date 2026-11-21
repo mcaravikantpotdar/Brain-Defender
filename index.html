@@ -227,41 +227,17 @@
     }
 
     @keyframes flyInOutUp {
-      0% {
-        opacity: 0;
-        transform: translate(-50%, 6px) scale(0.86);
-      }
-      18% {
-        opacity: 1;
-        transform: translate(-50%, -6px) scale(1.06);
-      }
-      75% {
-        opacity: 1;
-        transform: translate(-50%, -18px) scale(1);
-      }
-      100% {
-        opacity: 0;
-        transform: translate(-50%, -28px) scale(0.92);
-      }
+      0% { opacity: 0; transform: translate(-50%, 6px) scale(0.86); }
+      18% { opacity: 1; transform: translate(-50%, -6px) scale(1.06); }
+      75% { opacity: 1; transform: translate(-50%, -18px) scale(1); }
+      100% { opacity: 0; transform: translate(-50%, -28px) scale(0.92); }
     }
 
     @keyframes flyInOutDown {
-      0% {
-        opacity: 0;
-        transform: translate(-50%, -6px) scale(0.86);
-      }
-      18% {
-        opacity: 1;
-        transform: translate(-50%, 4px) scale(1.05);
-      }
-      75% {
-        opacity: 1;
-        transform: translate(-50%, 14px) scale(1);
-      }
-      100% {
-        opacity: 0;
-        transform: translate(-50%, 24px) scale(0.92);
-      }
+      0% { opacity: 0; transform: translate(-50%, -6px) scale(0.86); }
+      18% { opacity: 1; transform: translate(-50%, 4px) scale(1.05); }
+      75% { opacity: 1; transform: translate(-50%, 14px) scale(1); }
+      100% { opacity: 0; transform: translate(-50%, 24px) scale(0.92); }
     }
 
     .fly-delta {
@@ -394,7 +370,6 @@
     }
     .modal-wrap.open { display: flex; }
 
-    /* Full-Screen Question Overlay */
     #questionModal {
       background: rgba(3, 7, 20, 0.97);
       backdrop-filter: blur(12px);
@@ -410,7 +385,6 @@
       box-shadow: 0 0 0 9999px rgba(3, 7, 20, 0.95), 0 32px 90px rgba(0, 0, 0, 0.92);
     }
 
-    /* Non-Blocking Saving Spinner Modal */
     #savingModal {
       z-index: 140;
       background: rgba(2, 6, 16, 0.82);
@@ -507,7 +481,7 @@
       <div class="field">
         <label>Select Play Mode</label>
         <div class="seg-grid two" id="modeGroup">
-          <button type="button" class="seg-btn active" data-mode="siege">Siege Mode (90s Scout → Waves)</button>
+          <button type="button" class="seg-btn active" data-mode="siege">Siege Mode (Waves 1–6)</button>
           <button type="button" class="seg-btn" data-mode="test90">90s Test Mode (Wave Timer)</button>
         </div>
       </div>
@@ -570,12 +544,12 @@
 
         <div class="action-bar">
           <div class="hint-text" id="arenaHintText">
-            Max <strong>3 cannons/subject</strong> across <strong>8 pads</strong> • Lower starting range grows with upgrades • Spend <strong>100g → +100 HP</strong> • Clear <strong>Wave 6</strong>!
+            Max <strong>3 cannons/subject</strong> across <strong>8 pads</strong> • Subject cannons unlock <strong>Lv. 4–5</strong> in Endless Mode • <strong>100g → +100 HP</strong>!
           </div>
           <div style="display:flex; gap:8px; flex-wrap:wrap;">
             <button type="button" id="startWaveBtn" class="btn btn-gold">Start Wave 1</button>
             <button type="button" id="repairHpBtn" class="btn btn-emerald" disabled>Repair +100 HP (100g)</button>
-            <button type="button" id="stormBtn" class="btn btn-violet" disabled>Ultimate Storm (65 Mana)</button>
+            <button type="button" id="stormBtn" class="btn btn-violet" disabled>Ultimate Storm (100 Mana)</button>
           </div>
         </div>
       </div>
