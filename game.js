@@ -1,8 +1,9 @@
 /* ============================================================================
    BRAIN DEFENDER — GAME.JS
    DOS-era / retro-realistic arena simulation, max 3 cannons per subject across
-   8 build pads, level-scaled range, full-screen question pause, and flying HUD
-   counters for Gold, Mana, and Score.
+   8 build pads, level-scaled range, full-screen question pause, flying HUD
+   counters, 100g -> +100 HP repair, Endless Mode (clear cannons, keep gold/
+   mana/score until castle falls), and spinner modal during score submission.
    ============================================================================ */
 
 import {
@@ -19,6 +20,8 @@ import {
 const VICTORY_WAVE = 6;
 const WAVE_CLOCK_SECONDS = 90;
 const STORM_MANA_COST = 65;
+const REPAIR_GOLD_COST = 100;
+const REPAIR_HP_GAIN = 100;
 const MAX_CANNONS_PER_SUBJECT = 3;
 
 // Lower starting ranges at Level 1, expanding clearly on Level 2 and Level 3
@@ -150,6 +153,7 @@ const state = {
   waveTimeLeft: WAVE_CLOCK_SECONDS,
   waveActive: false,
   modalOpen: false,
+  submittingScore: false,
 
   selectedSubject: "maths",
   hoveredPad: -1,
@@ -547,8 +551,8 @@ function enterArena() {
   const isTest90 = state.mode === "test90";
   document.getElementById("hudTimerChip").style.display = isTest90 ? "flex" : "none";
   document.getElementById("arenaHintText").innerHTML = isTest90
-    ? `<strong>90s Test Mode:</strong> Max <strong>3/subject</strong> across <strong>8 pads</strong> • Lower L1 range grows on upgrade • Right answers fire a <strong>Quiz Strike</strong>!`
-    : `Max <strong>3 cannons/subject</strong> across <strong>8 pads</strong> • Lower starting range grows with upgrades • Clear <strong>Wave 6</strong> for Victory!`;
+    ? `<strong>90s Test Mode:</strong> Max <strong>3/subject</strong> across <strong>8 pads</strong> • Lower L1 range grows on upgrade • <strong>100g → +100 HP</strong> • Right answers fire a <strong>Quiz Strike</strong>!`
+    : `Max <strong>3 cannons/subject</strong> across <strong>8 pads</strong> • Lower starting range grows with upgrades • Spend <strong>100g → +100 HP</strong> • Clear <strong>Wave 6</strong>!`;
 
   buildClassTowerDeck(state.user.classNum);
   resetMatch(false);
@@ -557,19 +561,36 @@ function enterArena() {
 }
 
 function resetMatch(startEndless) {
-  state.hp = 100;
-  state.gold = 105;
-  state.mana = 45;
+  const preservedGold = startEndless ? state.gold : 105;
+  const preservedMana = startEndless ? state.mana : 45;
+  const preservedScore = startEndless ? state.score : 0;
+
+  if (!startEndless) {
+    state.hp = 100;
+    state.waveClearedCount = 0;
+    state.wrongStreak = 0;
+    state.tierOffset = 0;
+    state.stats = {
+      maths: { right: 0, asked: 0 },
+      science: { right: 0, asked: 0 },
+      grammar: { right: 0, asked: 0 },
+      gk: { right: 0, asked: 0 },
+      cs: { right: 0, asked: 0 },
+      moral: { right: 0, asked: 0 }
+    };
+  }
+
+  state.gold = preservedGold;
+  state.mana = preservedMana;
+  state.score = preservedScore;
   state.wave = startEndless ? VICTORY_WAVE + 1 : 1;
   state.endless = Boolean(startEndless);
-  state.waveClearedCount = 0;
-  state.score = 0;
   state.waveTimeLeft = WAVE_CLOCK_SECONDS;
   state.waveActive = false;
   state.modalOpen = false;
-  state.wrongStreak = 0;
-  state.tierOffset = 0;
+  state.submittingScore = false;
 
+  // Endless Mode clears existing deployed cannons while keeping gold, mana & score intact
   state.towers = [];
   state.demons = [];
   state.projectiles = [];
@@ -577,15 +598,6 @@ function resetMatch(startEndless) {
   state.particles = [];
   state.popups = [];
   state.spawnQueue = [];
-
-  state.stats = {
-    maths: { right: 0, asked: 0 },
-    science: { right: 0, asked: 0 },
-    grammar: { right: 0, asked: 0 },
-    gk: { right: 0, asked: 0 },
-    cs: { right: 0, asked: 0 },
-    moral: { right: 0, asked: 0 }
-  };
 
   lastHudValues = {
     gold: state.gold,
@@ -601,9 +613,28 @@ function resetMatch(startEndless) {
   refreshHud(false);
   refreshMastery();
 
+  if (startEndless) {
+    spawnPopup(440, 180, "ENDLESS MODE • CANNONS CLEARED • GOLD & SCORE KEPT", "#e879f9");
+  }
+
   if (state.mode === "test90") {
     beginWave();
   }
+}
+
+function handleRepairCastleHp() {
+  if (state.modalOpen || state.submittingScore) return;
+  if (state.gold < REPAIR_GOLD_COST) {
+    spawnPopup(795, 175, `Need ${REPAIR_GOLD_COST}g!`, "#fb7185");
+    return;
+  }
+
+  state.gold -= REPAIR_GOLD_COST;
+  state.hp += REPAIR_HP_GAIN;
+  AudioCue.build();
+  spawnBurst(802, 222, "#4ade80", 16);
+  spawnPopup(795, 175, `+${REPAIR_HP_GAIN} HP (-${REPAIR_GOLD_COST}g)`, "#4ade80");
+  refreshHud(true);
 }
 
 /* ============================================================================
@@ -849,7 +880,7 @@ function spawnPopup(x, y, text, color = "#fde047") {
 }
 
 function beginWave() {
-  if (state.waveActive || state.modalOpen) return;
+  if (state.waveActive || state.modalOpen || state.submittingScore) return;
   state.waveActive = true;
   state.waveTimeLeft = WAVE_CLOCK_SECONDS;
   const waveBtn = document.getElementById("startWaveBtn");
@@ -910,7 +941,7 @@ function beginWave() {
 }
 
 function triggerUltimateStorm() {
-  if (state.mana < STORM_MANA_COST || state.modalOpen) return;
+  if (state.mana < STORM_MANA_COST || state.modalOpen || state.submittingScore) return;
   const subjects = Object.keys(state.activeTowers);
   const pickedSub = subjects[Math.floor(Math.random() * subjects.length)] || "maths";
 
@@ -934,7 +965,7 @@ function triggerUltimateStorm() {
 }
 
 function handleBoardClick(evt) {
-  if (state.modalOpen) return;
+  if (state.modalOpen || state.submittingScore) return;
   const rect = canvas.getBoundingClientRect();
   const px = (evt.clientX - rect.left) * (canvas.width / rect.width);
   const py = (evt.clientY - rect.top) * (canvas.height / rect.height);
@@ -1017,7 +1048,7 @@ function handleBoardClick(evt) {
 }
 
 function stepSimulation(dt) {
-  if (state.modalOpen) return;
+  if (state.modalOpen || state.submittingScore) return;
   state.worldTime += dt;
 
   if (state.mode === "test90" && state.waveActive) {
@@ -1240,17 +1271,9 @@ function completeWaveStep() {
 
   openQuestionPrompt({
     subject: "moral",
-    headerText: "⚖️ MORAL EDUCATION • UNTIMED BONUS",
+    headerText: "⚖️ MORAL EDUCATION • UNTIMED CHECK",
     untimed: true,
     onSuccess: () => {
-      if (state.hp <= 75) {
-        state.hp = Math.min(100, state.hp + 18);
-        spawnPopup(795, 175, "+18 CASTLE HP!", "#22c55e");
-      } else {
-        state.gold += 22;
-        spawnPopup(795, 175, "+22 BONUS GOLD!", "#fde047");
-      }
-      refreshHud(true);
       afterWaveMoralStep(finishedWave);
     },
     onFail: () => {
@@ -1276,6 +1299,40 @@ function afterWaveMoralStep(finishedWave) {
   }
 }
 
+function setSavingSpinnerVisible(visible, titleText = "Saving Final Score...", subText = "Syncing your result with the Castle Leaderboard.") {
+  const modal = document.getElementById("savingModal");
+  if (!modal) return;
+  document.getElementById("savingTitle").textContent = titleText;
+  document.getElementById("savingSubtext").textContent = subText;
+  modal.classList.toggle("open", Boolean(visible));
+}
+
+async function submitScoreWithSpinner({ titleText, subText }) {
+  if (!state.user || state.user.isDemo || state.score <= 0) {
+    return { saved: false, msg: state.user?.isDemo ? "Demo mode: scores are not saved to the leaderboard." : "No points scored yet to submit." };
+  }
+
+  state.submittingScore = true;
+  setSavingSpinnerVisible(true, titleText, subText);
+
+  try {
+    const saveResult = await submitScoreRemote({
+      user: state.user,
+      mode: state.mode,
+      score: state.score,
+      wave: state.wave,
+      stats: state.stats
+    });
+    if (saveResult.saved) {
+      await refreshLeaderboardUI(state.user);
+    }
+    return saveResult;
+  } finally {
+    state.submittingScore = false;
+    setSavingSpinnerVisible(false);
+  }
+}
+
 async function concludeMatch(victory) {
   state.modalOpen = true;
   state.waveActive = false;
@@ -1287,17 +1344,10 @@ async function concludeMatch(victory) {
     refreshHud(true);
   }
 
-  const saveResult = await submitScoreRemote({
-    user: state.user,
-    mode: state.mode,
-    score: state.score,
-    wave: state.wave,
-    stats: state.stats
+  const saveResult = await submitScoreWithSpinner({
+    titleText: victory ? "Saving Victory Score..." : "Saving Final Score...",
+    subText: "Updating the Castle Leaderboard without freezing your screen."
   });
-
-  if (saveResult.saved) {
-    await refreshLeaderboardUI(state.user);
-  }
 
   document.getElementById("endIcon").textContent = victory ? "👑" : "🛡️";
   const titleEl = document.getElementById("endTitle");
@@ -1311,6 +1361,11 @@ async function concludeMatch(victory) {
     summaryEl.textContent =
       `Outstanding defense! Castle HP: ${state.hp} • Victory Bonus: +${bonus} pts • Final Score: ${state.score}.`;
     endlessBtn.style.display = "inline-block";
+  } else if (state.endless) {
+    titleEl.textContent = "Endless Run Ended — Castle Destroyed!";
+    titleEl.style.color = "#fda4af";
+    summaryEl.textContent = `You held out through Wave ${state.wave} with ${state.score} points before the castle fell.`;
+    endlessBtn.style.display = "none";
   } else {
     titleEl.textContent = "Castle Fallen!";
     titleEl.style.color = "#fda4af";
@@ -1496,17 +1551,14 @@ function drawScene() {
 
 function drawCastleRetro3D(x, y, w, h) {
   ctx.save();
-  // Ground shadow
   ctx.fillStyle = "rgba(0, 0, 0, 0.56)";
   ctx.beginPath();
   ctx.ellipse(x + w * 0.5, y + h + 7, w * 0.8, 13, 0, 0, Math.PI * 2);
   ctx.fill();
 
-  // Side depth wall
   ctx.fillStyle = "#091022";
   ctx.fillRect(x + w - 9, y + 6, 14, h - 6);
 
-  // Main stone keep with shaded bevel
   const grad = ctx.createLinearGradient(x, y, x + w, y + h);
   grad.addColorStop(0, "#375296");
   grad.addColorStop(0.6, "#1d2f5e");
@@ -1519,7 +1571,6 @@ function drawCastleRetro3D(x, y, w, h) {
   ctx.fill();
   ctx.stroke();
 
-  // Stone masonry courses
   ctx.strokeStyle = "rgba(255, 255, 255, 0.08)";
   ctx.lineWidth = 1;
   for (let rowY = y + 18; rowY < y + h - 8; rowY += 18) {
@@ -1529,7 +1580,6 @@ function drawCastleRetro3D(x, y, w, h) {
     ctx.stroke();
   }
 
-  // Battlement merlons
   for (let by = y + 6; by <= y + h - 20; by += 26) {
     ctx.fillStyle = "#fbbf24";
     ctx.fillRect(x - 6, by, 8, 13);
@@ -1538,7 +1588,6 @@ function drawCastleRetro3D(x, y, w, h) {
     ctx.strokeRect(x - 6, by, 8, 13);
   }
 
-  // Animated pennant flag
   const waveOffset = Math.sin(state.worldTime * 6.5) * 3.5;
   ctx.strokeStyle = "#f1f5f9";
   ctx.lineWidth = 2;
@@ -1571,13 +1620,11 @@ function drawTowerRetro3D(t) {
   ctx.save();
   const recoilOffset = (t.recoil || 0) * 4.5;
 
-  // Pedestal shadow
   ctx.fillStyle = "rgba(0, 0, 0, 0.5)";
   ctx.beginPath();
   ctx.ellipse(t.x + 3, t.y + 16, 21, 9, 0, 0, Math.PI * 2);
   ctx.fill();
 
-  // Octagonal/circular shaded gun carriage
   const baseGrad = ctx.createLinearGradient(t.x - 19, t.y - 19, t.x + 19, t.y + 19);
   baseGrad.addColorStop(0, "#2d437a");
   baseGrad.addColorStop(1, "#090f21");
@@ -1589,7 +1636,6 @@ function drawTowerRetro3D(t) {
   ctx.lineWidth = 2.5;
   ctx.stroke();
 
-  // Rotating barrel / emitter with recoil kickback
   ctx.save();
   ctx.translate(t.x, t.y);
   ctx.rotate(t.angle);
@@ -1633,7 +1679,6 @@ function drawTowerRetro3D(t) {
   }
   ctx.restore();
 
-  // Turret core dome + level badge
   ctx.beginPath();
   ctx.arc(t.x - 1, t.y - 1, 11.5, 0, Math.PI * 2);
   ctx.fillStyle = t.primary;
@@ -1656,13 +1701,11 @@ function drawDemonRetro3D(d) {
   const cy = d.y + bob;
 
   ctx.save();
-  // Ground shadow
   ctx.fillStyle = "rgba(0, 0, 0, 0.5)";
   ctx.beginPath();
   ctx.ellipse(d.x, d.y + radius + 3, radius * 0.95, radius * 0.42, 0, 0, Math.PI * 2);
   ctx.fill();
 
-  // Horns
   ctx.fillStyle = isFrozen ? "#bae6fd" : "#fca5a5";
   ctx.beginPath();
   ctx.moveTo(d.x - 7, cy - radius + 3);
@@ -1676,7 +1719,6 @@ function drawDemonRetro3D(d) {
   ctx.lineTo(d.x + 2, cy - radius + 1);
   ctx.fill();
 
-  // Shaded body with status tint (hit flash / frozen / slowed / boss / scout / standard)
   const bodyGrad = ctx.createRadialGradient(d.x - radius * 0.35, cy - radius * 0.35, 2, d.x, cy, radius);
   if (d.hitFlash > 0) {
     bodyGrad.addColorStop(0, "#ffffff");
@@ -1706,12 +1748,10 @@ function drawDemonRetro3D(d) {
   ctx.lineWidth = 1.6;
   ctx.stroke();
 
-  // Eyes
   ctx.fillStyle = "#090d16";
   ctx.fillRect(d.x - 5, cy - 3, 3, 3);
   ctx.fillRect(d.x + 2, cy - 3, 3, 3);
 
-  // Health bar
   const barW = d.isBoss ? 42 : 26;
   const barX = d.x - barW / 2;
   const barY = cy - radius - 11;
@@ -1764,6 +1804,7 @@ function refreshHud(animateDeltas = true) {
 
   document.getElementById("hudTierBadge").textContent = tierLabel(computeTier());
   document.getElementById("stormBtn").disabled = state.mana < STORM_MANA_COST;
+  document.getElementById("repairHpBtn").disabled = state.gold < REPAIR_GOLD_COST;
 
   if (animateDeltas) {
     if (dGold !== 0) triggerFlyBadge("goldChip", dGold, "g");
@@ -1829,7 +1870,7 @@ document.addEventListener("DOMContentLoaded", async () => {
   });
 
   document.addEventListener("keydown", e => {
-    if (!state.user || state.modalOpen) return;
+    if (!state.user || state.modalOpen || state.submittingScore) return;
     const keys = Object.values(state.activeTowers);
     const idx = Number(e.key) - 1;
     if (idx >= 0 && idx < keys.length) {
@@ -1839,7 +1880,7 @@ document.addEventListener("DOMContentLoaded", async () => {
   });
 
   canvas.addEventListener("mousemove", evt => {
-    if (state.modalOpen) return;
+    if (state.modalOpen || state.submittingScore) return;
     const rect = canvas.getBoundingClientRect();
     const px = (evt.clientX - rect.left) * (canvas.width / rect.width);
     const py = (evt.clientY - rect.top) * (canvas.height / rect.height);
@@ -1848,7 +1889,9 @@ document.addEventListener("DOMContentLoaded", async () => {
 
   canvas.addEventListener("click", handleBoardClick);
   document.getElementById("startWaveBtn").addEventListener("click", beginWave);
+  document.getElementById("repairHpBtn").addEventListener("click", handleRepairCastleHp);
   document.getElementById("stormBtn").addEventListener("click", triggerUltimateStorm);
+
   document.getElementById("refreshBoardBtn").addEventListener("click", async () => {
     await loadQuestionBank(true);
     if (state.user) buildClassTowerDeck(state.user.classNum);
@@ -1884,15 +1927,12 @@ document.addEventListener("DOMContentLoaded", async () => {
     clearInterval(state.questionTicker);
     state.modalOpen = false;
     document.getElementById("questionModal").classList.remove("open");
-    if (state.user && !state.user.isDemo && state.score > 0) {
-      await submitScoreRemote({
-        user: state.user,
-        mode: state.mode,
-        score: state.score,
-        wave: state.wave,
-        stats: state.stats
-      });
-    }
+
+    await submitScoreWithSpinner({
+      titleText: "Saving Score Before Exit...",
+      subText: "Syncing your current match points to the leaderboard."
+    });
+
     state.user = null;
     document.getElementById("arenaScreen").style.display = "none";
     document.getElementById("entryScreen").style.display = "flex";
