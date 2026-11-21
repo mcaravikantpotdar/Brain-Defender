@@ -1,13 +1,13 @@
 /* ============================================================================
    BRAIN DEFENDER — QUESTION-LOADER.JS
-   Loads root questions.json + class-<N>/<subject>/*.json from Brain-Defender
-   with subject normalization (keeping CS separate from Grammar) & procedural Maths.
+   Reads manifest.json + chapter JSONs via raw.githubusercontent.com first to
+   avoid burning the 60/hour unauthenticated GitHub REST API rate limit.
    ============================================================================ */
 
 export const REPO_OWNER = "mcaravikantpotdar";
 export const REPO_NAME = "Brain-Defender";
 export const REPO_BRANCH = "main";
-export const REPO_CACHE_KEY = "brain_defender_class_repo_cache_v1";
+export const REPO_CACHE_KEY = "brain_defender_class_repo_cache_v2";
 export const REPO_CACHE_TTL_MS = 6 * 60 * 60 * 1000;
 
 export function canonicalSubject(rawVal) {
@@ -120,20 +120,23 @@ export function normalizeRepoPayload(data, path) {
     let ansIdx = 0;
 
     if (raw.options && typeof raw.options === "object" && !Array.isArray(raw.options)) {
-      const keys = letterOrder.filter(k => raw.options[k]);
-      if (keys.length >= 2) {
-        enOpts = keys.map(k => String(raw.options[k]?.en ?? raw.options[k] ?? "").trim());
-        hiOpts = keys.map((k, i) => String(raw.options[k]?.hi ?? enOpts[i] ?? "").trim());
-        const corrKey = String(raw.correct_option || "").toLowerCase().trim();
-        const found = keys.indexOf(corrKey);
-        ansIdx = found >= 0 ? found : 0;
+      if (Array.isArray(raw.options.en)) {
+        enOpts = raw.options.en.map(String);
+        hiOpts = Array.isArray(raw.options.hi) && raw.options.hi.length === enOpts.length
+          ? raw.options.hi.map(String)
+          : [...enOpts];
+        const rawAns = raw.answerIndex ?? raw.correctIndex ?? raw.correct_index ?? 0;
+        ansIdx = typeof rawAns === "number" ? rawAns : 0;
+      } else {
+        const keys = letterOrder.filter(k => raw.options[k]);
+        if (keys.length >= 2) {
+          enOpts = keys.map(k => String(raw.options[k]?.en ?? raw.options[k] ?? "").trim());
+          hiOpts = keys.map((k, i) => String(raw.options[k]?.hi ?? enOpts[i] ?? "").trim());
+          const corrKey = String(raw.correct_option || "").toLowerCase().trim();
+          const found = keys.indexOf(corrKey);
+          ansIdx = found >= 0 ? found : 0;
+        }
       }
-    } else if (Array.isArray(raw.options?.en)) {
-      enOpts = raw.options.en.map(String);
-      hiOpts = Array.isArray(raw.options.hi) && raw.options.hi.length === enOpts.length
-        ? raw.options.hi.map(String)
-        : [...enOpts];
-      ansIdx = typeof raw.answerIndex === "number" ? raw.answerIndex : 0;
     }
 
     if (enOpts.length < 2) return;
@@ -164,11 +167,40 @@ export function normalizeRepoPayload(data, path) {
   return out;
 }
 
-async function listClassSubjectJsonPaths(classFolder, subject) {
+async function readManifestFilePaths() {
+  const stamp = Date.now();
+  try {
+    const localResp = await fetch(`./manifest.json?t=${stamp}`, { cache: "no-store" });
+    if (localResp.ok) {
+      const data = await localResp.json();
+      if (Array.isArray(data?.files)) {
+        return data.files.map(String).filter(p => /\.json$/i.test(p));
+      }
+    }
+  } catch (_) {}
+
+  try {
+    const rawManifestUrl = `https://raw.githubusercontent.com/${REPO_OWNER}/${REPO_NAME}/${REPO_BRANCH}/manifest.json?t=${stamp}`;
+    const remoteResp = await fetch(rawManifestUrl, { cache: "no-store" });
+    if (remoteResp.ok) {
+      const data = await remoteResp.json();
+      if (Array.isArray(data?.files)) {
+        return data.files.map(String).filter(p => /\.json$/i.test(p));
+      }
+    }
+  } catch (_) {}
+
+  return [];
+}
+
+async function listClassSubjectJsonPathsViaApi(classFolder, subject) {
   const folderPath = `${classFolder}/${subject}`;
   const apiUrl = `https://api.github.com/repos/${REPO_OWNER}/${REPO_NAME}/contents/${encodeURIComponent(folderPath)}?ref=${REPO_BRANCH}`;
   const resp = await fetch(apiUrl);
   if (resp.status === 404) return [];
+  if (resp.status === 403 || resp.status === 429) {
+    throw new Error(`RATE_LIMITED_${resp.status}`);
+  }
   if (!resp.ok) throw new Error(`GitHub folder HTTP ${resp.status}`);
   const entries = await resp.json();
   if (!Array.isArray(entries)) return [];
@@ -178,41 +210,58 @@ async function listClassSubjectJsonPaths(classFolder, subject) {
 }
 
 export async function fetchGitHubClassQuestions(forceRefresh = false) {
-  if (!forceRefresh) {
-    try {
-      const cachedRaw = localStorage.getItem(REPO_CACHE_KEY);
-      if (cachedRaw) {
-        const cached = JSON.parse(cachedRaw);
-        if (cached && Array.isArray(cached.items) && (Date.now() - cached.savedAt) < REPO_CACHE_TTL_MS) {
+  let staleCachedItems = [];
+  try {
+    const cachedRaw = localStorage.getItem(REPO_CACHE_KEY);
+    if (cachedRaw) {
+      const cached = JSON.parse(cachedRaw);
+      if (cached && Array.isArray(cached.items)) {
+        staleCachedItems = cached.items;
+        if (!forceRefresh && (Date.now() - cached.savedAt) < REPO_CACHE_TTL_MS) {
           return cached.items;
         }
       }
-    } catch (_) {}
+    }
+  } catch (_) {}
+
+  let jsonPaths = await readManifestFilePaths();
+
+  if (jsonPaths.length === 0) {
+    const classFolders = [6, 7, 8, 9, 10, 11, 12].map(n => `class-${n}`);
+    const subjects = ["maths", "science", "grammar", "gk", "cs", "moral"];
+    const targetFolders = classFolders.flatMap(cf => subjects.map(sub => ({ cf, sub })));
+
+    try {
+      const pathBatches = await Promise.all(
+        targetFolders.map(({ cf, sub }) => listClassSubjectJsonPathsViaApi(cf, sub))
+      );
+      jsonPaths = Array.from(new Set(pathBatches.flat()));
+    } catch (err) {
+      if (String(err?.message || "").startsWith("RATE_LIMITED_") && staleCachedItems.length > 0) {
+        return staleCachedItems;
+      }
+      return staleCachedItems;
+    }
   }
 
-  const classFolders = [6, 7, 8, 9, 10, 11, 12].map(n => `class-${n}`);
-  const subjects = ["maths", "science", "grammar", "gk", "cs", "moral"];
-  const targetFolders = classFolders.flatMap(cf => subjects.map(sub => ({ cf, sub })));
-
-  const pathBatches = await Promise.all(
-    targetFolders.map(async ({ cf, sub }) => {
-      try {
-        return await listClassSubjectJsonPaths(cf, sub);
-      } catch (_) {
-        return [];
-      }
-    })
-  );
-
-  const jsonPaths = Array.from(new Set(pathBatches.flat()));
+  const stamp = Date.now();
   const fetchedLists = await Promise.all(
     jsonPaths.map(async p => {
+      const cleanPath = String(p).replace(/^\/+/, "");
       try {
-        const rawUrl = `https://raw.githubusercontent.com/${REPO_OWNER}/${REPO_NAME}/${REPO_BRANCH}/${encodeURI(p)}`;
-        const r = await fetch(`${rawUrl}?t=${Date.now()}`, { cache: "no-store" });
-        if (!r.ok) return [];
-        const json = await r.json();
-        return normalizeRepoPayload(json, p);
+        const localResp = await fetch(`./${encodeURI(cleanPath)}?t=${stamp}`, { cache: "no-store" });
+        if (localResp.ok) {
+          const json = await localResp.json();
+          return normalizeRepoPayload(json, cleanPath);
+        }
+      } catch (_) {}
+
+      try {
+        const rawUrl = `https://raw.githubusercontent.com/${REPO_OWNER}/${REPO_NAME}/${REPO_BRANCH}/${encodeURI(cleanPath)}?t=${stamp}`;
+        const rawResp = await fetch(rawUrl, { cache: "no-store" });
+        if (!rawResp.ok) return [];
+        const json = await rawResp.json();
+        return normalizeRepoPayload(json, cleanPath);
       } catch (_) {
         return [];
       }
@@ -224,14 +273,16 @@ export async function fetchGitHubClassQuestions(forceRefresh = false) {
     try {
       localStorage.setItem(REPO_CACHE_KEY, JSON.stringify({ savedAt: Date.now(), items: merged }));
     } catch (_) {}
+    return merged;
   }
-  return merged;
+
+  return staleCachedItems;
 }
 
 export async function loadCombinedQuestionBank(forceRefresh = false, isDemo = false) {
   let baseItems = [];
   try {
-    const resp = await fetch("questions.json", { cache: "no-store" });
+    const resp = await fetch("./questions.json", { cache: "no-store" });
     if (resp.ok) {
       const data = await resp.json();
       baseItems = (Array.isArray(data.questions) ? data.questions : [])
@@ -256,7 +307,6 @@ export async function loadCombinedQuestionBank(forceRefresh = false, isDemo = fa
     console.warn("Base questions.json load issue:", err);
   }
 
-  // Demo mode stays isolated to root questions.json + procedural Maths
   if (isDemo) {
     return {
       questions: baseItems,
@@ -272,8 +322,15 @@ export async function loadCombinedQuestionBank(forceRefresh = false, isDemo = fa
     repoItems = [];
   }
 
+  const combined = [...repoItems, ...baseItems];
+  window.__BD_DEBUG__ = {
+    questions: combined,
+    repoItems,
+    baseItems
+  };
+
   return {
-    questions: [...repoItems, ...baseItems],
+    questions: combined,
     repoLoadedCount: repoItems.length,
     repoSyncLabel: repoItems.length > 0 ? `Class JSONs: ${repoItems.length} Qs` : "Bank: Base + Math"
   };
