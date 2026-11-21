@@ -1,0 +1,305 @@
+{
+  "metadata": {
+    "class": 12,
+    "classFolder": "class-12",
+    "subject": "cs",
+    "chapter": "ch1",
+    "topic": "Class 12 Chapter 1   Network Operating System",
+    "questionCount": 10,
+    "lang": "bilingual",
+    "generatedByModel": "gemini-3.8-flash",
+    "generatedAt": "2026-11-21T06:20:10.799Z"
+  },
+  "questions": [
+    {
+      "id": "C12-CS-01",
+      "class": 12,
+      "subject": "cs",
+      "difficulty": 1,
+      "prompt": {
+        "en": "In Windows NT, what does the acronym \"NT\" stand for?",
+        "hi": "विंडोज़ NT (Windows NT) में \"NT\" का क्या अर्थ है?"
+      },
+      "options": {
+        "en": [
+          "New - Technology",
+          "Network Termination",
+          "Network Technology",
+          "Next Transfer"
+        ],
+        "hi": [
+          "न्यू - टेक्नोलॉजी (New - Technology)",
+          "नेटवर्क टर्मिनेशन (Network Termination)",
+          "नेटवर्क टेक्नोलॉजी (Network Technology)",
+          "नेक्स्ट ट्रांसफर (Next Transfer)"
+        ]
+      },
+      "answerIndex": 0,
+      "explanation": {
+        "en": "According to the study material, Windows NT means Windows (New - Technology).",
+        "hi": "अध्ययन सामग्री के अनुसार, विंडोज़ NT का अर्थ विंडोज़ (न्यू - टेक्नोलॉजी) है।"
+      }
+    },
+    {
+      "id": "C12-CS-02",
+      "class": 12,
+      "subject": "cs",
+      "difficulty": 1,
+      "prompt": {
+        "en": "Which command is used to view file permissions in Linux?",
+        "hi": "लिनक्स में फ़ाइल अनुमतियाँ (file permissions) देखने के लिए किस कमांड का उपयोग किया जाता है?"
+      },
+      "options": {
+        "en": [
+          "ls -l",
+          "chmod",
+          "pwd",
+          "cd -p"
+        ],
+        "hi": [
+          "ls -l",
+          "chmod",
+          "pwd",
+          "cd -p"
+        ]
+      },
+      "answerIndex": 0,
+      "explanation": {
+        "en": "In Linux, file permissions can be viewed using the command '$ ls -l'.",
+        "hi": "लिनक्स में, फ़ाइल अनुमति '$ ls -l' आदेश द्वारा देखी जा सकती है।"
+      }
+    },
+    {
+      "id": "C12-CS-03",
+      "class": 12,
+      "subject": "cs",
+      "difficulty": 1,
+      "prompt": {
+        "en": "In Linux file permission groups, which letter represents the 'Owner'?",
+        "hi": "लिनक्स फ़ाइल अनुमति समूहों में, कौन सा अक्षर 'ओनर' (Owner) का प्रतिनिधित्व करता है?"
+      },
+      "options": {
+        "en": [
+          "u",
+          "g",
+          "o",
+          "a"
+        ],
+        "hi": [
+          "u",
+          "g",
+          "o",
+          "a"
+        ]
+      },
+      "answerIndex": 0,
+      "explanation": {
+        "en": "The four permission groups are Owner (u), Group (g), Others (o), and All user (a).",
+        "hi": "चार अनुमति-समूह हैं: ओनर (u), ग्रुप (g), अदर्स (o), और ऑल यूजर (a)।"
+      }
+    },
+    {
+      "id": "C12-CS-04",
+      "class": 12,
+      "subject": "cs",
+      "difficulty": 2,
+      "prompt": {
+        "en": "According to the study material, which role is specifically responsible for designing, implementing, and maintaining network infrastructure?",
+        "hi": "अध्ययन सामग्री के अनुसार, कौन सा पद विशेष रूप से नेटवर्क के बुनियादी ढांचे को डिज़ाइन करने, लागू करने और उसका रखरखाव करने के लिए ज़िम्मेदार है?"
+      },
+      "options": {
+        "en": [
+          "Network Support Specialist",
+          "Network Engineer",
+          "Network Security Specialist",
+          "Database Administrator"
+        ],
+        "hi": [
+          "नेटवर्क सहायता विशेषज्ञ (Network Support Specialist)",
+          "नेटवर्क इंजीनियर (Network Engineer)",
+          "नेटवर्क सुरक्षा विशेषज्ञ (Network Security Specialist)",
+          "डेटाबेस व्यवस्थापक (Database Administrator)"
+        ]
+      },
+      "answerIndex": 1,
+      "explanation": {
+        "en": "Network Engineers perform tasks such as designing, implementing, and maintaining network infrastructure.",
+        "hi": "नेटवर्क इंजीनियर नेटवर्क के बुनियादी ढांचे को डिज़ाइन करने, लागू करने और उसके रखरखाव जैसे कार्य करते हैं।"
+      }
+    },
+    {
+      "id": "C12-CS-05",
+      "class": 12,
+      "subject": "cs",
+      "difficulty": 2,
+      "prompt": {
+        "en": "In the Linux Filesystem Hierarchy Standard (FHS), which directory contains configuration files for the system and various applications?",
+        "hi": "लिनक्स फ़ाइलसिस्टम हाइरार्की स्टैंडर्ड (FHS) में, कौन सी डायरेक्टरी सिस्टम और विभिन्न अनुप्रयोगों (applications) के लिए कॉन्फ़िगरेशन फ़ाइलें रखती है?"
+      },
+      "options": {
+        "en": [
+          "/bin",
+          "/etc",
+          "/dev",
+          "/"
+        ],
+        "hi": [
+          "/bin",
+          "/etc",
+          "/dev",
+          "/"
+        ]
+      },
+      "answerIndex": 1,
+      "explanation": {
+        "en": "The '/etc' directory contains configuration files for the system and various applications.",
+        "hi": "'/etc' डायरेक्टरी में सिस्टम और विभिन्न ऐप्लिकेशन के लिए कॉन्फ़िगरेशन फ़ाइलें शामिल होती हैं।"
+      }
+    },
+    {
+      "id": "C12-CS-06",
+      "class": 12,
+      "subject": "cs",
+      "difficulty": 2,
+      "prompt": {
+        "en": "What is the primary function of 'Swap Space' in Linux?",
+        "hi": "लिनक्स में 'स्वैप स्पेस' (Swap Space) का प्राथमिक कार्य क्या है?"
+      },
+      "options": {
+        "en": [
+          "To permanently store user files and multimedia",
+          "To store memory pages of idle or low-priority processes when RAM gets full",
+          "To speed up internet connectivity during heavy downloads",
+          "To hold system device files such as keyboards and printers"
+        ],
+        "hi": [
+          "उपयोगकर्ता फ़ाइलों और मल्टीमीडिया को स्थायी रूप से संग्रहीत करना",
+          "रैम (RAM) भरने पर निष्क्रिय या कम प्राथमिकता वाली प्रक्रियाओं के मेमोरी पेजों को अस्थायी रूप से संग्रहीत करना",
+          "भारी डाउनलोड के दौरान इंटरनेट कनेक्टिविटी को तेज़ करना",
+          "सिस्टम डिवाइस फ़ाइलें जैसे कीबोर्ड और प्रिंटर को रखना"
+        ]
+      },
+      "answerIndex": 1,
+      "explanation": {
+        "en": "Swap space is a dedicated area on the hard disk used when main memory (RAM) gets full, storing idle or low-priority process pages so RAM can be freed for active processes.",
+        "hi": "स्वैप स्पेस हार्ड-डिस्क पर एक समर्पित क्षेत्र है जिसका उपयोग रैम भर जाने पर निष्क्रिय या कम प्राथमिकता वाली प्रक्रियाओं के मेमोरी पेजों को अस्थायी रूप से संग्रहीत करने के लिए किया जाता है।"
+      }
+    },
+    {
+      "id": "C12-CS-07",
+      "class": 12,
+      "subject": "cs",
+      "difficulty": 3,
+      "prompt": {
+        "en": "How does Logical Volume Manager (LVM) differ fundamentally from traditional disk partitioning in terms of storage capacity?",
+        "hi": "भंडारण क्षमता (storage capacity) के संदर्भ में लॉजिकल वॉल्यूम मैनेजर (LVM) पारंपरिक डिस्क विभाजन से मौलिक रूप से कैसे भिन्न है?"
+      },
+      "options": {
+        "en": [
+          "LVM capacity is limited to a single physical disk, whereas traditional partitions span multiple disks.",
+          "LVM capacity is not limited to a single disk and can span across multiple disks, unlike traditional partitioning.",
+          "LVM partitions do not support volume groups.",
+          "Traditional disk partitioning information is stored in RAM, whereas LVM uses the Partition Table."
+        ],
+        "hi": [
+          "LVM क्षमता केवल एक भौतिक डिस्क तक सीमित होती है, जबकि पारंपरिक विभाजन कई डिस्क में फैलते हैं।",
+          "LVM क्षमता एक डिस्क तक सीमित नहीं है और कई डिस्क तक फैल सकती है, जबकि पारंपरिक डिस्क विभाजन केवल एक भौतिक डिस्क के स्पेस तक सीमित होता है।",
+          "LVM विभाजन वॉल्यूम-समूहों का समर्थन नहीं करते हैं।",
+          "पारंपरिक डिस्क विभाजन की जानकारी रैम में संग्रहीत होती है, जबकि LVM पार्टीशन टेबल का उपयोग करता है।"
+        ]
+      },
+      "answerIndex": 1,
+      "explanation": {
+        "en": "The storage capacity of a disk partition is limited to space available on one physical disk, whereas the storage capacity of a Logical Volume can span across multiple disks.",
+        "hi": "डिस्क विभाजन की भंडारण क्षमता एक भौतिक डिस्क पर उपलब्ध स्पेस तक सीमित होती है, जबकि लॉजिकल वॉल्यूम की क्षमता कई डिस्क तक फैल सकती है।"
+      }
+    },
+    {
+      "id": "C12-CS-08",
+      "class": 12,
+      "subject": "cs",
+      "difficulty": 3,
+      "prompt": {
+        "en": "Based on the comparison between Linux and Windows in the text, which of the following statements is TRUE?",
+        "hi": "पाठ में दिए गए लिनक्स और विंडोज़ के बीच अंतर के आधार पर, निम्नलिखित में से कौन सा कथन सत्य है?"
+      },
+      "options": {
+        "en": [
+          "In Linux, file names are not case-sensitive, while in Windows they are case-sensitive.",
+          "Windows provides more security and does not easily get infected with malware compared to Linux.",
+          "In Linux, file names are case-sensitive, whereas in Windows, file names are not case-sensitive.",
+          "Linux is a closed-source operating system that cannot be modified by users."
+        ],
+        "hi": [
+          "लिनक्स में फ़ाइल नाम केस-संवेदी नहीं होते हैं, जबकि विंडोज़ में वे केस-संवेदी होते हैं।",
+          "विंडोज़ लिनक्स की तुलना में अधिक सुरक्षा प्रदान करता है और आसानी से मैलवेयर से संक्रमित नहीं होता है।",
+          "लिनक्स में फ़ाइल नाम केस-संवेदी होते हैं, जबकि विंडोज़ में फ़ाइल नाम केस-संवेदी नहीं होते हैं।",
+          "लिनक्स एक क्लोज्ड-सोर्स ऑपरेटिंग सिस्टम है जिसे उपयोगकर्ताओं द्वारा संशोधित नहीं किया जा सकता है।"
+        ]
+      },
+      "answerIndex": 2,
+      "explanation": {
+        "en": "Point 9 of the differences states: 'In Linux, file names are case-sensitive. In Windows, file names are not case-sensitive.'",
+        "hi": "अंतरों के बिंदु 9 के अनुसार: 'लिनक्स में, फ़ाइल नाम केस-संवेदी होते हैं। विंडोज़ में, फ़ाइल नाम केस-संवेदी नहीं होते हैं।'"
+      }
+    },
+    {
+      "id": "C12-CS-09",
+      "class": 12,
+      "subject": "cs",
+      "difficulty": 4,
+      "prompt": {
+        "en": "Comparing Software and Hardware firewalls as described in the text, which statement accurately reflects their cost and reliability characteristics?",
+        "hi": "पाठ में वर्णित सॉफ़्टवेयर और हार्डवेयर फ़ायरवॉल की तुलना करते हुए, कौन सा कथन उनकी लागत और विश्वसनीयता की विशेषताओं को सही ढंग से दर्शाता है?"
+      },
+      "options": {
+        "en": [
+          "Software firewalls are dedicated devices that are more expensive and more reliable.",
+          "Software firewalls are less expensive and less reliable, whereas hardware firewalls are dedicated devices that are more expensive and more reliable.",
+          "Hardware firewalls are application software installed on a server and are less expensive.",
+          "Both software and hardware firewalls have identical costs and reliability levels."
+        ],
+        "hi": [
+          "सॉफ़्टवेयर फ़ायरवॉल समर्पित उपकरण हैं जो अधिक महंगे और अधिक विश्वसनीय हैं।",
+          "सॉफ़्टवेयर फ़ायरवॉल कम महंगे और कम विश्वसनीय होते हैं, जबकि हार्डवेयर फ़ायरवॉल समर्पित उपकरण होते हैं जो अधिक महंगे और अधिक विश्वसनीय होते हैं।",
+          "हार्डवेयर फ़ायरवॉल एक सर्वर पर स्थापित एप्लिकेशन सॉफ़्टवेयर हैं और कम महंगे हैं।",
+          "सॉफ़्टवेयर और हार्डवेयर दोनों फ़ायरवॉल की लागत और विश्वसनीयता का स्तर समान होता है।"
+        ]
+      },
+      "answerIndex": 1,
+      "explanation": {
+        "en": "According to the text, software firewalls are application software installed on a server, being less expensive and less reliable. Hardware firewalls are dedicated hardware devices that are more expensive and more reliable.",
+        "hi": "पाठ के अनुसार, सॉफ़्टवेयर फ़ायरवॉल सर्वर पर स्थापित एप्लिकेशन सॉफ़्टवेयर हैं जो कम महंगे और कम विश्वसनीय हैं। हार्डवेयर फ़ायरवॉल समर्पित उपकरण हैं जो अधिक महंगे और अधिक विश्वसनीय हैं।"
+      }
+    },
+    {
+      "id": "C12-CS-10",
+      "class": 12,
+      "subject": "cs",
+      "difficulty": 4,
+      "prompt": {
+        "en": "When modifying file permissions using the 'chmod' command in Linux, which symbols are specifically used to add and remove permissions respectively?",
+        "hi": "लिनक्स में 'chmod' कमांड का उपयोग करके फ़ाइल अनुमतियों को संशोधित करते समय, क्रमशः अनुमति जोड़ने और हटाने के लिए किन चिह्नों का उपयोग किया जाता है?"
+      },
+      "options": {
+        "en": [
+          "'-' to add permission, and '+' to remove permission",
+          "'+' to add permission, and '-' to remove permission",
+          "'*' to add permission, and '/' to remove permission",
+          "'>' to add permission, and '<' to remove permission"
+        ],
+        "hi": [
+          "अनुमति जोड़ने के लिए '-' और अनुमति हटाने के लिए '+'",
+          "अनुमति जोड़ने के लिए '+' और अनुमति हटाने के लिए '-'",
+          "अनुमति जोड़ने के लिए '*' और अनुमति हटाने के लिए '/'",
+          "अनुमति जोड़ने के लिए '>' और अनुमति हटाने के लिए '<'"
+        ]
+      },
+      "answerIndex": 1,
+      "explanation": {
+        "en": "In Linux file permission management, the '+' symbol is used to add permission and the '-' symbol is used to remove permission (e.g., $ chmod ugo+rwx file01.txt).",
+        "hi": "लिनक्स फ़ाइल अनुमति प्रबंधन में, '+' चिह्न का उपयोग अनुमति जोड़ने के लिए और '-' चिह्न का उपयोग अनुमति हटाने के लिए किया जाता है।"
+      }
+    }
+  ]
+}
