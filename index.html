@@ -74,6 +74,12 @@
       box-shadow: 0 6px 20px rgba(245, 158, 11, 0.36);
     }
 
+    .btn-emerald {
+      background: linear-gradient(135deg, #4ade80 0%, #16a34a 100%);
+      color: #052e16;
+      box-shadow: 0 6px 20px rgba(34, 197, 94, 0.32);
+    }
+
     .btn-violet {
       background: linear-gradient(135deg, #e879f9 0%, #7e22ce 100%);
       color: #ffffff;
@@ -404,6 +410,36 @@
       box-shadow: 0 0 0 9999px rgba(3, 7, 20, 0.95), 0 32px 90px rgba(0, 0, 0, 0.92);
     }
 
+    /* Non-Blocking Saving Spinner Modal */
+    #savingModal {
+      z-index: 140;
+      background: rgba(2, 6, 16, 0.82);
+      backdrop-filter: blur(6px);
+    }
+    .saving-card {
+      width: 100%;
+      max-width: 390px;
+      background: #0d1834;
+      border: 1.5px solid rgba(56, 189, 248, 0.55);
+      border-radius: 20px;
+      padding: 28px 24px;
+      text-align: center;
+      box-shadow: 0 24px 70px rgba(0, 0, 0, 0.82);
+    }
+    .spinner-ring {
+      width: 44px;
+      height: 44px;
+      margin: 0 auto 14px;
+      border-radius: 50%;
+      border: 4px solid rgba(148, 163, 184, 0.25);
+      border-top-color: var(--gold);
+      border-right-color: var(--cyan);
+      animation: spinLoader 0.85s linear infinite;
+    }
+    @keyframes spinLoader {
+      to { transform: rotate(360deg); }
+    }
+
     .modal-box {
       width: 100%; max-width: 620px; background: #0e1836;
       border: 1px solid rgba(125, 211, 252, 0.45); border-radius: 22px;
@@ -534,10 +570,11 @@
 
         <div class="action-bar">
           <div class="hint-text" id="arenaHintText">
-            Max <strong>3 cannons per subject</strong> across <strong>8 pads</strong> • Lower starting range grows with upgrades • Clear <strong>Wave 6</strong> for Victory!
+            Max <strong>3 cannons/subject</strong> across <strong>8 pads</strong> • Lower starting range grows with upgrades • Spend <strong>100g → +100 HP</strong> • Clear <strong>Wave 6</strong>!
           </div>
-          <div style="display:flex; gap:10px; flex-wrap:wrap;">
+          <div style="display:flex; gap:8px; flex-wrap:wrap;">
             <button type="button" id="startWaveBtn" class="btn btn-gold">Start Wave 1</button>
+            <button type="button" id="repairHpBtn" class="btn btn-emerald" disabled>Repair +100 HP (100g)</button>
             <button type="button" id="stormBtn" class="btn btn-violet" disabled>Ultimate Storm (65 Mana)</button>
           </div>
         </div>
@@ -593,6 +630,17 @@
         </div>
       </div>
       <ul class="board-list" id="latest50List" style="max-height:420px;"></ul>
+    </div>
+  </div>
+
+  <!-- NON-BLOCKING SAVING SPINNER MODAL -->
+  <div class="modal-wrap" id="savingModal" role="status" aria-live="polite">
+    <div class="saving-card">
+      <div class="spinner-ring"></div>
+      <h3 id="savingTitle" style="font-size:1.12rem; color:var(--cyan); margin-bottom:6px;">Saving Final Score...</h3>
+      <p id="savingSubtext" style="font-size:0.85rem; color:var(--muted); line-height:1.45;">
+        Syncing your result with the Castle Leaderboard. Please wait a moment.
+      </p>
     </div>
   </div>
 
