@@ -1,0 +1,305 @@
+{
+  "metadata": {
+    "class": 12,
+    "classFolder": "class-12",
+    "subject": "cs",
+    "chapter": "ch1",
+    "topic": "Class 12 Chapter 1   Network Operating System",
+    "questionCount": 10,
+    "lang": "bilingual",
+    "generatedByModel": "gemini-3.8-flash",
+    "generatedAt": "2026-11-21T06:10:01.966Z"
+  },
+  "questions": [
+    {
+      "id": "C12-CS-01",
+      "class": 12,
+      "subject": "cs",
+      "difficulty": 1,
+      "prompt": {
+        "en": "What does the abbreviation 'NOS' stand for?",
+        "hi": "'NOS' का पूर्ण रूप क्या है?"
+      },
+      "options": {
+        "en": [
+          "Network Operating System",
+          "Node Operating Software",
+          "Network Open System",
+          "Non-Operational Server"
+        ],
+        "hi": [
+          "नेटवर्क ऑपरेटिंग सिस्टम (Network Operating System)",
+          "नोड ऑपरेटिंग सॉफ्टवेयर (Node Operating Software)",
+          "नेटवर्क ओपन सिस्टम (Network Open System)",
+          "नॉन-ऑपरेशनल सर्वर (Non-Operational Server)"
+        ]
+      },
+      "answerIndex": 0,
+      "explanation": {
+        "en": "NOS stands for Network Operating System. It is a system software that manages and controls network resources.",
+        "hi": "NOS का अर्थ नेटवर्क ऑपरेटिंग सिस्टम (Network Operating System) है। यह एक सिस्टम सॉफ्टवेयर है जो नेटवर्क संसाधनों का प्रबंधन और नियंत्रण करता है।"
+      }
+    },
+    {
+      "id": "C12-CS-02",
+      "class": 12,
+      "subject": "cs",
+      "difficulty": 1,
+      "prompt": {
+        "en": "How many total bits are there in an IP address, and into how many octets are they divided?",
+        "hi": "एक आईपी एड्रेस (IP Address) में कुल कितने बिट्स होते हैं, और उन्हें कितने ऑक्टेट्स में विभाजित किया जाता है?"
+      },
+      "options": {
+        "en": [
+          "16 bits divided into 2 octets",
+          "32 bits divided into 4 octets",
+          "64 bits divided into 8 octets",
+          "128 bits divided into 16 octets"
+        ],
+        "hi": [
+          "16 बिट्स, जिन्हें 2 ऑक्टेट्स में विभाजित किया गया है",
+          "32 बिट्स, जिन्हें 4 ऑक्टेट्स में विभाजित किया गया है",
+          "64 बिट्स, जिन्हें 8 ऑक्टेट्स में विभाजित किया गया है",
+          "128 बिट्स, जिन्हें 16 ऑक्टेट्स में विभाजित किया गया है"
+        ]
+      },
+      "answerIndex": 1,
+      "explanation": {
+        "en": "An IP address contains 32 Bits, which are divided into four parts called 'octets' (8 bits each) separated by dots.",
+        "hi": "एक आईपी एड्रेस में 32 बिट्स होते हैं। इन 32 बिट्स को चार भागों में बांटा गया है जिन्हें 'ऑक्टेट' (प्रत्येक में 8 बिट्स) कहा जाता है और ये डॉट द्वारा अलग किए जाते हैं।"
+      }
+    },
+    {
+      "id": "C12-CS-03",
+      "class": 12,
+      "subject": "cs",
+      "difficulty": 2,
+      "prompt": {
+        "en": "Which networking device connects multiple devices together using broadcasting technology, making it slower and less secure?",
+        "hi": "कौन सा नेटवर्किंग डिवाइस प्रसारण (ब्रॉडकास्टिंग) तकनीक का उपयोग करके कई उपकरणों को आपस में जोड़ता है, जिससे यह धीमा और कम सुरक्षित होता है?"
+      },
+      "options": {
+        "en": [
+          "Switch",
+          "Router",
+          "Hub",
+          "NIC"
+        ],
+        "hi": [
+          "स्विच (Switch)",
+          "राउटर (Router)",
+          "हब (Hub)",
+          "एनआईसी (NIC)"
+        ]
+      },
+      "answerIndex": 2,
+      "explanation": {
+        "en": "A Hub connects multiple devices together to form a network using broadcasting technology, which makes it less secure and slow compared to a switch.",
+        "hi": "हब (Hub) एक नेटवर्किंग डिवाइस है जो ब्रॉडकास्टिंग तकनीक का उपयोग करके कई उपकरणों को जोड़ता है, जो कि स्विच की तुलना में कम सुरक्षित और धीमा होता है।"
+      }
+    },
+    {
+      "id": "C12-CS-04",
+      "class": 12,
+      "subject": "cs",
+      "difficulty": 2,
+      "prompt": {
+        "en": "Which was the first Network Operating System (NOS), developed in the year 1985?",
+        "hi": "वर्ष 1985 में विकसित किया गया पहला नेटवर्क ऑपरेटिंग सिस्टम (NOS) कौन सा था?"
+      },
+      "options": {
+        "en": [
+          "Windows NT",
+          "Linux",
+          "Sun Solaris",
+          "Novell NetWare"
+        ],
+        "hi": [
+          "विंडोज एनटी (Windows NT)",
+          "लिनक्स (Linux)",
+          "सन सोलारिस (Sun Solaris)",
+          "नॉवेल नेटवेयर (Novell NetWare)"
+        ]
+      },
+      "answerIndex": 3,
+      "explanation": {
+        "en": "Novell NetWare was the first NOS, developed in the year 1985.",
+        "hi": "नॉवेल नेटवेयर (Novell NetWare) वर्ष 1985 में विकसित किया गया पहला एनओएस (NOS) था।"
+      }
+    },
+    {
+      "id": "C12-CS-05",
+      "class": 12,
+      "subject": "cs",
+      "difficulty": 2,
+      "prompt": {
+        "en": "In dynamic routing, the automatic selection of routes is managed by which protocol?",
+        "hi": "डायनामिक रूटिंग में, मार्गों का स्वचालित चयन किस प्रोटोकॉल द्वारा प्रबंधित किया जाता है?"
+      },
+      "options": {
+        "en": [
+          "TCP (Transmission Control Protocol)",
+          "RIP (Router Information Protocol)",
+          "IP (Internet Protocol)",
+          "NOS (Network Operating System)"
+        ],
+        "hi": [
+          "टीसीपी (ट्रांसमिशन कंट्रोल प्रोटोकॉल)",
+          "आरआईपी (राउटर इंफॉर्मेशन प्रोटोकॉल)",
+          "आईपी (इंटरनेट प्रोटोकॉल)",
+          "एनओएस (नेटवर्क ऑपरेटिंग सिस्टम)"
+        ]
+      },
+      "answerIndex": 1,
+      "explanation": {
+        "en": "Dynamic Routing is the automatic selection of routes managed by the RIP (Router Information Protocol).",
+        "hi": "डायनामिक रूटिंग मार्गों का स्वचालित चयन है जो आरआईपी (राउटर इंफॉर्मेशन प्रोटोकॉल) द्वारा प्रबंधित किया जाता है।"
+      }
+    },
+    {
+      "id": "C12-CS-06",
+      "class": 12,
+      "subject": "cs",
+      "difficulty": 3,
+      "prompt": {
+        "en": "Which statement correctly describes the operation of TCP (Transmission Control Protocol)?",
+        "hi": "टीसीपी (ट्रांसमिशन कंट्रोल प्रोटोकॉल) की कार्यप्रणाली का सही वर्णन कौन सा कथन करता है?"
+      },
+      "options": {
+        "en": [
+          "It is a connectionless protocol that assigns unique addresses to hosts.",
+          "It is a connection-based protocol that guarantees packet delivery and handles flow control.",
+          "It is responsible for deciding the path taken by data packets across networks.",
+          "It broadcasts data simultaneously to all devices on the network."
+        ],
+        "hi": [
+          "यह एक कनेक्शन-रहित प्रोटोकॉल है जो होस्ट्स को अद्वितीय पते प्रदान करता है।",
+          "यह एक कनेक्शन-आधारित प्रोटोकॉल है जो पैकेट डिलीवरी की गारंटी देता है और प्रवाह नियंत्रण को संभालता है।",
+          "यह नेटवर्क में डेटा पैकेट द्वारा तय किए जाने वाले पथ का निर्धारण करने के लिए जिम्मेदार है।",
+          "यह नेटवर्क के सभी उपकरणों पर एक साथ डेटा प्रसारित करता है।"
+        ]
+      },
+      "answerIndex": 1,
+      "explanation": {
+        "en": "TCP is a connection-based protocol that guarantees delivery of data packets, ensures reassembly in correct order, and handles flow control while being unconcerned about the path taken.",
+        "hi": "टीसीपी एक कनेक्शन-आधारित प्रोटोकॉल है जो डेटा पैकेट की डिलीवरी की गारंटी देता है, सही क्रम में जोड़ने को सुनिश्चित करता है और प्रवाह नियंत्रण को संभालता है।"
+      }
+    },
+    {
+      "id": "C12-CS-07",
+      "class": 12,
+      "subject": "cs",
+      "difficulty": 3,
+      "prompt": {
+        "en": "Which IP address class has a default subnet mask of 255.255.0.0 and covers the address range from 128.0.0.0 to 191.255.255.255?",
+        "hi": "किस आईपी एड्रेस क्लास का डिफ़ॉल्ट सबनेट मास्क 255.255.0.0 है और एड्रेस रेंज 128.0.0.0 से 191.255.255.255 तक है?"
+      },
+      "options": {
+        "en": [
+          "Class A",
+          "Class B",
+          "Class C",
+          "Class D"
+        ],
+        "hi": [
+          "क्लास ए (Class A)",
+          "क्लास बी (Class B)",
+          "क्लास सी (Class C)",
+          "क्लास डी (Class D)"
+        ]
+      },
+      "answerIndex": 1,
+      "explanation": {
+        "en": "Class B IP addresses start with bits '10', have an address range from 128.0.0.0 to 191.255.255.255, and use the subnet mask 255.255.0.0.",
+        "hi": "क्लास बी (Class B) आईपी पते बिट '10' से शुरू होते हैं, इनकी रेंज 128.0.0.0 से 191.255.255.255 तक होती है और सबनेट मास्क 255.255.0.0 होता है।"
+      }
+    },
+    {
+      "id": "C12-CS-08",
+      "class": 12,
+      "subject": "cs",
+      "difficulty": 3,
+      "prompt": {
+        "en": "Which command is used by a Network Administrator to set or change a static route in the routing table?",
+        "hi": "रूटिंग टेबल में स्टैटिक रूट को सेट करने या बदलने के लिए नेटवर्क प्रशासक द्वारा किस कमांड का उपयोग किया जाता है?"
+      },
+      "options": {
+        "en": [
+          "IPCONFIG",
+          "PING",
+          "ROUTE",
+          "NETSTAT"
+        ],
+        "hi": [
+          "IPCONFIG",
+          "PING",
+          "ROUTE",
+          "NETSTAT"
+        ]
+      },
+      "answerIndex": 2,
+      "explanation": {
+        "en": "The 'ROUTE' command is manually used by the Network Administrator to change or set the static route in the routing table.",
+        "hi": "रूटिंग टेबल में स्टैटिक रूट को बदलने या सेट करने के लिए नेटवर्क प्रशासक द्वारा 'ROUTE' कमांड का उपयोग किया जाता है।"
+      }
+    },
+    {
+      "id": "C12-CS-09",
+      "class": 12,
+      "subject": "cs",
+      "difficulty": 4,
+      "prompt": {
+        "en": "In Class C IP addressing, how are the Network ID and Host ID bits partitioned, and what is the decimal range of its first octet?",
+        "hi": "क्लास C आईपी एड्रेसिंग में, नेटवर्क आईडी और होस्ट आईडी बिट्स को कैसे विभाजित किया जाता है, और इसके पहले ऑक्टेट की दशमलव रेंज क्या है?"
+      },
+      "options": {
+        "en": [
+          "First 8 bits for Network ID, remaining 24 bits for Host ID; First octet range: 0 to 127",
+          "First 16 bits for Network ID, remaining 16 bits for Host ID; First octet range: 128 to 191",
+          "First 24 bits for Network ID, remaining 8 bits for Host ID; First octet range: 192 to 223",
+          "Undefined Network ID and Host ID; First octet range: 224 to 239"
+        ],
+        "hi": [
+          "नेटवर्क आईडी के लिए पहले 8 बिट्स, होस्ट आईडी के लिए शेष 24 बिट्स; पहले ऑक्टेट की रेंज: 0 से 127",
+          "नेटवर्क आईडी के लिए पहले 16 बिट्स, होस्ट आईडी के लिए शेष 16 बिट्स; पहले ऑक्टेट की रेंज: 128 से 191",
+          "नेटवर्क आईडी के लिए पहले 24 बिट्स, होस्ट आईडी के लिए शेष 8 बिट्स; पहले ऑक्टेट की रेंज: 192 से 223",
+          "अपरिभाषित नेटवर्क आईडी और होस्ट आईडी; पहले ऑक्टेट की रेंज: 224 से 239"
+        ]
+      },
+      "answerIndex": 2,
+      "explanation": {
+        "en": "Class C uses the first 24 bits for Network ID and the remaining 8 bits for Host ID. Its first octet begins with binary '110', giving a decimal starting range of 192 to an ending range of 223.",
+        "hi": "क्लास C नेटवर्क आईडी के लिए पहले 24 बिट्स और होस्ट आईडी के लिए शेष 8 बिट्स का उपयोग करता है। इसके पहले ऑक्टेट की बाइनरी '110' से शुरू होती है, जिससे दशमलव रेंज 192 से 223 होती है।"
+      }
+    },
+    {
+      "id": "C12-CS-10",
+      "class": 12,
+      "subject": "cs",
+      "difficulty": 4,
+      "prompt": {
+        "en": "What binary bit pattern do Class D IP addresses start with, and what is the specific primary use designated for this class?",
+        "hi": "क्लास D आईपी एड्रेस किस बाइनरी बिट पैटर्न से शुरू होते हैं, और इस क्लास के लिए निर्दिष्ट प्राथमिक उपयोग क्या है?"
+      },
+      "options": {
+        "en": [
+          "Starts with '1110'; used for multicasting data to multiple devices simultaneously",
+          "Starts with '1111'; reserved for experimental purposes and research",
+          "Starts with '10'; used for medium-sized networks with 65,536 hosts",
+          "Starts with '0'; used for large-sized networks with over 16 million hosts"
+        ],
+        "hi": [
+          "'1110' से शुरू; एक साथ कई उपकरणों पर डेटा भेजने (मल्टीकास्ट) के लिए उपयोग किया जाता है",
+          "'1111' से शुरू; प्रयोगात्मक उद्देश्यों और अनुसंधान के लिए आरक्षित",
+          "'10' से शुरू; 65,536 होस्ट वाले मध्यम आकार के नेटवर्क के लिए उपयोग किया जाता है",
+          "'0' से शुरू; 1.6 करोड़ से अधिक होस्ट वाले बड़े आकार के नेटवर्क के लिए उपयोग किया जाता है"
+        ]
+      },
+      "answerIndex": 0,
+      "explanation": {
+        "en": "Class D addresses start with the first bits '1110' (decimal range 224 to 239) and have undefined network/host IDs because they are dedicated to multicast operations.",
+        "hi": "क्लास D पते पहले बिट्स '1110' (दशमलव रेंज 224 से 239) से शुरू होते हैं और इनमें नेटवर्क/होस्ट आईडी अपरिभाषित होती हैं क्योंकि इनका उपयोग मल्टीकास्ट के लिए किया जाता है।"
+      }
+    }
+  ]
+}
