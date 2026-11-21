@@ -1,9 +1,8 @@
 /* ============================================================================
    BRAIN DEFENDER — GAME.JS
-   DOS-era / retro-realistic arena simulation, max 3 cannons per subject across
-   8 build pads, level-scaled range, full-screen question pause, flying HUD
-   counters, 100g -> +100 HP repair, Endless Mode (clear cannons, keep gold/
-   mana/score until castle falls), and spinner modal during score submission.
+   Smooth Wave 1 -> Wave 2+ progression, Endless Mode exclusive Lv. 4–5 upgrades
+   for extra subject cannons, 100-Mana Ultimate Storm with dramatic lightning &
+   shockwave animation, 100g -> +100 HP repair, and spinner score submission.
    ============================================================================ */
 
 import {
@@ -19,12 +18,12 @@ import {
 
 const VICTORY_WAVE = 6;
 const WAVE_CLOCK_SECONDS = 90;
-const STORM_MANA_COST = 65;
+const STORM_MANA_COST = 100;
 const REPAIR_GOLD_COST = 100;
 const REPAIR_HP_GAIN = 100;
 const MAX_CANNONS_PER_SUBJECT = 3;
+const STANDARD_SUBJECTS = new Set(["maths", "science", "grammar", "gk"]);
 
-// Lower starting ranges at Level 1, expanding clearly on Level 2 and Level 3
 const BASE_TOWER_SPECS = {
   maths: {
     key: "maths",
@@ -89,7 +88,7 @@ const BASE_TOWER_SPECS = {
     key: "cs",
     label: "Comp. Sc. Node",
     roleTag: "Multi-Chain Core",
-    shortDesc: "Circuit arc • L2+ multi-target chain",
+    shortDesc: "Circuit arc • Lv. 4–5 in Endless Mode",
     cost: 42,
     range: 114,
     rangeStep: 29,
@@ -101,7 +100,6 @@ const BASE_TOWER_SPECS = {
   }
 };
 
-// 8 build pads positioned safely outside pathway lanes
 const BUILD_PADS = [
   { x: 150, y: 125 }, { x: 305, y: 125 }, { x: 460, y: 125 }, { x: 615, y: 125 },
   { x: 225, y: 320 }, { x: 380, y: 320 }, { x: 535, y: 320 }, { x: 685, y: 320 }
@@ -161,10 +159,13 @@ const state = {
   demons: [],
   projectiles: [],
   zapArcs: [],
+  stormEffects: [],
   particles: [],
   popups: [],
   spawnQueue: [],
   spawnDelay: 0,
+  screenShake: 0,
+  stormFlash: 0,
   worldTime: 0,
 
   wrongStreak: 0,
@@ -199,8 +200,20 @@ function getDeployedCountForSubject(subjectKey) {
   return state.towers.filter(t => t.subject === subjectKey).length;
 }
 
+function isExtraSubjectCannon(subjectKey) {
+  return !STANDARD_SUBJECTS.has(subjectKey);
+}
+
+function getMaxTowerLevel(subjectKey) {
+  if (state.endless && isExtraSubjectCannon(subjectKey)) {
+    return 5;
+  }
+  return 3;
+}
+
 function getTowerRangeForLevel(spec, level) {
-  const lvl = Math.max(1, Math.min(3, Number(level) || 1));
+  const maxLvl = getMaxTowerLevel(spec.key);
+  const lvl = Math.max(1, Math.min(maxLvl, Number(level) || 1));
   const step = spec.rangeStep || 28;
   return Math.round(spec.range + (lvl - 1) * step);
 }
@@ -232,6 +245,11 @@ const AudioCue = (() => {
     strike: () => {
       tone(740, "sawtooth", 0.09, 0.05);
       setTimeout(() => tone(1046.5, "sine", 0.14, 0.06), 60);
+    },
+    storm: () => {
+      tone(140, "sawtooth", 0.28, 0.09);
+      setTimeout(() => tone(580, "square", 0.18, 0.07), 55);
+      setTimeout(() => tone(980, "sine", 0.24, 0.08), 120);
     },
     win: () => {
       tone(587.33, "sine", 0.11, 0.075);
@@ -387,7 +405,7 @@ function buildClassTowerDeck(classNum) {
       key: subj,
       label: `${subj.toUpperCase()} Node`,
       roleTag: "Chain Pulse",
-      shortDesc: "Class subject pulse • L2+ chain",
+      shortDesc: "Class subject pulse • Lv. 4–5 in Endless Mode",
       cost: 42,
       range: 114,
       rangeStep: 29,
@@ -402,7 +420,7 @@ function buildClassTowerDeck(classNum) {
       hasRepoBoost: true,
       cost: Math.max(30, spec.cost - 5),
       damage: spec.damage + 2,
-      upgradeDmgBonus: 15
+      upgradeDmgBonus: 16
     };
   });
 
@@ -424,9 +442,12 @@ function renderTowerPicker() {
     const sel = t.key === state.selectedSubject ? "selected" : "";
     const boostCls = t.hasRepoBoost ? "boosted" : "";
     const capCls = isMaxed ? "capped" : "";
-    const tag = t.hasRepoBoost
-      ? `<span class="tower-card-tag">Class Boost</span>`
-      : `<span class="tower-card-tag" style="background:rgba(148,163,184,0.14); color:#cbd5e1;">${t.roleTag}</span>`;
+    const maxLvl = getMaxTowerLevel(t.key);
+    const tag = isExtraSubjectCannon(t.key)
+      ? `<span class="tower-card-tag">${state.endless ? "Endless Lv.5" : "Subject Boost"}</span>`
+      : (t.hasRepoBoost
+        ? `<span class="tower-card-tag">Class Boost</span>`
+        : `<span class="tower-card-tag" style="background:rgba(148,163,184,0.14); color:#cbd5e1;">Max Lv.${maxLvl}</span>`);
 
     return `
       <button type="button" class="tower-card ${sel} ${boostCls} ${capCls}" data-subject="${t.key}">
@@ -551,8 +572,8 @@ function enterArena() {
   const isTest90 = state.mode === "test90";
   document.getElementById("hudTimerChip").style.display = isTest90 ? "flex" : "none";
   document.getElementById("arenaHintText").innerHTML = isTest90
-    ? `<strong>90s Test Mode:</strong> Max <strong>3/subject</strong> across <strong>8 pads</strong> • Lower L1 range grows on upgrade • <strong>100g → +100 HP</strong> • Right answers fire a <strong>Quiz Strike</strong>!`
-    : `Max <strong>3 cannons/subject</strong> across <strong>8 pads</strong> • Lower starting range grows with upgrades • Spend <strong>100g → +100 HP</strong> • Clear <strong>Wave 6</strong>!`;
+    ? `<strong>90s Test Mode:</strong> Max <strong>3/subject</strong> across <strong>8 pads</strong> • Subject cannons unlock <strong>Lv. 4–5</strong> in Endless • <strong>100g → +100 HP</strong>!`
+    : `Max <strong>3 cannons/subject</strong> across <strong>8 pads</strong> • Subject cannons unlock <strong>Lv. 4–5</strong> in Endless Mode • <strong>100g → +100 HP</strong>!`;
 
   buildClassTowerDeck(state.user.classNum);
   resetMatch(false);
@@ -590,14 +611,16 @@ function resetMatch(startEndless) {
   state.modalOpen = false;
   state.submittingScore = false;
 
-  // Endless Mode clears existing deployed cannons while keeping gold, mana & score intact
   state.towers = [];
   state.demons = [];
   state.projectiles = [];
   state.zapArcs = [];
+  state.stormEffects = [];
   state.particles = [];
   state.popups = [];
   state.spawnQueue = [];
+  state.screenShake = 0;
+  state.stormFlash = 0;
 
   lastHudValues = {
     gold: state.gold,
@@ -614,7 +637,7 @@ function resetMatch(startEndless) {
   refreshMastery();
 
   if (startEndless) {
-    spawnPopup(440, 180, "ENDLESS MODE • CANNONS CLEARED • GOLD & SCORE KEPT", "#e879f9");
+    spawnPopup(440, 180, "ENDLESS MODE • SUBJECT CANNONS UNLOCK LV. 5!", "#e879f9");
   }
 
   if (state.mode === "test90") {
@@ -644,7 +667,6 @@ function openQuestionPrompt({ subject, headerText, untimed = false, onSuccess, o
   const q = selectQuestion(subject);
   const seconds = questionDuration(q, untimed);
 
-  // Pause all background simulation & timers immediately when question opens
   state.modalOpen = true;
   clearInterval(state.questionTicker);
 
@@ -888,39 +910,57 @@ function beginWave() {
   waveBtn.textContent = state.mode === "test90" ? `Wave ${state.wave} Running (90s)...` : `Wave ${state.wave} In Progress...`;
   state.spawnQueue = [];
   const activePath = getActivePath();
+  const isTest90 = state.mode === "test90";
 
-  if (state.mode === "siege" && state.wave === 1 && !state.endless) {
-    state.spawnQueue.push({
-      hp: 24,
-      maxHp: 24,
-      speed: 9.05,
-      goldReward: 22,
-      scoreReward: 30,
-      castleDamage: 12,
-      isBoss: false,
-      isScout: true,
-      path: activePath
-    });
-    state.spawnDelay = 0.25;
+  // Smooth Wave 1 -> Wave 2 -> Wave 3+ progression curve
+  if (!isTest90 && !state.endless && state.wave === 1) {
+    for (let i = 0; i < 4; i++) {
+      state.spawnQueue.push({
+        hp: 26,
+        maxHp: 26,
+        speed: 26,
+        goldReward: 8,
+        scoreReward: 22,
+        castleDamage: 10,
+        isBoss: false,
+        isScout: i === 0,
+        path: activePath
+      });
+    }
+    state.spawnDelay = 0.35;
+  } else if (!isTest90 && !state.endless && state.wave === 2) {
+    for (let i = 0; i < 6; i++) {
+      state.spawnQueue.push({
+        hp: 40,
+        maxHp: 40,
+        speed: 34,
+        goldReward: 9,
+        scoreReward: 28,
+        castleDamage: 12,
+        isBoss: false,
+        isScout: false,
+        path: activePath
+      });
+    }
+    state.spawnDelay = 0.3;
   } else {
     const isBossWave = state.wave % 3 === 0;
-    const isTest90 = state.mode === "test90";
     const powerScale = Math.max(1, state.wave - (isTest90 ? 0 : 1));
     const count = isTest90
-      ? (isBossWave ? 5 + state.wave : 5 + Math.round(state.wave * 1.5))
-      : (isBossWave ? 6 + state.wave : 6 + state.wave * 2);
+      ? (isBossWave ? 5 + state.wave : 5 + Math.round(state.wave * 1.4))
+      : (isBossWave ? 5 + state.wave : 5 + Math.round(state.wave * 1.7));
 
     for (let i = 0; i < count; i++) {
       const boss = isBossWave && i === count - 1;
       const miniGuard = isBossWave && i === count - 2 && state.wave >= 6;
       const baseHp = boss
-        ? 220 + powerScale * 95
-        : (miniGuard ? 115 + powerScale * 35 : 36 + powerScale * 22 + Math.pow(powerScale, 2) * 5);
+        ? 210 + powerScale * 90
+        : (miniGuard ? 110 + powerScale * 34 : 34 + powerScale * 20 + Math.pow(powerScale, 2) * 4.6);
       const hp = isTest90 ? Math.round(baseHp * 0.88) : Math.round(baseHp);
 
       const speed = boss
-        ? (isTest90 ? 36 + powerScale * 3.5 : 30 + powerScale * 3.5)
-        : Math.min(122, (isTest90 ? 48 : 42) + powerScale * 6.5);
+        ? Math.min(64, (isTest90 ? 33 : 28) + powerScale * 2.8)
+        : Math.min(115, (isTest90 ? 38 : 30) + powerScale * 5.2);
 
       state.spawnQueue.push({
         hp,
@@ -940,6 +980,20 @@ function beginWave() {
   refreshHud(false);
 }
 
+function buildSkyLightningBolt(targetX, targetY) {
+  const startX = targetX + (Math.random() - 0.5) * 90;
+  const pts = [{ x: startX, y: 0 }];
+  const segments = 6;
+  for (let s = 1; s < segments; s++) {
+    const t = s / segments;
+    const bx = startX + (targetX - startX) * t + (Math.random() - 0.5) * 34;
+    const by = targetY * t;
+    pts.push({ x: bx, y: by });
+  }
+  pts.push({ x: targetX, y: targetY });
+  return pts;
+}
+
 function triggerUltimateStorm() {
   if (state.mana < STORM_MANA_COST || state.modalOpen || state.submittingScore) return;
   const subjects = Object.keys(state.activeTowers);
@@ -947,18 +1001,69 @@ function triggerUltimateStorm() {
 
   openQuestionPrompt({
     subject: pickedSub,
-    headerText: "⚡ ULTIMATE STORM • ANSWER TO UNLEASH",
+    headerText: "⚡ ULTIMATE STORM (100 MANA) • ANSWER TO UNLEASH",
     onSuccess: () => {
       if (state.mana < STORM_MANA_COST) return;
       state.mana -= STORM_MANA_COST;
-      state.demons.forEach(d => {
-        const dmg = d.isBoss ? 40 : 48;
-        d.hp -= dmg;
-        d.hitFlash = 0.16;
-        spawnBurst(d.x, d.y, "#e879f9", 14);
+      state.screenShake = 0.65;
+      state.stormFlash = 0.55;
+      AudioCue.storm();
+
+      // Central arena shockwave + targeted sky lightning bolts on every demon
+      state.stormEffects.push({
+        type: "ring",
+        x: 440,
+        y: 225,
+        radius: 18,
+        maxRadius: 460,
+        life: 0.65,
+        maxLife: 0.65,
+        color: "#e879f9"
       });
-      state.score += 50;
-      spawnPopup(440, 195, "ARCANE STORM!", "#e879f9");
+
+      state.demons.forEach((d, idx) => {
+        const dmg = d.isBoss ? 72 : 95;
+        d.hp -= dmg;
+        d.hitFlash = 0.28;
+        d.freezeTimer = Math.max(d.freezeTimer || 0, 0.75);
+
+        state.stormEffects.push({
+          type: "bolt",
+          points: buildSkyLightningBolt(d.x, d.y),
+          life: 0.55,
+          maxLife: 0.55,
+          color: idx % 2 === 0 ? "#38bdf8" : "#f0abfc"
+        });
+        state.stormEffects.push({
+          type: "ring",
+          x: d.x,
+          y: d.y,
+          radius: 8,
+          maxRadius: 68,
+          life: 0.48,
+          maxLife: 0.48,
+          color: "#fde047"
+        });
+        spawnBurst(d.x, d.y, "#e879f9", 22);
+        spawnPopup(d.x, d.y - 22, `⚡ -${dmg}`, "#f0abfc");
+      });
+
+      // If arena is temporarily clear, still strike dramatic bolts across the lane
+      if (state.demons.length === 0) {
+        [240, 440, 640].forEach((bx, idx) => {
+          state.stormEffects.push({
+            type: "bolt",
+            points: buildSkyLightningBolt(bx, 222),
+            life: 0.55,
+            maxLife: 0.55,
+            color: idx % 2 === 0 ? "#38bdf8" : "#f0abfc"
+          });
+          spawnBurst(bx, 222, "#38bdf8", 18);
+        });
+      }
+
+      state.score += 75;
+      spawnPopup(440, 175, "⚡ CATACLYSMIC ARCANE STORM! (-100 MANA)", "#f0abfc");
       refreshHud(true);
     }
   });
@@ -976,21 +1081,27 @@ function handleBoardClick(evt) {
       const existing = state.towers.find(t => t.padIndex === idx);
 
       if (existing) {
-        if (existing.level >= 3) {
-          spawnPopup(existing.x, existing.y - 22, "MAX LEVEL", existing.primary);
+        const maxLvl = getMaxTowerLevel(existing.subject);
+        if (existing.level >= maxLvl) {
+          const hint = (!state.endless && isExtraSubjectCannon(existing.subject))
+            ? "MAX LV.3 (LV.5 IN ENDLESS)"
+            : `MAX LEVEL (${maxLvl})`;
+          spawnPopup(existing.x, existing.y - 22, hint, existing.primary);
           return;
         }
         const cfg = state.activeTowers[existing.subject] || BASE_TOWER_SPECS[existing.subject];
+        const nextLvl = existing.level + 1;
         openQuestionPrompt({
           subject: existing.subject,
-          headerText: `UPGRADE ${cfg.label.toUpperCase()} → LV.${existing.level + 1}`,
+          headerText: `UPGRADE ${cfg.label.toUpperCase()} → LV.${nextLvl}${nextLvl >= 4 ? " (ENDLESS OVERDRIVE)" : ""}`,
           onSuccess: (swift) => {
             existing.level++;
             existing.range = getTowerRangeForLevel(cfg, existing.level);
-            existing.damage += (cfg.upgradeDmgBonus || 9) + (swift ? 4 : 0);
-            existing.fireRate = Math.max(0.34, existing.fireRate * (cfg.hasRepoBoost ? 0.82 : 0.86));
+            const endlessScale = existing.level >= 4 ? 1.45 : 1;
+            existing.damage += Math.round(((cfg.upgradeDmgBonus || 9) + (swift ? 4 : 0)) * endlessScale);
+            existing.fireRate = Math.max(0.26, existing.fireRate * (cfg.hasRepoBoost ? 0.82 : 0.86));
             AudioCue.build();
-            spawnBurst(existing.x, existing.y, existing.primary, 18);
+            spawnBurst(existing.x, existing.y, existing.primary, existing.level >= 4 ? 26 : 18);
             spawnPopup(existing.x, existing.y - 24, `LV.${existing.level} • RANGE ${existing.range}`, existing.primary);
           }
         });
@@ -1050,6 +1161,8 @@ function handleBoardClick(evt) {
 function stepSimulation(dt) {
   if (state.modalOpen || state.submittingScore) return;
   state.worldTime += dt;
+  if (state.screenShake > 0) state.screenShake = Math.max(0, state.screenShake - dt);
+  if (state.stormFlash > 0) state.stormFlash = Math.max(0, state.stormFlash - dt);
 
   if (state.mode === "test90" && state.waveActive) {
     state.waveTimeLeft = Math.max(0, state.waveTimeLeft - dt);
@@ -1088,8 +1201,8 @@ function stepSimulation(dt) {
         hitFlash: 0
       });
       state.spawnDelay = state.mode === "test90"
-        ? Math.max(0.32, 0.85 - state.wave * 0.06)
-        : (state.wave === 1 ? 1.35 : Math.max(0.38, 1.05 - state.wave * 0.08));
+        ? Math.max(0.35, 0.92 - state.wave * 0.05)
+        : (state.wave === 1 ? 1.12 : (state.wave === 2 ? 0.96 : Math.max(0.4, 0.94 - state.wave * 0.05)));
     }
   }
 
@@ -1158,15 +1271,17 @@ function stepSimulation(dt) {
           spawnBurst(foe.x, foe.y, t.primary, 6);
           state.zapArcs.push({ x1: t.x, y1: t.y, x2: foe.x, y2: foe.y, color: t.primary, life: 0.14 });
 
-          const maxChains = t.level >= 3 ? 2 : (t.level === 2 ? 1 : 0);
+          const maxChains = t.level >= 5 ? 4 : (t.level === 4 ? 3 : (t.level >= 3 ? 2 : (t.level === 2 ? 1 : 0)));
           if (maxChains > 0) {
+            const chainRadius = t.level >= 4 ? 120 : 95;
             const chainTargets = state.demons
-              .filter(other => other !== foe && Math.hypot(other.x - foe.x, other.y - foe.y) <= 95)
+              .filter(other => other !== foe && Math.hypot(other.x - foe.x, other.y - foe.y) <= chainRadius)
               .slice(0, maxChains);
 
             let prevPt = foe;
             chainTargets.forEach(neighbor => {
-              const chainDmg = Math.round(t.damage * (t.level >= 3 ? 0.72 : 0.55));
+              const chainMult = t.level >= 5 ? 0.85 : (t.level >= 3 ? 0.72 : 0.55);
+              const chainDmg = Math.round(t.damage * chainMult);
               neighbor.hp -= chainDmg;
               neighbor.hitFlash = 0.12;
               state.zapArcs.push({
@@ -1236,6 +1351,16 @@ function stepSimulation(dt) {
   for (let i = state.zapArcs.length - 1; i >= 0; i--) {
     state.zapArcs[i].life -= dt;
     if (state.zapArcs[i].life <= 0) state.zapArcs.splice(i, 1);
+  }
+
+  for (let i = state.stormEffects.length - 1; i >= 0; i--) {
+    const ef = state.stormEffects[i];
+    ef.life -= dt;
+    if (ef.type === "ring") {
+      const progress = 1 - Math.max(0, ef.life / ef.maxLife);
+      ef.radius = 10 + (ef.maxRadius - 10) * progress;
+    }
+    if (ef.life <= 0) state.stormEffects.splice(i, 1);
   }
 
   for (let i = state.particles.length - 1; i >= 0; i--) {
@@ -1402,6 +1527,12 @@ function renderLoop(now) {
 }
 
 function drawScene() {
+  ctx.save();
+  if (state.screenShake > 0) {
+    const mag = state.screenShake * 11;
+    ctx.translate((Math.random() - 0.5) * mag, (Math.random() - 0.5) * mag);
+  }
+
   ctx.clearRect(0, 0, canvas.width, canvas.height);
 
   const assaultActive = getActivePath() === PATH_ASSAULT;
@@ -1418,7 +1549,6 @@ function drawScene() {
   ctx.fillStyle = skyGrad;
   ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-  // Retro starfield & subtle DOS scan/grid lines
   for (let i = 0; i < 32; i++) {
     const sx = (i * 179) % canvas.width;
     const sy = (i * 101) % canvas.height;
@@ -1436,7 +1566,6 @@ function drawScene() {
     ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(canvas.width, y); ctx.stroke();
   }
 
-  // Shaded stone/arcane path with DOS-style border & animated lane chevrons
   const activePath = getActivePath();
   ctx.lineCap = "round";
   ctx.lineJoin = "round";
@@ -1516,6 +1645,33 @@ function drawScene() {
     ctx.restore();
   });
 
+  // Dramatic Ultimate Storm sky lightning bolts & expanding shockwave rings
+  state.stormEffects.forEach(ef => {
+    const alpha = Math.max(0, ef.life / ef.maxLife);
+    ctx.save();
+    ctx.globalAlpha = alpha;
+    if (ef.type === "bolt" && ef.points?.length) {
+      ctx.shadowColor = ef.color;
+      ctx.shadowBlur = 18;
+      ctx.strokeStyle = ef.color;
+      ctx.lineWidth = 5;
+      ctx.beginPath();
+      ef.points.forEach((pt, idx) => (idx === 0 ? ctx.moveTo(pt.x, pt.y) : ctx.lineTo(pt.x, pt.y)));
+      ctx.stroke();
+
+      ctx.strokeStyle = "#ffffff";
+      ctx.lineWidth = 2;
+      ctx.stroke();
+    } else if (ef.type === "ring") {
+      ctx.strokeStyle = ef.color;
+      ctx.lineWidth = 3.5;
+      ctx.beginPath();
+      ctx.arc(ef.x, ef.y, ef.radius, 0, Math.PI * 2);
+      ctx.stroke();
+    }
+    ctx.restore();
+  });
+
   state.projectiles.forEach(p => {
     ctx.save();
     ctx.shadowColor = p.color;
@@ -1537,6 +1693,11 @@ function drawScene() {
   });
   ctx.globalAlpha = 1;
 
+  if (state.stormFlash > 0) {
+    ctx.fillStyle = `rgba(232, 121, 249, ${(state.stormFlash * 0.42).toFixed(2)})`;
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+  }
+
   state.popups.forEach(pop => {
     ctx.globalAlpha = Math.min(1, pop.life);
     ctx.fillStyle = "#040914";
@@ -1547,6 +1708,7 @@ function drawScene() {
     ctx.fillText(pop.text, pop.x, pop.y);
   });
   ctx.globalAlpha = 1;
+  ctx.restore();
 }
 
 function drawCastleRetro3D(x, y, w, h) {
@@ -1620,6 +1782,14 @@ function drawTowerRetro3D(t) {
   ctx.save();
   const recoilOffset = (t.recoil || 0) * 4.5;
 
+  if (t.level >= 4) {
+    ctx.beginPath();
+    ctx.arc(t.x, t.y, 24 + Math.sin(state.worldTime * 5) * 2, 0, Math.PI * 2);
+    ctx.strokeStyle = "#fde047";
+    ctx.lineWidth = 1.6;
+    ctx.stroke();
+  }
+
   ctx.fillStyle = "rgba(0, 0, 0, 0.5)";
   ctx.beginPath();
   ctx.ellipse(t.x + 3, t.y + 16, 21, 9, 0, 0, Math.PI * 2);
@@ -1632,7 +1802,7 @@ function drawTowerRetro3D(t) {
   ctx.arc(t.x, t.y, 20, 0, Math.PI * 2);
   ctx.fillStyle = baseGrad;
   ctx.fill();
-  ctx.strokeStyle = t.primary;
+  ctx.strokeStyle = t.level >= 4 ? "#fde047" : t.primary;
   ctx.lineWidth = 2.5;
   ctx.stroke();
 
