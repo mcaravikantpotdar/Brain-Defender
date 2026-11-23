@@ -1,48 +1,42 @@
 /* ============================================================================
    BRAIN DEFENDER — QUESTION-LOADER.JS
-   Reads manifest.json + chapter JSONs via raw.githubusercontent.com first to
-   avoid burning the 60/hour unauthenticated GitHub REST API rate limit.
+   Loads strictly from Multi-Class-Quiz (jsons/<class_name>/<subject_name>/*.json),
+   ignoring local questions.json and deriving subject labels from folder names.
    ============================================================================ */
 
-export const REPO_OWNER = "mcaravikantpotdar";
-export const REPO_NAME = "Brain-Defender";
-export const REPO_BRANCH = "main";
-export const REPO_CACHE_KEY = "brain_defender_class_repo_cache_v2";
+export const QUIZ_REPO_OWNER = "mcaravikantpotdar";
+export const QUIZ_REPO_NAME = "Multi-Class-Quiz";
+export const QUIZ_REPO_BRANCH = "main";
+export const REPO_CACHE_KEY = "brain_defender_multi_class_quiz_cache_v1";
 export const REPO_CACHE_TTL_MS = 6 * 60 * 60 * 1000;
 
 export function canonicalSubject(rawVal) {
   const s = String(rawVal || "").toLowerCase().trim();
-  if (!s) return null;
+  if (!s) return "general";
 
-  // 1. Computer Science / SQL / PL-SQL / IT first
   if (
-    /\b(pl\/?sql|sql|dbms|rdbms|database|cursor|trigger|stored\s*procedure|function|package|exception|sqlplus|oracle|python|java|c\+\+|html|css|javascript|algorithm|flowchart|network|cyber|comp\.?\s*sc\.?|computer|it)\b/i.test(s) ||
+    /\b(pl\/?sql|sql|dbms|rdbms|database|cursor|trigger|stored\s*procedure|function|package|exception|sqlplus|oracle|python|java|c\+\+|html|css|javascript|algorithm|flowchart|network|cyber|comp\.?\s*sc\.?|computer|it|web\s*design|php)\b/i.test(s) ||
     s === "cs"
   ) {
     return "cs";
   }
 
-  // 2. Mathematics
   if (/\b(math|maths|mathematics|algebra|geometry|trigonometry|calculus|arithmetic|गणित)\b/i.test(s)) {
     return "maths";
   }
 
-  // 3. Science
   if (/\b(sci|science|physics|chemistry|biology|विज्ञान|भौतिक|रसायन|जीव)\b/i.test(s)) {
     return "science";
   }
 
-  // 4. Moral Education
   if (/\b(moral|value|ethics|civics|नैतिक)\b/i.test(s)) {
     return "moral";
   }
 
-  // 5. General Knowledge / Social Studies
   if (/\b(gk|general\s*knowledge|social|sst|history|geography|सामान्य\s*ज्ञान)\b/i.test(s)) {
     return "gk";
   }
 
-  // 6. Grammar / Languages
   if (
     /\b(gram|grammar|english|hindi|sanskrit|व्याकरण|अंग्रेजी|हिन्दी|हिंदी)\b/i.test(s) ||
     /\b(language\s*(arts|paper|subject)|lang)\b/i.test(s)
@@ -50,7 +44,8 @@ export function canonicalSubject(rawVal) {
     return "grammar";
   }
 
-  return null;
+  // Treat any other folder/subject name directly as its own normalized subject key
+  return s.replace(/[^a-z0-9]+/g, "_").replace(/^_|_$/g, "") || "general";
 }
 
 export function inferClassFromText(text) {
@@ -79,11 +74,16 @@ export function normalizeRepoPayload(data, path) {
   const items = Array.isArray(data) ? data : (Array.isArray(data?.questions) ? data.questions : []);
   if (!items.length) return [];
 
-  const parts = String(path || "").split("/");
+  // Expected layout: jsons/<class_name>/<subject_name>/<chapter_wise_json_files.json>
+  const parts = String(path || "").split("/").filter(Boolean);
+  const hasJsonsRoot = parts[0]?.toLowerCase() === "jsons";
+  const classSegment = hasJsonsRoot ? parts[1] : parts[0];
+  const subjectSegment = hasJsonsRoot ? parts[2] : parts[1];
+
   const meta = data?.metadata || {};
   const metaNote = `${meta.note || ""} ${meta.chapter_title || ""} ${meta.topic || ""}`;
   const inferredClass =
-    inferClassFromText(parts[0] || "") ||
+    inferClassFromText(classSegment || "") ||
     inferClassFromText(path) ||
     inferClassFromText(metaNote) ||
     Number(meta.class) ||
@@ -95,12 +95,12 @@ export function normalizeRepoPayload(data, path) {
     parts[parts.length - 1]?.replace(/\.json$/i, "") ||
     "Chapter";
 
-  const inferredSubject =
-    canonicalSubject(meta.subject) ||
-    parts.slice(0, -1).map(canonicalSubject).find(Boolean) ||
-    canonicalSubject(chapterName) ||
-    "cs";
+  const subjectLabel =
+    (subjectSegment && !/\.json$/i.test(subjectSegment) ? subjectSegment.trim() : "") ||
+    (typeof meta.subject === "string" && meta.subject.trim()) ||
+    chapterName;
 
+  const normalizedSubject = canonicalSubject(subjectLabel);
   const letterOrder = ["a", "b", "c", "d"];
   const out = [];
 
@@ -142,9 +142,10 @@ export function normalizeRepoPayload(data, path) {
     if (enOpts.length < 2) return;
 
     out.push({
-      id: `GH-${inferredClass}-${inferredSubject}-${raw.question_id || raw.id || idx + 1}-${idx}`,
+      id: `MCQ-${inferredClass}-${normalizedSubject}-${raw.question_id || raw.id || idx + 1}-${idx}`,
       class: inferredClass,
-      subject: inferredSubject,
+      subject: normalizedSubject,
+      subjectLabel,
       chapter: chapterName,
       sourceType: "repo",
       difficulty: inferDifficultyFromIndex(idx, items.length, raw.difficulty),
@@ -167,46 +168,45 @@ export function normalizeRepoPayload(data, path) {
   return out;
 }
 
-async function readManifestFilePaths() {
+async function readQuizRepoManifestPaths() {
   const stamp = Date.now();
-  try {
-    const localResp = await fetch(`./manifest.json?t=${stamp}`, { cache: "no-store" });
-    if (localResp.ok) {
-      const data = await localResp.json();
-      if (Array.isArray(data?.files)) {
-        return data.files.map(String).filter(p => /\.json$/i.test(p));
-      }
-    }
-  } catch (_) {}
+  const urls = [
+    `./manifest.json?t=${stamp}`,
+    `https://raw.githubusercontent.com/${QUIZ_REPO_OWNER}/${QUIZ_REPO_NAME}/${QUIZ_REPO_BRANCH}/manifest.json?t=${stamp}`
+  ];
 
-  try {
-    const rawManifestUrl = `https://raw.githubusercontent.com/${REPO_OWNER}/${REPO_NAME}/${REPO_BRANCH}/manifest.json?t=${stamp}`;
-    const remoteResp = await fetch(rawManifestUrl, { cache: "no-store" });
-    if (remoteResp.ok) {
-      const data = await remoteResp.json();
-      if (Array.isArray(data?.files)) {
-        return data.files.map(String).filter(p => /\.json$/i.test(p));
+  for (const url of urls) {
+    try {
+      const resp = await fetch(url, { cache: "no-store" });
+      if (resp.ok) {
+        const data = await resp.json();
+        if (Array.isArray(data?.files)) {
+          return data.files
+            .map(String)
+            .filter(p => /^jsons\/.+\.json$/i.test(p.replace(/^\/+/, "")));
+        }
       }
-    }
-  } catch (_) {}
-
+    } catch (_) {}
+  }
   return [];
 }
 
-async function listClassSubjectJsonPathsViaApi(classFolder, subject) {
-  const folderPath = `${classFolder}/${subject}`;
-  const apiUrl = `https://api.github.com/repos/${REPO_OWNER}/${REPO_NAME}/contents/${encodeURIComponent(folderPath)}?ref=${REPO_BRANCH}`;
-  const resp = await fetch(apiUrl);
-  if (resp.status === 404) return [];
+async function listQuizRepoJsonPathsViaTree() {
+  const treeUrl = `https://api.github.com/repos/${QUIZ_REPO_OWNER}/${QUIZ_REPO_NAME}/git/trees/${QUIZ_REPO_BRANCH}?recursive=1`;
+  const resp = await fetch(treeUrl);
   if (resp.status === 403 || resp.status === 429) {
     throw new Error(`RATE_LIMITED_${resp.status}`);
   }
-  if (!resp.ok) throw new Error(`GitHub folder HTTP ${resp.status}`);
-  const entries = await resp.json();
-  if (!Array.isArray(entries)) return [];
-  return entries
-    .filter(item => item.type === "file" && /\.json$/i.test(item.name))
-    .map(item => item.path);
+  if (!resp.ok) {
+    throw new Error(`GitHub tree HTTP ${resp.status}`);
+  }
+  const payload = await resp.json();
+  if (!Array.isArray(payload?.tree)) return [];
+
+  // Strict directory pattern: jsons/<class_name>/<subject_name>/<chapter_wise_json_files.json>
+  return payload.tree
+    .filter(node => node.type === "blob" && /^jsons\/[^/]+\/[^/]+\/[^/]+\.json$/i.test(node.path))
+    .map(node => node.path);
 }
 
 export async function fetchGitHubClassQuestions(forceRefresh = false) {
@@ -224,18 +224,11 @@ export async function fetchGitHubClassQuestions(forceRefresh = false) {
     }
   } catch (_) {}
 
-  let jsonPaths = await readManifestFilePaths();
+  let jsonPaths = await readQuizRepoManifestPaths();
 
   if (jsonPaths.length === 0) {
-    const classFolders = [6, 7, 8, 9, 10, 11, 12].map(n => `class-${n}`);
-    const subjects = ["maths", "science", "grammar", "gk", "cs", "moral"];
-    const targetFolders = classFolders.flatMap(cf => subjects.map(sub => ({ cf, sub })));
-
     try {
-      const pathBatches = await Promise.all(
-        targetFolders.map(({ cf, sub }) => listClassSubjectJsonPathsViaApi(cf, sub))
-      );
-      jsonPaths = Array.from(new Set(pathBatches.flat()));
+      jsonPaths = await listQuizRepoJsonPathsViaTree();
     } catch (err) {
       if (String(err?.message || "").startsWith("RATE_LIMITED_") && staleCachedItems.length > 0) {
         return staleCachedItems;
@@ -249,15 +242,7 @@ export async function fetchGitHubClassQuestions(forceRefresh = false) {
     jsonPaths.map(async p => {
       const cleanPath = String(p).replace(/^\/+/, "");
       try {
-        const localResp = await fetch(`./${encodeURI(cleanPath)}?t=${stamp}`, { cache: "no-store" });
-        if (localResp.ok) {
-          const json = await localResp.json();
-          return normalizeRepoPayload(json, cleanPath);
-        }
-      } catch (_) {}
-
-      try {
-        const rawUrl = `https://raw.githubusercontent.com/${REPO_OWNER}/${REPO_NAME}/${REPO_BRANCH}/${encodeURI(cleanPath)}?t=${stamp}`;
+        const rawUrl = `https://raw.githubusercontent.com/${QUIZ_REPO_OWNER}/${QUIZ_REPO_NAME}/${QUIZ_REPO_BRANCH}/${encodeURI(cleanPath)}?t=${stamp}`;
         const rawResp = await fetch(rawUrl, { cache: "no-store" });
         if (!rawResp.ok) return [];
         const json = await rawResp.json();
@@ -280,41 +265,7 @@ export async function fetchGitHubClassQuestions(forceRefresh = false) {
 }
 
 export async function loadCombinedQuestionBank(forceRefresh = false, isDemo = false) {
-  let baseItems = [];
-  try {
-    const resp = await fetch("./questions.json", { cache: "no-store" });
-    if (resp.ok) {
-      const data = await resp.json();
-      baseItems = (Array.isArray(data.questions) ? data.questions : [])
-        .filter(
-          item =>
-            item &&
-            item.subject &&
-            item.prompt &&
-            item.prompt.en &&
-            item.options &&
-            Array.isArray(item.options.en) &&
-            item.options.en.length >= 2 &&
-            typeof item.answerIndex === "number"
-        )
-        .map(item => ({
-          ...item,
-          subject: canonicalSubject(item.subject) || item.subject,
-          sourceType: "base"
-        }));
-    }
-  } catch (err) {
-    console.warn("Base questions.json load issue:", err);
-  }
-
-  if (isDemo) {
-    return {
-      questions: baseItems,
-      repoLoadedCount: 0,
-      repoSyncLabel: "Demo Bank: Root JSON + Math"
-    };
-  }
-
+  // Intentionally ignore local questions.json and read only from Multi-Class-Quiz
   let repoItems = [];
   try {
     repoItems = await fetchGitHubClassQuestions(forceRefresh);
@@ -322,17 +273,18 @@ export async function loadCombinedQuestionBank(forceRefresh = false, isDemo = fa
     repoItems = [];
   }
 
-  const combined = [...repoItems, ...baseItems];
   window.__BD_DEBUG__ = {
-    questions: combined,
+    questions: repoItems,
     repoItems,
-    baseItems
+    baseItems: []
   };
 
   return {
-    questions: combined,
+    questions: repoItems,
     repoLoadedCount: repoItems.length,
-    repoSyncLabel: repoItems.length > 0 ? `Class JSONs: ${repoItems.length} Qs` : "Bank: Base + Math"
+    repoSyncLabel: repoItems.length > 0
+      ? `Multi-Class-Quiz: ${repoItems.length} Qs`
+      : "Multi-Class-Quiz: 0 Qs"
   };
 }
 
