@@ -1,8 +1,10 @@
 /* ============================================================================
    BRAIN DEFENDER — GAME.JS
-   Smooth Wave 1 -> Wave 2+ progression, Endless Mode exclusive Lv. 4–5 upgrades
-   for extra subject cannons, 100-Mana Ultimate Storm with dramatic lightning &
-   shockwave animation, 100g -> +100 HP repair, and spinner score submission.
+   Smooth Wave 1 -> Wave 2+ progression, max 5 cannons per subject tile,
+   dynamic class tiles named after subject folders, Endless Mode exclusive
+   Lv. 4–5 upgrades for extra subject cannons, 100-Mana Ultimate Storm with
+   dramatic lightning & shockwave animation, 100g -> +100 HP repair, and
+   spinner score submission.
    ============================================================================ */
 
 import {
@@ -21,7 +23,7 @@ const WAVE_CLOCK_SECONDS = 90;
 const STORM_MANA_COST = 100;
 const REPAIR_GOLD_COST = 100;
 const REPAIR_HP_GAIN = 100;
-const MAX_CANNONS_PER_SUBJECT = 3;
+const MAX_CANNONS_PER_SUBJECT = 5;
 const STANDARD_SUBJECTS = new Set(["maths", "science", "grammar", "gk"]);
 
 const BASE_TOWER_SPECS = {
@@ -153,7 +155,7 @@ const state = {
   modalOpen: false,
   submittingScore: false,
 
-  selectedSubject: "maths",
+  selectedSubject: "",
   hoveredPad: -1,
   towers: [],
   demons: [],
@@ -188,6 +190,13 @@ let lastHudValues = {
   mana: state.mana,
   score: state.score
 };
+
+function ensureStatBucket(subKey) {
+  if (!subKey) return;
+  if (!state.stats[subKey]) {
+    state.stats[subKey] = { right: 0, asked: 0 };
+  }
+}
 
 function getActivePath() {
   if (state.mode === "test90" || state.endless || state.wave >= 5 || state.wave % 3 === 0) {
@@ -322,10 +331,10 @@ function selectQuestion(subject) {
 
   let subPool = state.questions.filter(q => (canonicalSubject(q.subject) || q.subject) === normalizedSub);
   if (subPool.length === 0) {
-    subPool = state.questions.filter(q => {
-      const s = canonicalSubject(q.subject) || q.subject;
-      return s === "cs" || s === "maths";
-    });
+    subPool = state.questions.filter(q => Number(q.class) === cls);
+  }
+  if (subPool.length === 0) {
+    subPool = state.questions.slice();
   }
   if (subPool.length === 0) {
     return prepareShuffledQuestion(generateProceduralMath(cls, tier, state.recentGenKeys));
@@ -375,66 +384,76 @@ function prepareShuffledQuestion(raw) {
 }
 
 /* ============================================================================
-4. DYNAMIC CLASS TOWER DECK (MAX 3 PER SUBJECT ACROSS 8 PADS)
+4. DYNAMIC CLASS TOWER DECK (MAX 5 PER SUBJECT ACROSS 8 PADS)
    ============================================================================ */
 function buildClassTowerDeck(classNum) {
   const cls = Number(classNum) || 10;
   const deck = {};
+  const extraPalette = [
+    { primary: "#2dd4bf", accent: "#99f6e4", roleTag: "Multi-Chain Core", shortDesc: "Subject arc • Lv. 4–5 in Endless Mode" },
+    { primary: "#f472b6", accent: "#fbcfe8", roleTag: "Pulse Burst", shortDesc: "Subject pulse • Lv. 4–5 in Endless Mode" },
+    { primary: "#60a5fa", accent: "#bfdbfe", roleTag: "Arc Volley", shortDesc: "Subject volley • Lv. 4–5 in Endless Mode" }
+  ];
+  let extraIdx = 0;
 
-  const classRepoSubjects = new Set(
-    state.questions
-      .filter(q => q.sourceType === "repo" && Number(q.class) === cls)
-      .map(q => canonicalSubject(q.subject) || q.subject)
-  );
+  state.questions
+    .filter(q => q.sourceType === "repo" && Number(q.class) === cls)
+    .forEach(q => {
+      const subjKey = canonicalSubject(q.subject) || q.subject;
+      if (!subjKey || subjKey === "moral" || deck[subjKey]) return;
 
-  ["maths", "science", "grammar", "gk"].forEach(subj => {
-    const base = BASE_TOWER_SPECS[subj];
-    const hasRepoBoost = classRepoSubjects.has(subj);
-    deck[subj] = {
-      ...base,
-      hasRepoBoost,
-      cost: hasRepoBoost ? Math.max(28, base.cost - 6) : base.cost,
-      damage: hasRepoBoost ? base.damage + 2 : base.damage,
-      upgradeDmgBonus: hasRepoBoost ? 14 : 9
-    };
-  });
+      ensureStatBucket(subjKey);
+      const label = String(q.subjectLabel || subjKey).trim();
+      const base = BASE_TOWER_SPECS[subjKey];
 
-  classRepoSubjects.forEach(subj => {
-    if (deck[subj] || subj === "moral") return;
-    const spec = BASE_TOWER_SPECS[subj] || {
-      key: subj,
-      label: `${subj.toUpperCase()} Node`,
-      roleTag: "Chain Pulse",
-      shortDesc: "Class subject pulse • Lv. 4–5 in Endless Mode",
-      cost: 42,
-      range: 114,
-      rangeStep: 29,
-      fireRate: 0.74,
-      damage: 11,
-      primary: "#2dd4bf",
-      accent: "#99f6e4",
-      isBase: false
-    };
-    deck[subj] = {
-      ...spec,
-      hasRepoBoost: true,
-      cost: Math.max(30, spec.cost - 5),
-      damage: spec.damage + 2,
-      upgradeDmgBonus: 16
-    };
-  });
+      if (base) {
+        deck[subjKey] = {
+          ...base,
+          label,
+          hasRepoBoost: true,
+          cost: Math.max(28, base.cost - 4),
+          damage: base.damage + 2,
+          upgradeDmgBonus: isExtraSubjectCannon(subjKey) ? 16 : 12
+        };
+      } else {
+        const pal = extraPalette[extraIdx++ % extraPalette.length];
+        deck[subjKey] = {
+          key: subjKey,
+          label,
+          roleTag: pal.roleTag,
+          shortDesc: pal.shortDesc,
+          cost: 42,
+          range: 114,
+          rangeStep: 29,
+          fireRate: 0.74,
+          damage: 13,
+          upgradeDmgBonus: 16,
+          primary: pal.primary,
+          accent: pal.accent,
+          isBase: false,
+          hasRepoBoost: true
+        };
+      }
+    });
 
   state.activeTowers = deck;
+  const keys = Object.keys(deck);
   if (!deck[state.selectedSubject]) {
-    state.selectedSubject = Object.keys(deck)[0] || "maths";
+    state.selectedSubject = keys[0] || "";
   }
   renderTowerPicker();
+  refreshMastery();
 }
 
 function renderTowerPicker() {
   const container = document.getElementById("towerPicker");
   const entries = Object.values(state.activeTowers);
   const openPads = Math.max(0, BUILD_PADS.length - state.towers.length);
+
+  if (entries.length === 0) {
+    container.innerHTML = `<div class="hint-text" style="padding:8px 4px;">No subject JSON folders found for Class ${state.user?.classNum || 10} in Multi-Class-Quiz.</div>`;
+    return;
+  }
 
   container.innerHTML = entries.map((t, idx) => {
     const deployed = getDeployedCountForSubject(t.key);
@@ -444,10 +463,8 @@ function renderTowerPicker() {
     const capCls = isMaxed ? "capped" : "";
     const maxLvl = getMaxTowerLevel(t.key);
     const tag = isExtraSubjectCannon(t.key)
-      ? `<span class="tower-card-tag">${state.endless ? "Endless Lv.5" : "Subject Boost"}</span>`
-      : (t.hasRepoBoost
-        ? `<span class="tower-card-tag">Class Boost</span>`
-        : `<span class="tower-card-tag" style="background:rgba(148,163,184,0.14); color:#cbd5e1;">Max Lv.${maxLvl}</span>`);
+      ? `<span class="tower-card-tag">${state.endless ? "Endless Lv.5" : "Subject Tile"}</span>`
+      : `<span class="tower-card-tag" style="background:rgba(148,163,184,0.14); color:#cbd5e1;">Max Lv.${maxLvl}</span>`;
 
     return `
       <button type="button" class="tower-card ${sel} ${boostCls} ${capCls}" data-subject="${t.key}">
@@ -572,8 +589,8 @@ function enterArena() {
   const isTest90 = state.mode === "test90";
   document.getElementById("hudTimerChip").style.display = isTest90 ? "flex" : "none";
   document.getElementById("arenaHintText").innerHTML = isTest90
-    ? `<strong>90s Test Mode:</strong> Max <strong>3/subject</strong> across <strong>8 pads</strong> • Subject cannons unlock <strong>Lv. 4–5</strong> in Endless • <strong>100g → +100 HP</strong>!`
-    : `Max <strong>3 cannons/subject</strong> across <strong>8 pads</strong> • Subject cannons unlock <strong>Lv. 4–5</strong> in Endless Mode • <strong>100g → +100 HP</strong>!`;
+    ? `<strong>90s Test Mode:</strong> Max <strong>${MAX_CANNONS_PER_SUBJECT}/subject</strong> across <strong>8 pads</strong> • Subject cannons unlock <strong>Lv. 4–5</strong> in Endless • <strong>100g → +100 HP</strong>!`
+    : `Max <strong>${MAX_CANNONS_PER_SUBJECT} cannons/subject</strong> across <strong>8 pads</strong> • Subject cannons unlock <strong>Lv. 4–5</strong> in Endless Mode • <strong>100g → +100 HP</strong>!`;
 
   buildClassTowerDeck(state.user.classNum);
   resetMatch(false);
@@ -680,7 +697,8 @@ function openQuestionPrompt({ subject, headerText, untimed = false, onSuccess, o
     onFail
   };
 
-  document.getElementById("qSubjectBadge").textContent = headerText || `${subject.toUpperCase()}`;
+  const displaySub = q.subjectLabel || headerText || `${subject.toUpperCase()}`;
+  document.getElementById("qSubjectBadge").textContent = headerText || displaySub.toUpperCase();
   document.getElementById("qTierBadge").textContent =
     subject === "moral" ? "Moral Values • Untimed" : tierLabel(q.difficulty || computeTier());
 
@@ -818,11 +836,10 @@ function resolveQuestion(choiceIdx) {
   const isRight = choiceIdx === q.shuffledAnswer;
   const fastAnswer = isRight && !ch.untimed && (ch.leftSec / ch.totalSec) >= 0.5;
 
-  if (state.stats[subKey]) {
-    state.stats[subKey].asked++;
-    if (isRight) state.stats[subKey].right++;
-    refreshMastery();
-  }
+  ensureStatBucket(subKey);
+  state.stats[subKey].asked++;
+  if (isRight) state.stats[subKey].right++;
+  refreshMastery();
 
   const optionButtons = document.querySelectorAll("#qChoicesArea .choice-opt");
   optionButtons.forEach((b, i) => {
@@ -997,7 +1014,7 @@ function buildSkyLightningBolt(targetX, targetY) {
 function triggerUltimateStorm() {
   if (state.mana < STORM_MANA_COST || state.modalOpen || state.submittingScore) return;
   const subjects = Object.keys(state.activeTowers);
-  const pickedSub = subjects[Math.floor(Math.random() * subjects.length)] || "maths";
+  const pickedSub = subjects[Math.floor(Math.random() * subjects.length)] || "cs";
 
   openQuestionPrompt({
     subject: pickedSub,
@@ -1009,7 +1026,6 @@ function triggerUltimateStorm() {
       state.stormFlash = 0.55;
       AudioCue.storm();
 
-      // Central arena shockwave + targeted sky lightning bolts on every demon
       state.stormEffects.push({
         type: "ring",
         x: 440,
@@ -1048,7 +1064,6 @@ function triggerUltimateStorm() {
         spawnPopup(d.x, d.y - 22, `⚡ -${dmg}`, "#f0abfc");
       });
 
-      // If arena is temporarily clear, still strike dramatic bolts across the lane
       if (state.demons.length === 0) {
         [240, 440, 640].forEach((bx, idx) => {
           state.stormEffects.push({
@@ -1108,11 +1123,16 @@ function handleBoardClick(evt) {
         return;
       }
 
-      const cfg = state.activeTowers[state.selectedSubject] || BASE_TOWER_SPECS.maths;
+      const cfg = state.activeTowers[state.selectedSubject];
+      if (!cfg) {
+        spawnPopup(pad.x, pad.y - 20, "No Subject Tile Selected", "#fb7185");
+        return;
+      }
+
       const deployedOfSubject = getDeployedCountForSubject(cfg.key);
 
       if (deployedOfSubject >= MAX_CANNONS_PER_SUBJECT) {
-        spawnPopup(pad.x, pad.y - 20, `MAX ${MAX_CANNONS_PER_SUBJECT} ${cfg.label.split(" ")[0].toUpperCase()}!`, "#fb7185");
+        spawnPopup(pad.x, pad.y - 20, `MAX ${MAX_CANNONS_PER_SUBJECT} ${cfg.label.toUpperCase()}!`, "#fb7185");
         return;
       }
 
@@ -1265,7 +1285,7 @@ function stepSimulation(dt) {
         t.recoil = 1;
         AudioCue.shoot();
 
-        if (t.subject === "science" || t.subject === "cs") {
+        if (t.subject === "science" || t.subject === "cs" || isExtraSubjectCannon(t.subject)) {
           foe.hp -= t.damage;
           foe.hitFlash = 0.12;
           spawnBurst(foe.x, foe.y, t.primary, 6);
@@ -1645,7 +1665,6 @@ function drawScene() {
     ctx.restore();
   });
 
-  // Dramatic Ultimate Storm sky lightning bolts & expanding shockwave rings
   state.stormEffects.forEach(ef => {
     const alpha = Math.max(0, ef.life / ef.maxLife);
     ctx.save();
@@ -1819,7 +1838,7 @@ function drawTowerRetro3D(t) {
     ctx.strokeRect(4, -5.5, 17, 11);
     ctx.fillStyle = t.primary;
     ctx.fillRect(17, -6.8, 5, 13.6);
-  } else if (t.subject === "science" || t.subject === "cs") {
+  } else if (t.subject === "science" || t.subject === "cs" || isExtraSubjectCannon(t.subject)) {
     ctx.fillStyle = t.accent;
     ctx.fillRect(4, -3.5, 16, 7);
     ctx.beginPath();
@@ -1990,18 +2009,15 @@ function refreshHud(animateDeltas = true) {
 }
 
 function refreshMastery() {
-  const labels = {
-    maths: "Maths",
-    science: "Science",
-    grammar: "Grammar",
-    gk: "General Knowledge",
-    cs: "Comp. Sc.",
-    moral: "Moral Education"
-  };
   const uniqueKeys = Array.from(new Set(Object.keys(state.activeTowers).concat("moral")));
   document.getElementById("masteryList").innerHTML = uniqueKeys
     .filter(k => state.stats[k])
-    .map(k => `<div class="mastery-row"><span>${labels[k] || k.toUpperCase()}</span><strong>${state.stats[k].right} / ${state.stats[k].asked}</strong></div>`)
+    .map(k => {
+      const label = k === "moral"
+        ? "Moral Education"
+        : (state.activeTowers[k]?.label || k.toUpperCase());
+      return `<div class="mastery-row"><span>${label}</span><strong>${state.stats[k].right} / ${state.stats[k].asked}</strong></div>`;
+    })
     .join("");
 }
 
